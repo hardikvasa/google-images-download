@@ -1,15 +1,20 @@
 #Searching and Downloading Google Images/Image Links
 
 #Import Libraries
-import urllib.request    #urllib for Extracting web pages
+import urllib.request    #urllib library for Extracting web pages
 import time       #Importing the time library to check the time of code execution
 
 
-#This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
-search_keyword = ['Taj Mahal', 'Pyramid of Giza']
+########### Edit From Here ###########
 
-#This list is used to further add sufix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no sufix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.
-keywords = ['','%20high%20resolution','%20paintings','%20at%20night','%20from%20top']
+#This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
+search_keyword = ['Australia', 'Pyramid of Giza']
+
+#This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
+keywords = ['',' high resolution',' paintings',' at night',' from top']
+
+########### End of Editing ###########
+
 
 
 #Downloading entire Web Document (Raw Page Content)
@@ -49,7 +54,7 @@ def _images_get_all_items(page):
             break
         else:
             items.append(item)      #Append all the links in the list named 'Links'
-            #time.sleep(0.1)  #Timer could be used to slow down the request for image downloads
+            #time.sleep(0.1)        #Timer could be used to slow down the request for image downloads
             page = page[end_content:]
     return items
 
@@ -67,7 +72,8 @@ while i<len(search_keyword):
     search = search_keywords.replace(' ','%20')
     j = 0
     while j<len(keywords):
-        url = 'https://www.google.com/search?q=' + search + keywords[j] + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+        pure_keyword = keywords[j].replace(' ','%20')
+        url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
         #print(url)
         raw_html =  (download_page(url))
         #time.sleep = 0.1
@@ -88,4 +94,4 @@ t1 = time.time()    #stop the timer
 total_time = t1-t0   #Calculating the total time required to crawl, find and download all the links of 60,000 images
 print("Total time taken: "+str(total_time)+" Seconds")
 
-#----End of the program ----#
+#----End of the main program ----#
