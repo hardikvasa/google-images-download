@@ -15,11 +15,9 @@ This is a small program which is ready-to-run, but still under development. Many
 
 This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
 
-`keywords = ['','%20high%20resolution','%20paintings','%20at%20night','%20from%20top']`
+`keywords = [' high resolution',' paintings',' at night',' from top']`
 
-This list is used to further add sufix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no sufix is added to the search keyword of the above list. 
-
-You can edit the list by adding/deleting elements from it. `%20` denotes a space.
+This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the first element of keywords is 'high resolution' as shown above, then it will search for 'Australia High Resolution' images.
 
 
 ## Disclaimer
