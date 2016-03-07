@@ -5,6 +5,7 @@
 import time       #Importing the time library to check the time of code execution
 import sys    #Importing the System Library
 
+import urllib.request
 
 
 ########### Edit From Here ###########
@@ -43,11 +44,11 @@ def download_page(url):
             req = urllib2.Request(url, headers = headers)
             response = urllib2.urlopen(req)
             page = response.read()
-            return page    
+            return page
         except:
             return"Page Not found"
-  
-        
+
+
 #Finding 'Next Image' from the given raw page
 def _images_get_next_item(s):
     start_line = s.find('rg_di')
@@ -61,7 +62,7 @@ def _images_get_next_item(s):
         end_content = s.find('&amp;',start_content+1)
         content_raw = str(s[start_content+7:end_content])
         return content_raw, end_content
-          
+
 
 #Getting all links with the help of '_images_get_next_image'
 def _images_get_all_items(page):
@@ -72,7 +73,7 @@ def _images_get_all_items(page):
             break
         else:
             items.append(item)      #Append all the links in the list named 'Links'
-            #time.sleep(0.1)        #Timer could be used to slow down the request for image downloads
+            time.sleep(0.1)        #Timer could be used to slow down the request for image downloads
             page = page[end_content:]
     return items
 
@@ -94,15 +95,15 @@ while i<len(search_keyword):
         url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
         #print(url)
         raw_html =  (download_page(url))
-        #time.sleep = 0.1
+        time.sleep(0.1)
         items = items + (_images_get_all_items(raw_html))
         j = j + 1
-    print ("Image Links = "+str(items))
+    #print ("Image Links = "+str(items))
     print ("Total Image Links = "+str(len(items)))
     print ("\n")
     i = i+1
-    
-    
+
+
     #This allows you to write all the links into a test file. This text file will be created in the same directory as your code. You can comment out the below 3 lines to stop writing the output to the text file.
     info = open('output.txt', 'a')        #Open the text file called database.txt
     info.write(str(i) + ': ' + str(search_keyword[i-1]) + ": " + str(items) + "\n\n\n")         #Write the title of the page
@@ -111,5 +112,52 @@ while i<len(search_keyword):
 t1 = time.time()    #stop the timer
 total_time = t1-t0   #Calculating the total time required to crawl, find and download all the links of 60,000 images
 print("Total time taken: "+str(total_time)+" Seconds")
+
+## To save imges to the same directory
+# IN this saving process we are just skipping the URL if there is any error
+
+k=0
+errorCount=0
+while(k<len(items)):
+    from urllib.request import Request,urlopen
+    from urllib.error import URLError, HTTPError
+    from requests.exceptions import ConnectionError
+
+    try:
+        req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
+        response = urlopen(req)
+        output_file = open(str(k+1)+".jpg",'wb')
+        data = response.read()
+        output_file.write(data)
+        response.close();
+
+        print("completed ====> "+str(k+1))
+
+        k=k+1;
+    except ConnectionError: #if there is any connection error
+        errorCount+=1
+        print("Connection error "+str(k))
+        k=k+1;
+
+    except IOError:   #If there is any IOError
+
+        errorCount+=1
+        print("IOError"+str(k))
+        k=k+1;
+
+    except HTTPError as e:  #If there is any HTTPError
+
+        errorCount+=1
+        print("HTTPError"+str(k))
+        k=k+1;
+    except URLError as e:
+
+        errorCount+=1
+        print("URLError "+str(k))
+        k=k+1;
+
+print("\n")
+print("All are downloaded")
+print("\n"+str(errorCount)+" ----> total Errors")
 
 #----End of the main program ----#
