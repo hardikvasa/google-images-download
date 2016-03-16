@@ -5,7 +5,7 @@
 import time       #Importing the time library to check the time of code execution
 import sys    #Importing the System Library
 
-import urllib.request
+import urllib2
 
 
 ########### Edit From Here ###########
@@ -87,6 +87,7 @@ while i<len(search_keyword):
     items = []
     iteration = "Item no.: " + str(i+1) + " -->" + " Item name = " + str(search_keyword[i])
     print (iteration)
+    print ("Evaluating...")
     search_keywords = search_keyword[i]
     search = search_keywords.replace(' ','%20')
     j = 0
@@ -112,6 +113,7 @@ while i<len(search_keyword):
 t1 = time.time()    #stop the timer
 total_time = t1-t0   #Calculating the total time required to crawl, find and download all the links of 60,000 images
 print("Total time taken: "+str(total_time)+" Seconds")
+print ("Starting Download...")
 
 ## To save imges to the same directory
 # IN this saving process we are just skipping the URL if there is any error
@@ -119,9 +121,8 @@ print("Total time taken: "+str(total_time)+" Seconds")
 k=0
 errorCount=0
 while(k<len(items)):
-    from urllib.request import Request,urlopen
-    from urllib.error import URLError, HTTPError
-    from requests.exceptions import ConnectionError
+    from urllib2 import Request,urlopen
+    from urllib2 import URLError, HTTPError
 
     try:
         req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
@@ -134,15 +135,11 @@ while(k<len(items)):
         print("completed ====> "+str(k+1))
 
         k=k+1;
-    except ConnectionError: #if there is any connection error
-        errorCount+=1
-        print("Connection error "+str(k))
-        k=k+1;
 
     except IOError:   #If there is any IOError
 
         errorCount+=1
-        print("IOError"+str(k))
+        print("IOError on image "+str(k+1))
         k=k+1;
 
     except HTTPError as e:  #If there is any HTTPError
