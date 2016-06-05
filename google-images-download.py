@@ -11,10 +11,10 @@ import urllib2
 ########### Edit From Here ###########
 
 #This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
-search_keyword = ['Australia', 'Pyramid of Giza']
+search_keyword = ['Scene Sketches']
 
 #This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
-keywords = ['',' high resolution',' paintings',' at night',' from top']
+keywords = ['']
 
 ########### End of Editing ###########
 
@@ -43,6 +43,7 @@ def download_page(url):
             headers['User-Agent'] = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"
             req = urllib2.Request(url, headers = headers)
             response = urllib2.urlopen(req)
+            print "Got a response";
             page = response.read()
             return page
         except:
@@ -55,12 +56,15 @@ def _images_get_next_item(s):
     if start_line == -1:    #If no links are found then give an error!
         end_quote = 0
         link = "no_links"
+        print "SAD!"
         return link, end_quote
     else:
-        start_line = s.find('"class="rg_di"')
-        start_content = s.find('imgurl=',start_line+1)
-        end_content = s.find('&amp;',start_content+1)
-        content_raw = str(s[start_content+7:end_content])
+        start_line = s.find('"oh":1000,"ou"')
+        #start_content = s.find('imgurl=',start_line+1)
+        start_content = s.find('"ou":', start_line+1)
+        end_content = s.find('",',start_content+1)
+        content_raw = str(s[start_content+6:end_content])
+        #print "HERE:" + str(s[start_content-1:end_content]), start_line, end_content
         return content_raw, end_content
 
 
@@ -73,6 +77,9 @@ def _images_get_all_items(page):
             break
         else:
             items.append(item)      #Append all the links in the list named 'Links'
+           # print items
+            if len(items)==20:
+                return items
             time.sleep(0.1)        #Timer could be used to slow down the request for image downloads
             page = page[end_content:]
     return items
@@ -97,9 +104,10 @@ while i<len(search_keyword):
         #print(url)
         raw_html =  (download_page(url))
         time.sleep(0.1)
+        #print "ASD"
         items = items + (_images_get_all_items(raw_html))
         j = j + 1
-    #print ("Image Links = "+str(items))
+    print ("Image Links = "+str(items))
     print ("Total Image Links = "+str(len(items)))
     print ("\n")
     i = i+1
@@ -126,8 +134,8 @@ while(k<len(items)):
 
     try:
         req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
-        response = urlopen(req)
-        output_file = open(str(k+1)+".jpg",'wb')
+        response = urlopen(items[k])
+        output_file = open("../dataset/" + str(k+1)+".jpg",'wb')
         data = response.read()
         output_file.write(data)
         response.close();
