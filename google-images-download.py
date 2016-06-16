@@ -95,7 +95,7 @@ while i<len(search_keyword):
     j = 0
     while j<len(keywords):
         pure_keyword = keywords[j].replace(' ','%20')
-        url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+        url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg&tbs=ic:gray,itp:lineart'
         raw_html =  (download_page(url))
         time.sleep(0.1)
         items = items + (_images_get_all_items(raw_html))
