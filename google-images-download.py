@@ -57,10 +57,10 @@ def _images_get_next_item(s):
         link = "no_links"
         return link, end_quote
     else:
-        start_line = s.find('"class="rg_di"')
-        start_content = s.find('imgurl=',start_line+1)
-        end_content = s.find('&amp;',start_content+1)
-        content_raw = str(s[start_content+7:end_content])
+        start_line = s.find('"oh":1000,"ou"')
+        start_content = s.find('"ou":', start_line+1)
+        end_content = s.find('",',start_content+1)
+        content_raw = str(s[start_content+6:end_content])
         return content_raw, end_content
 
 
@@ -73,6 +73,8 @@ def _images_get_all_items(page):
             break
         else:
             items.append(item)      #Append all the links in the list named 'Links'
+            if len(items)==20:
+                return items
             time.sleep(0.1)        #Timer could be used to slow down the request for image downloads
             page = page[end_content:]
     return items
@@ -94,7 +96,6 @@ while i<len(search_keyword):
     while j<len(keywords):
         pure_keyword = keywords[j].replace(' ','%20')
         url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
-        #print(url)
         raw_html =  (download_page(url))
         time.sleep(0.1)
         items = items + (_images_get_all_items(raw_html))
