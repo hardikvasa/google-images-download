@@ -14,7 +14,7 @@ import urllib2
 search_keyword = ['Australia', 'Pyramid of Giza']
 
 #This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
-keywords = ['',' high resolution',' paintings',' at night',' from top']
+keywords = [' high resolution']
 
 ########### End of Editing ###########
 
@@ -29,7 +29,7 @@ def download_page(url):
         import urllib.request    #urllib library for Extracting web pages
         try:
             headers = {}
-            headers['User-Agent'] = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"
+            headers['User-Agent'] = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
             req = urllib.request.Request(url, headers = headers)
             resp = urllib.request.urlopen(req)
             respData = str(resp.read())
@@ -57,10 +57,10 @@ def _images_get_next_item(s):
         link = "no_links"
         return link, end_quote
     else:
-        start_line = s.find('"oh":1000,"ou"')
-        start_content = s.find('"ou":', start_line+1)
-        end_content = s.find('",',start_content+1)
-        content_raw = str(s[start_content+6:end_content])
+        start_line = s.find('"class="rg_meta"')
+        start_content = s.find('"ou"',start_line+1)
+        end_content = s.find(',"ow"',start_content+1)
+        content_raw = str(s[start_content+6:end_content-1])
         return content_raw, end_content
 
 
@@ -73,8 +73,6 @@ def _images_get_all_items(page):
             break
         else:
             items.append(item)      #Append all the links in the list named 'Links'
-            if len(items)==20:
-                return items
             time.sleep(0.1)        #Timer could be used to slow down the request for image downloads
             page = page[end_content:]
     return items
