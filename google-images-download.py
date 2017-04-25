@@ -4,6 +4,7 @@
 
 import time  # Importing the time library to check the time of code execution
 import sys  # Importing the System Library
+import argparse
 
 try:
 	from urllib2 import urlopen, Request, URLError, HTTPError
@@ -13,7 +14,11 @@ except ImportError:
 ########### Edit From Here ###########
 
 # This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
-search_keyword = ['Australia', 'Pyramid of Giza']
+
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('-s', '--list', nargs='+', help='Search keywords for google image search', required=True)
+args = parser.parse_args()
+search_keyword = args.list
 
 # This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
 keywords = [' high resolution']
@@ -89,10 +94,10 @@ while i < len(search_keyword):
 	print("\n")
 	i = i + 1
 
-	# This allows you to write all the links into a test file. This text file will be created in the same directory as your code. You can comment out the below 3 lines to stop writing the output to the text file.
-	info = open('output.txt', 'a')  # Open the text file called database.txt
-	info.write(str(i) + ': ' + str(search_keyword[i - 1]) + ": " + str(items) + "\n\n\n")  # Write the title of the page
-	info.close()  # Close the file
+# # This allows you to write all the links into a test file. This text file will be created in the same directory as your code. You can comment out the below 3 lines to stop writing the output to the text file.
+# info = open('output.txt', 'a')  # Open the text file called database.txt
+# info.write(str(i) + ': ' + str(search_keyword[i - 1]) + ": " + str(items) + "\n\n\n")  # Write the title of the page
+# info.close()  # Close the file
 
 t1 = time.time()  # stop the timer
 total_time = t1 - t0  # Calculating the total time required to crawl, find and download all the links of 60,000 images
@@ -130,6 +135,7 @@ while (k < len(items)):
 		errorCount += 1
 		print("HTTPError" + str(k))
 		k = k + 1;
+
 	except URLError as e:
 
 		errorCount += 1
