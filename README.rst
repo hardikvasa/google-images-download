@@ -14,6 +14,10 @@ and then also optionally download all Images.
 Usage
 -----
 
+.. image:: https://github.com/rachmadaniHaryono/google-images-download/raw/master/res/screenshot.png
+   :target: https://github.com/rachmadaniHaryono/google-images-download
+   :alt: Screenshot
+
 Download command have following option:
 
 .. code:: bash
