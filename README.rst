@@ -22,6 +22,7 @@ Download command have following option:
 
   Options:
     --keywords TEXT           Additional keyword input.
+    -nc, --no-clobber         Skip downloads that would download to existing files (overwriting them)
     --download-limit INTEGER  Download limit. set 0 for no limit.
     --requests-delay INTEGER  Delay between requests(seconds). set 0 for no delay.
     --help                    Show this message and exit.
