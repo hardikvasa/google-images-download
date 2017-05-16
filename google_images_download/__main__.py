@@ -2,6 +2,7 @@
 import click
 
 from .google_images_download import main as gi_download
+from .gi_from_file import search as search_from_file
 
 
 @click.group()
@@ -31,5 +32,6 @@ def download(search_keywords, keywords, download_limit, requests_delay):
 
 
 @cli.command()
+@click.argument('filepath', type=click.Path(exists=True))
 def search(filepath):
-    click.echo('search')
+    search_from_file(filepath)
