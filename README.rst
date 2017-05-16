@@ -16,16 +16,23 @@ Usage
 
 To download keyword 'Taj mahal' and 'Pyramid of Giza'
 
-    google-images-download download 'Taj Mahal' 'Pyramid of Giza'
+.. code:: bash
+
+  google-images-download download 'Taj Mahal' 'Pyramid of Giza'
+
 
 Installation
 ------------
 
+.. code:: bash
+
   git clone https://github.com/rachmadaniHaryono/google-images-download
-  cd ./google_images_download
+  cd ./google-images-download
   python setup.py install
 
 or using pip to install it directly from github
+
+.. code:: bash
 
   pip install git+https://github.com/rachmadaniHaryono/google-images-download.git
 
