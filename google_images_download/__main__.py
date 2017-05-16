@@ -1,16 +1,35 @@
 #!/usr/bin/env python3
 import click
 
+from .google_images_download import main as gi_download
+
 
 @click.group()
 def cli():
     pass
 
 
-@click.command()
-def download(keywords):
-    click.echo('dowload')
+def validate_postiive_int(ctx, param, value):
+    try:
+        assert value >= 0
+        return value
+    except Exception as e:
+        raise click.BadParameter('Error {}. Input must be positive integer.'.format(e))
 
 
+@cli.command()
+@click.argument('search-keywords', nargs=-1)
+@click.option('--keywords', multiple=True, help='Main keyword input.')
+@click.option(
+    '--download-limit', type=int, default=1, callback=validate_postiive_int,
+    help='Download limit. set 0 for no limit.')
+@click.option(
+    '--requests-delay', type=int, default=0, callback=validate_postiive_int,
+    help='Delay between requests in second in second. set 0 for no limit.')
+def download(search_keywords, keywords, download_limit, requests_delay):
+    gi_download(search_keywords, keywords, download_limit, requests_delay)
+
+
+@cli.command()
 def search(filepath):
     click.echo('search')
