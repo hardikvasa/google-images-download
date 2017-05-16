@@ -6,6 +6,7 @@
 from os.path import basename
 from urllib.parse import quote
 import time  # Importing the time library to check the time of code execution
+import os
 try:
     from urllib2 import urlopen, Request, URLError, HTTPError
 except ImportError:
@@ -53,7 +54,7 @@ def _images_get_all_items(page):
     return items
 
 
-def main(search_keywords, keywords, download_limit, requests_delay):
+def main(search_keywords, keywords, download_limit, requests_delay, no_clobber):
     t0 = time.time()  # start the timer
     items = []
     # Download Image Links
@@ -100,11 +101,16 @@ def main(search_keywords, keywords, download_limit, requests_delay):
 
     error_count = 0
     dl_counter = 0
+    skip_counter = 0
     ua = UserAgent()
     for k, item in enumerate(items):
         if download_limit != 0 and dl_counter >= download_limit:
             break
         filename = basename(item)
+        if os.path.isfile(filename) and no_clobber:
+            print('Skipped\t\t====> {}'.format(filename))
+            skip_counter += 1
+            continue
         try:
             req = Request(item, headers={"User-Agent": ua.firefox})
             with urlopen(req) as response, \
@@ -112,24 +118,26 @@ def main(search_keywords, keywords, download_limit, requests_delay):
                 data = response.read()
                 output_file.write(data)
 
-            print("completed ====>{}".format(k + 1))
+            print("completed\t====> {}".format(filename))
             dl_counter += 1
 
         except IOError:  # If there is any IOError
             error_count += 1
-            print("IOError on image {}".format(k + 1))
+            print("IOError on image {}".format(filename))
 
         except HTTPError as e:  # If there is any HTTPError
             error_count += 1
-            print("HTTPError {}".format(k + 1))
+            print("HTTPError {}".format(filename))
 
         except URLError as e:
             error_count += 1
-            print("URLError {}".format(k + 1))
+            print("URLError {}".format(filename))
 
         if requests_delay != 0:
             time.sleep(requests_delay)
 
-    print("\nAll url(s) are downloaded\n{} ----> total Errors".format(error_count))
+    print("""All url(s) are downloaded
+    {} ----> total Errors
+    {} ----> total Skip""".format(error_count, skip_counter))
 
     # ----End of the main program ----#
