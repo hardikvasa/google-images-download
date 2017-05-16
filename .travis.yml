@@ -1,0 +1,11 @@
+language: python
+python:
+  - "3.5"
+# command to install dependencies
+install:
+  - pip install .
+  - pip install -r requirements-dev.txt
+# command to run tests
+script:
+  - python -m flake8
+  - pytest
