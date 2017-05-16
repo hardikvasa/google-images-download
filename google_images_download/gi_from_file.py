@@ -7,11 +7,8 @@ http://stackoverflow.com/a/28792943
 import webbrowser
 
 import requests
-import click
 
 
-@click.command()
-@click.argument('file_path', click.Path(exists=True))
 def search(file_path):
     """Simple program that search image."""
     search_url = 'http://www.google.hr/searchbyimage/upload'
@@ -19,7 +16,3 @@ def search(file_path):
     response = requests.post(search_url, files=multipart, allow_redirects=False)
     fetch_url = response.headers['Location']
     webbrowser.open(fetch_url)
-
-
-if __name__ == '__main__':
-    search()
