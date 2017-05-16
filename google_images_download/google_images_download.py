@@ -1,40 +1,17 @@
+#!/usr/bin/env python3
 """Searching and Downloading Google Images/Image Links."""
 
 # Import Libraries
 
+from os.path import basename
+from urllib.parse import quote
 import time  # Importing the time library to check the time of code execution
-import argparse
 try:
     from urllib2 import urlopen, Request, URLError, HTTPError
 except ImportError:
     from urllib.request import urlopen, Request, URLError, HTTPError  # For 3.6.X Python
 
 from fake_useragent import UserAgent
-
-# ########## Edit From Here ###########
-
-# This list is used to search keywords.
-# You can edit this list to search for google images of your choice.
-# You can simply add and remove elements of the list.
-
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument(
-    '-s', '--list', nargs='+', help='Search keywords for google image search', required=True)
-args = parser.parse_args()
-search_keyword = args.list
-
-# This list is used to further add suffix to your search term.
-# Each element of the list will help you download 100 images.
-# First element is blank,
-# which denotes that no suffix is added to the search keyword of the above list.
-# You can edit the list by adding/deleting elements from it.
-# So if the first element of the search_keyword is 'Australia' and
-# the second element of keywords is 'high resolution',
-# then it will search for 'Australia High Resolution'
-keywords = [' high resolution']
-
-
-# ########## End of Editing ###########
 
 
 def download_page(url):
@@ -76,85 +53,78 @@ def _images_get_all_items(page):
     return items
 
 
-# ############# Main Program ############
-t0 = time.time()  # start the timer
-
-# Download Image Links
-i = 0
-while i < len(search_keyword):
+def main(search_keywords, keywords, download_limit, requests_delay):
+    t0 = time.time()  # start the timer
     items = []
-    iteration = "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(search_keyword[i])
-    print(iteration)
-    print("Evaluating...")
-    search_keywords = search_keyword[i]
-    search = search_keywords.replace(' ', '%20')
-    j = 0
-    while j < len(keywords):
-        pure_keyword = keywords[j].replace(' ', '%20')
-        url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'  # NOQA
-        raw_html = (download_page(url))
-        time.sleep(0.1)
-        items = items + (_images_get_all_items(raw_html))
-        j = j + 1
-    # print ("Image Links = "+str(items))
-    print("Total Image Links = " + str(len(items)))
-    print("\n")
-    i = i + 1
+    # Download Image Links
+    for i, search_keyword in enumerate(search_keywords):
+        print("Item no.: {} --> Item name = {}".format(i + 1, search_keyword))
+        print("Evaluating...")
+        search = quote(search_keyword)
+        for j, keyword in enumerate(keywords):
+            pure_keyword = quote(keyword)
+            url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'  # NOQA
+            raw_html = (download_page(url))
+            items = items + (_images_get_all_items(raw_html))
 
-# # This allows you to write all the links into a test file.
-# This text file will be created in the same directory as your code.
-# You can comment out the below 3 lines to stop writing the output to the text file.
-# info = open('output.txt', 'a')  # Open the text file called database.txt
-# Write the title of the page
-# info.write(str(i) + ': ' + str(search_keyword[i - 1]) + ": " + str(items) + "\n\n\n")
-# info.close()  # Close the file
+            # delay is required here
+            if requests_delay == 0:
+                time.sleep(0.1)
+            else:
+                time.sleep(requests_delay)
 
-t1 = time.time()  # stop the timer
-# Calculating the total time required to crawl, find and download all the links of 60,000 images
-total_time = t1 - t0
-print("Total time taken: " + str(total_time) + " Seconds")
-print("Starting Download...")
+        print("Total Image Links = {}\n".format(len(items)))
 
-# To save imges to the same directory
-# IN this saving process we are just skipping the URL if there is any error
+    # # This allows you to write all the links into a test file.
+    # This text file will be created in the same directory as your code.
+    # You can comment out the below 3 lines to stop writing the output to the text file.
+    # info = open('output.txt', 'a')  # Open the text file called database.txt
+    # Write the title of the page
+    # info.write(str(i) + ': ' + str(search_keyword[i - 1]) + ": " + str(items) + "\n\n\n")
+    # info.close()  # Close the file
 
-k = 0
-errorCount = 0
-while (k < len(items)):
+    t1 = time.time()  # stop the timer
+    # Calculating the total time required to crawl,
+    # find and download all the links of 60,000 images
+    total_time = t1 - t0
+    print("Total time taken: " + str(total_time) + " Seconds")
+    print("Starting Download...")
+
+    # To save imges to the same directory
+    # IN this saving process we are just skipping the URL if there is any error
+
+    error_count = 0
+    dl_counter = 0
     ua = UserAgent()
-    try:
-        req = Request(items[k], headers={
-            "User-Agent": ua.firefox})
-        response = urlopen(req)
-        output_file = open(str(k + 1) + ".jpg", 'wb')
-        data = response.read()
-        output_file.write(data)
-        response.close()
+    for k, item in enumerate(items):
+        if download_limit != 0 and dl_counter >= download_limit:
+            break
+        filename = basename(item)
+        try:
+            req = Request(item, headers={"User-Agent": ua.firefox})
+            with urlopen(req) as response, \
+                    open(filename, 'wb') as output_file:
+                data = response.read()
+                output_file.write(data)
 
-        print("completed ====> " + str(k + 1))
+            print("completed ====>{}".format(k + 1))
+            dl_counter += 1
 
-        k = k + 1
+        except IOError:  # If there is any IOError
+            error_count += 1
+            print("IOError on image {}".format(k + 1))
 
-    except IOError:  # If there is any IOError
+        except HTTPError as e:  # If there is any HTTPError
+            error_count += 1
+            print("HTTPError {}".format(k + 1))
 
-        errorCount += 1
-        print("IOError on image " + str(k + 1))
-        k = k + 1
+        except URLError as e:
+            error_count += 1
+            print("URLError {}".format(k + 1))
 
-    except HTTPError as e:  # If there is any HTTPError
+        if requests_delay != 0:
+            time.sleep(requests_delay)
 
-        errorCount += 1
-        print("HTTPError" + str(k))
-        k = k + 1
+    print("\nAll url(s) are downloaded\n{} ----> total Errors".format(error_count))
 
-    except URLError as e:
-
-        errorCount += 1
-        print("URLError " + str(k))
-        k = k + 1
-
-print("\n")
-print("All are downloaded")
-print("\n" + str(errorCount) + " ----> total Errors")
-
-# ----End of the main program ----#
+    # ----End of the main program ----#
