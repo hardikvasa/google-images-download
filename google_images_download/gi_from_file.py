@@ -20,5 +20,6 @@ def search(file_path):
     fetch_url = response.headers['Location']
     webbrowser.open(fetch_url)
 
+
 if __name__ == '__main__':
     search()

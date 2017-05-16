@@ -39,4 +39,3 @@ setuptools.setup(
         ]
     },
 )
-
