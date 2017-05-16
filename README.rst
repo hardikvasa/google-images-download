@@ -14,11 +14,38 @@ and then also optionally download all Images.
 Usage
 -----
 
+Download command have following option:
+
+.. code:: bash
+
+  Usage: google-images-download download [OPTIONS] [SEARCH_KEYWORDS]...
+
+  Options:
+    --keywords TEXT           Additional keyword input.
+    --download-limit INTEGER  Download limit. set 0 for no limit.
+    --requests-delay INTEGER  Delay between requests(seconds). set 0 for no delay.
+    --help                    Show this message and exit.
+
 To download keyword 'Taj mahal' and 'Pyramid of Giza'
 
 .. code:: bash
 
   google-images-download download 'Taj Mahal' 'Pyramid of Giza'
+
+To download keyword 'Taj mahal' and 'Pyramid of Giza' with additional keyword 'high resolution'
+
+.. code:: bash
+
+
+  google-images-download download 'Taj Mahal' 'Pyramid of Giza'  --keywords 'high resolution'
+  # this will search 'Taj Mahal high resolution' and 'Pyramid of Giza high resolution'
+
+Starting from version 0.2.0 it also can search similar picture from the file. To do that do the following:
+
+.. code:: bash
+
+  google-images-download search filename.jpg
+  # this willl open google image to search image similar to 'filename.jpg'
 
 
 Installation
