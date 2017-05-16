@@ -92,7 +92,7 @@ def main(search_keywords, keywords, download_limit, requests_delay):
     # Calculating the total time required to crawl,
     # find and download all the links of 60,000 images
     total_time = t1 - t0
-    print("Total time taken: " + str(total_time) + " Seconds")
+    print("Total time taken: {} Seconds".format(int(total_time)))
     print("Starting Download...")
 
     # To save imges to the same directory
