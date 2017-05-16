@@ -61,6 +61,11 @@ def main(search_keywords, keywords, download_limit, requests_delay):
         print("Item no.: {} --> Item name = {}".format(i + 1, search_keyword))
         print("Evaluating...")
         search = quote(search_keyword)
+        if not keywords:
+            url = 'https://www.google.com/search?q=' + search + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'  # NOQA
+            raw_html = (download_page(url))
+            items = items + (_images_get_all_items(raw_html))
+
         for j, keyword in enumerate(keywords):
             pure_keyword = quote(keyword)
             url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'  # NOQA
