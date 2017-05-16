@@ -35,7 +35,7 @@ setuptools.setup(
 
     entry_points={
         'console_scripts': [
-              'google-images-download = google_images_download.__main__:cli'
+            'google-images-download = google_images_download.__main__:cli'
         ]
     },
 )
