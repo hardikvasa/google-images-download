@@ -46,8 +46,10 @@ nosetests.xml
 # cache from tests (pytest, ...)
 .cache
 
-# api.conf file
-api.conf
+# virtualenv
+include/
+local/
+pip-selfcheck.json
 
 # SPECIFIC
 *.jpg
