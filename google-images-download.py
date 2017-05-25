@@ -6,7 +6,21 @@ import time       #Importing the time library to check the time of code executio
 import sys    #Importing the System Library
 
 import urllib2
+import random
+import hashlib
+import os.path
 
+def is_file(fname):
+	try:
+		return os.path.isfile(fname) 
+	except:
+		return False
+
+
+hashes = []
+
+def sha256hex(s):
+	return hashlib.sha256(s).hexdigest()
 
 ########### Edit From Here ###########
 
@@ -126,12 +140,22 @@ while(k<len(items)):
     try:
         req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
         response = urlopen(req)
-        output_file = open(str(k+1)+".jpg",'wb')
+	kk = random.randint(0,1000000)
+
         data = response.read()
-        output_file.write(data)
+	fhash = sha256hex(data)
+
+	if fhash not in hashes and is_file(fhash+".jpg") == False:
+		output_file = open(fhash+".jpg",'wb')
+        	output_file.write(data)
+		output_file.close()
+		hashes.append(fhash)
+	else:
+		print("Already downloaded",fhash)
+
         response.close();
 
-        print("completed ====> "+str(k+1))
+        print("completed ====> "+fhash + ".jpg")
 
         k=k+1;
 
