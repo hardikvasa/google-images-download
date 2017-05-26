@@ -6,9 +6,25 @@ import time       #Importing the time library to check the time of code executio
 import sys    #Importing the System Library
 
 import urllib2
-import random
 import hashlib
-import os.path
+import os
+
+def loadfile(filename):
+        data = []
+        fp = open(filename,'r')
+        for line in fp:
+                data.append(line.rstrip())
+        fp.close()
+        return data
+
+def savefile(data,filename):
+        fp = open(filename,'w')
+        for line in data:
+                fp.write(line + "\n")
+        fp.close()
+
+cache = loadfile('.cache')
+
 
 def is_file(fname):
 	try:
@@ -97,8 +113,8 @@ t0 = time.time()   #start the timer
 
 #Download Image Links
 i= 0
+items = []
 while i<len(search_keyword):
-    items = []
     iteration = "Item no.: " + str(i+1) + " -->" + " Item name = " + str(search_keyword[i])
     print (iteration)
     print ("Evaluating...")
@@ -140,22 +156,22 @@ while(k<len(items)):
     try:
         req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
         response = urlopen(req)
-	kk = random.randint(0,1000000)
-
         data = response.read()
+	response.close();
+	
 	fhash = sha256hex(data)
 
-	if fhash not in hashes and is_file(fhash+".jpg") == False:
+	if fhash not in hashes and is_file(fhash+".jpg") == False and item not in cache:
 		output_file = open(fhash+".jpg",'wb')
         	output_file.write(data)
 		output_file.close()
 		hashes.append(fhash)
+		cache.append(item)
+		print("completed ====> "+fhash + ".jpg")
 	else:
 		print("Already downloaded",fhash)
 
-        response.close();
-
-        print("completed ====> "+fhash + ".jpg")
+        
 
         k=k+1;
 
@@ -176,6 +192,8 @@ while(k<len(items)):
         print("URLError "+str(k))
         k=k+1;
 
+savefile(cache,'.cache')
+	
 print("\n")
 print("All are downloaded")
 print("\n"+str(errorCount)+" ----> total Errors")
