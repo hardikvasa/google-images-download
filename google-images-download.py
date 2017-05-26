@@ -161,7 +161,7 @@ while(k<len(items)):
         data = response.read()
 	response.close();
 	
-        ext = imghdr.what(h=data)
+        ext = imghdr.what(None,data)
         if ext == None:
                 ext = 'jpg'
 
