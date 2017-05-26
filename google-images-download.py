@@ -156,16 +156,16 @@ while(k<len(items)):
     from urllib2 import URLError, HTTPError
 
     try:
-        req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
-        response = urlopen(req)
-        data = response.read()
-	response.close();
+	if items[k] not in cache:
+        	req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
+        	response = urlopen(req)
+        	data = response.read()
+		response.close();
 	
-        ext = imghdr.what(None,data)
-        if ext == None:
-                ext = 'jpg'
+ 	       	ext = imghdr.what(None,data)
+        	if ext == None:
+                	ext = 'jpg'
 
-        if item not in cache:
                 fhash = sha256hex(data)
                 if fhash not in hashes and is_file(fhash+ext) == False:
                         output_file = open(fhash+ext,'wb')
