@@ -174,8 +174,8 @@ while(k<len(items)):
                 	ext = 'jpg'
 
                 fhash = sha256hex(data)
-                if fhash not in hashes and is_file(fhash+ext) == False:
-                        output_file = open(fhash+ext,'wb')
+                if fhash not in hashes and is_file(fhash+"."+ext) == False:
+                        output_file = open(fhash+"."+ext,'wb')
                         output_file.write(data)
                         output_file.close()
                         hashes.append(fhash)
