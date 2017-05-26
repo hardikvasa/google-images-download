@@ -8,6 +8,7 @@ import sys    #Importing the System Library
 import urllib2
 import hashlib
 import os
+import imghdr
 
 def loadfile(filename):
         data = []
@@ -160,22 +161,27 @@ while(k<len(items)):
         data = response.read()
 	response.close();
 	
-	fhash = sha256hex(data)
+        ext = imghdr.what(h=data)
+        if ext == None:
+                ext = 'jpg'
 
-	if items[k] not in cache:
-                if fhash not in hashes and is_file(fhash+".jpg") == False:
-                        output_file = open(fhash+".jpg",'wb')
+        if item not in cache:
+                fhash = sha256hex(data)
+                if fhash not in hashes and is_file(fhash+ext) == False:
+                        output_file = open(fhash+ext,'wb')
                         output_file.write(data)
                         output_file.close()
                         hashes.append(fhash)
 
-                        print("completed ====> "+fhash + ".jpg")
+                        print("completed ====> "+fhash + ext)
                 else:
                         print("Already downloaded",fhash)
-                cache.append(items[k])
+                cache.append(item)
         else:
                 print ("Item already in cache")
+
         k=k+1;
+
 
     except IOError:   #If there is any IOError
 
