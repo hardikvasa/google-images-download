@@ -149,6 +149,7 @@ print ("Starting Download...")
 
 k=0
 errorCount=0
+
 while(k<len(items)):
     from urllib2 import Request,urlopen
     from urllib2 import URLError, HTTPError
@@ -161,18 +162,19 @@ while(k<len(items)):
 	
 	fhash = sha256hex(data)
 
-	if fhash not in hashes and is_file(fhash+".jpg") == False and item not in cache:
-		output_file = open(fhash+".jpg",'wb')
-        	output_file.write(data)
-		output_file.close()
-		hashes.append(fhash)
-		cache.append(item)
-		print("completed ====> "+fhash + ".jpg")
-	else:
-		print("Already downloaded",fhash)
+	if items[k] not in cache:
+                if fhash not in hashes and is_file(fhash+".jpg") == False:
+                        output_file = open(fhash+".jpg",'wb')
+                        output_file.write(data)
+                        output_file.close()
+                        hashes.append(fhash)
 
-        
-
+                        print("completed ====> "+fhash + ".jpg")
+                else:
+                        print("Already downloaded",fhash)
+                cache.append(items[k])
+        else:
+                print ("Item already in cache")
         k=k+1;
 
     except IOError:   #If there is any IOError
