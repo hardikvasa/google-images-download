@@ -10,6 +10,8 @@ import hashlib
 import os
 import imghdr
 
+sleep_time = 0.1
+
 def loadfile(filename):
         data = []
         fp = open(filename,'r')
@@ -104,14 +106,18 @@ def _images_get_next_item(s):
 #Getting all links with the help of '_images_get_next_image'
 def _images_get_all_items(page):
     items = []
+    count = 0
     while True:
         item, end_content = _images_get_next_item(page)
         if item == "no_links":
             break
         else:
             items.append(item)      #Append all the links in the list named 'Links'
-            time.sleep(0.1)        #Timer could be used to slow down the request for image downloads
+            time.sleep(sleep_time)        #Timer could be used to slow down the request for image downloads
             page = page[end_content:]
+	count += 1
+	if count == 10000: # prevent runing forever
+		break
     return items
 
 
@@ -132,7 +138,7 @@ while i<len(search_keyword):
         pure_keyword = keywords[j].replace(' ','%20')
         url = 'https://www.google.com/search?q=' + search + "%20"+ pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
         raw_html =  (download_page(url))
-        time.sleep(0.1)
+        time.sleep(slee_time)
 	items = unique(items)
         items = items + (_images_get_all_items(raw_html))
         j = j + 1
