@@ -29,6 +29,8 @@ Download command have following option:
     -nc, --no-clobber         Skip downloads that would download to existing files (overwriting them)
     --download-limit INTEGER  Download limit. set 0 for no limit.
     --requests-delay INTEGER  Delay between requests(seconds). set 0 for no delay.
+    --filename-format [basename|sha256]
+                              Filename format of the url. default: basename
     --help                    Show this message and exit.
 
 To download keyword 'Taj mahal' and 'Pyramid of Giza'
@@ -41,9 +43,17 @@ To download keyword 'Taj mahal' and 'Pyramid of Giza' with additional keyword 'h
 
 .. code:: bash
 
-
   google-images-download download 'Taj Mahal' 'Pyramid of Giza'  --keywords 'high resolution'
   # this will search 'Taj Mahal high resolution' and 'Pyramid of Giza high resolution'
+
+Starting from version 0.3.0 filename format flag added.
+The downloaded image will be renamed based on available filename format
+such as the file's sha256 checksum
+
+.. code:: bash
+
+  google-images-download download 'Taj Mahal' --filename-format sha256
+  # this will download `Taj Mahal` pic and renamed it based on sha256 checksum
 
 Starting from version 0.2.0 it also can search similar picture from the file. To do that do the following:
 
