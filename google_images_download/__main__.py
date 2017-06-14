@@ -30,8 +30,15 @@ def validate_postiive_int(ctx, param, value):
 @click.option(
     '--requests-delay', type=int, default=0, callback=validate_postiive_int,
     help='Delay between requests(seconds). set 0 for no delay')
-def download(search_keywords, keywords, download_limit, requests_delay, no_clobber):
-    gi_download(search_keywords, keywords, download_limit, requests_delay, no_clobber)
+@click.option(
+    '--filename-format', type=click.Choice(['basename', 'sha256']), default='basename',
+    help='Filename format of the url. default: basename')
+def download(
+        search_keywords, keywords, download_limit, requests_delay, no_clobber,
+        filename_format='basename'):
+    gi_download(
+        search_keywords, keywords, download_limit, requests_delay, no_clobber,
+        filename_format=filename_format)
 
 
 @cli.command()
