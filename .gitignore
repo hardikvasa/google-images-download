@@ -1,0 +1,56 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+_pycache_
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.mo
+
+# Vim
+*.sw[op]
+
+# PyCharm
+.idea
+
+# Eclipse
+.project
+.pydevproject
+
+# Subversion
+.svn
+
+# cache from tests (pytest, ...)
+.cache
+
+# virtualenv
+include/
+local/
+pip-selfcheck.json
+
+# SPECIFIC
+*.jpg
+output.txt
