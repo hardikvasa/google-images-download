@@ -5,14 +5,19 @@
 
 from os.path import basename
 from urllib.parse import quote
-import time  # Importing the time library to check the time of code execution
+import logging
 import os
+import time  # Importing the time library to check the time of code execution
+import shutil
 try:
     from urllib2 import urlopen, Request, URLError, HTTPError
 except ImportError:
     from urllib.request import urlopen, Request, URLError, HTTPError  # For 3.6.X Python
 
 from fake_useragent import UserAgent
+from send2trash import send2trash
+
+from .sha256 import sha256_checksum
 
 
 def download_page(url):
@@ -54,7 +59,87 @@ def _images_get_all_items(page):
     return items
 
 
-def main(search_keywords, keywords, download_limit, requests_delay, no_clobber):
+def rename_basename(old_filename, new_basename):
+    """rename basename."""
+    dirname = os.path.dirname(old_filename)
+    _, ext = os.path.splitext(os.path.os.path.basename(old_filename))
+    return os.path.join(dirname, '{}{}'.format(new_basename, ext))
+
+
+class Downloader:
+    """downloader class."""
+
+    def __init__(self):
+        """init method."""
+        self.error_count = 0
+        self.dl_counter = 0
+        self.skip_counter = 0
+        self.ua = UserAgent()
+
+    def run(self, item, filename, filename_format='basename', no_clobber=True):
+        """run downloader.
+
+        If filename format is not `basename`, then after URL downloaded to `filename` file,
+        it will renamed based on the choosen `filename_format`.
+        If filename with the new `filename_format` already exist and `no-clobber` is `True`,
+        the downloaded file will be deleted and download will be counted as skipped.
+        If filename with the new `filename_format` already exist and `no-clobber` is `False`,
+        the downloaded file will replace existing file and download will be counted as succcess.
+
+        Args:
+            item: Url to be downloaded.
+            filename: Filename of the url.
+            filename_format: Filename format of the url.
+        """
+        try:
+            req = Request(item, headers={"User-Agent": self.ua.firefox})
+            with urlopen(req) as response, \
+                    open(filename, 'wb') as output_file:
+                data = response.read()
+                output_file.write(data)
+
+            # assume file is not exist when another filename_format is choosen
+            file_already_exist = False
+            new_filename = None
+            if filename_format == 'sha256':
+                new_basename = sha256_checksum(filename=filename)  # without extension
+                new_filename = rename_basename(old_filename=filename, new_basename=new_basename)
+
+                new_filename_exist = os.path.isfile(new_filename)
+                if new_filename_exist:
+                    logging.debug('Exist: {}'.format(new_filename))
+
+                if new_filename_exist and no_clobber:
+                    file_already_exist = True
+                    send2trash(filename)  # remove downloaded file
+                else:
+                    # this will rename or move based on the condition.
+                    shutil.move(filename, new_filename)
+            else:
+                logging.debug('Unknown filename format: {}'.format(filename_format))
+
+            if file_already_exist:
+                print('Skipped\t\t====> {}'.format(new_filename))
+                self.dl_counter += 1
+            else:
+                print("completed\t====> {}".format(filename))
+                self.dl_counter += 1
+
+        except IOError:  # If there is any IOError
+            self.error_count += 1
+            print("IOError on image {}".format(filename))
+
+        except HTTPError as e:  # If there is any HTTPError
+            self.error_count += 1
+            print("HTTPError {}".format(filename))
+
+        except URLError as e:
+            self.error_count += 1
+            print("URLError {}".format(filename))
+
+
+def main(search_keywords, keywords, download_limit, requests_delay, no_clobber,
+         filename_format='basename'):
     t0 = time.time()  # start the timer
     items = []
     # Download Image Links
@@ -99,45 +184,24 @@ def main(search_keywords, keywords, download_limit, requests_delay, no_clobber):
     # To save imges to the same directory
     # IN this saving process we are just skipping the URL if there is any error
 
-    error_count = 0
-    dl_counter = 0
-    skip_counter = 0
-    ua = UserAgent()
+    downloader = Downloader()
     for k, item in enumerate(items):
-        if download_limit != 0 and dl_counter >= download_limit:
+        if download_limit != 0 and downloader.dl_counter >= download_limit:
             break
         filename = basename(item)
         if os.path.isfile(filename) and no_clobber:
             print('Skipped\t\t====> {}'.format(filename))
-            skip_counter += 1
+            downloader.skip_counter += 1
             continue
-        try:
-            req = Request(item, headers={"User-Agent": ua.firefox})
-            with urlopen(req) as response, \
-                    open(filename, 'wb') as output_file:
-                data = response.read()
-                output_file.write(data)
 
-            print("completed\t====> {}".format(filename))
-            dl_counter += 1
-
-        except IOError:  # If there is any IOError
-            error_count += 1
-            print("IOError on image {}".format(filename))
-
-        except HTTPError as e:  # If there is any HTTPError
-            error_count += 1
-            print("HTTPError {}".format(filename))
-
-        except URLError as e:
-            error_count += 1
-            print("URLError {}".format(filename))
+        downloader.run(
+            item=item, filename=filename, filename_format=filename_format, no_clobber=no_clobber)
 
         if requests_delay != 0:
             time.sleep(requests_delay)
 
     print("""All url(s) are downloaded
     {} ----> total Errors
-    {} ----> total Skip""".format(error_count, skip_counter))
+    {} ----> total Skip""".format(downloader.error_count, downloader.skip_counter))
 
     # ----End of the main program ----#

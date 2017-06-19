@@ -20,8 +20,9 @@ setuptools.setup(
 
     install_requires=[
         'click>=6.7',
-        'requests>=2.14.2',
         'fake-useragent==0.1.7',
+        'requests>=2.14.2',
+        'Send2Trash>=1.3.0',
     ],
     setup_requires=['pytest-runner', ],
     tests_require=['pytest', ],

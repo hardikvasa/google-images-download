@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.0 / (unreleased)
+--------------------
+
+New
+~~~
+
+- New filename format option [daedalus]
+
 0.2.0 / 2017-05-16
 ------------------
 
