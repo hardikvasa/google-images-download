@@ -8,6 +8,8 @@ import time       #Importing the time library to check the time of code executio
 import sys    #Importing the System Library
 
 import urllib2
+from os import rename
+from imghdr import what 
 
 
 ########### Edit From Here ###########
@@ -128,9 +130,13 @@ while(k<len(items)):
     try:
         req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
         response = urlopen(req)
-        output_file = open(str(k+1)+".jpg",'wb')
+        output_file = open(str(k+1),'wb')
         data = response.read()
         output_file.write(data)
+        output_file.close()
+        extension = what(str(k+1))
+        if extension:
+            rename(str(k+1), str(k+1)+"."+extension)
         response.close();
 
         print("completed ====> "+str(k+1))
