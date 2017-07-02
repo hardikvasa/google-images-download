@@ -8,7 +8,46 @@ import time       #Importing the time library to check the time of code executio
 import sys    #Importing the System Library
 
 import urllib2
+import hashlib
+import os
+import imghdr
 
+sleep_time = 0.1
+
+def loadfile(filename):
+        data = []
+        fp = open(filename,'r')
+        for line in fp:
+                data.append(line.rstrip())
+        fp.close()
+        return data
+
+def savefile(data,filename):
+        fp = open(filename,'w')
+        for line in data:
+                fp.write(line + "\n")
+        fp.close()
+
+cache = loadfile('.cache')
+
+def unique(items):
+        items2 = []
+        for item in items:
+                if item not in items2:
+                        items2.append(item)
+        return items2
+
+def is_file(fname):
+	try:
+		return os.path.isfile(fname) 
+	except:
+		return False
+
+
+hashes = []
+
+def sha256hex(s):
+	return hashlib.sha256(s).hexdigest()
 
 ########### Edit From Here ###########
 
@@ -69,14 +108,18 @@ def _images_get_next_item(s):
 #Getting all links with the help of '_images_get_next_image'
 def _images_get_all_items(page):
     items = []
+    count = 0
     while True:
         item, end_content = _images_get_next_item(page)
         if item == "no_links":
             break
         else:
             items.append(item)      #Append all the links in the list named 'Links'
-            time.sleep(0.1)        #Timer could be used to slow down the request for image downloads
+            time.sleep(sleep_time)        #Timer could be used to slow down the request for image downloads
             page = page[end_content:]
+	count += 1
+	if count == 10000: # prevent runing forever
+		break
     return items
 
 
@@ -85,8 +128,8 @@ t0 = time.time()   #start the timer
 
 #Download Image Links
 i= 0
+items = []
 while i<len(search_keyword):
-    items = []
     iteration = "Item no.: " + str(i+1) + " -->" + " Item name = " + str(search_keyword[i])
     print (iteration)
     print ("Evaluating...")
@@ -95,9 +138,10 @@ while i<len(search_keyword):
     j = 0
     while j<len(keywords):
         pure_keyword = keywords[j].replace(' ','%20')
-        url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+        url = 'https://www.google.com/search?q=' + search + "%20"+ pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
         raw_html =  (download_page(url))
-        time.sleep(0.1)
+        time.sleep(slee_time)
+	items = unique(items)
         items = items + (_images_get_all_items(raw_html))
         j = j + 1
     #print ("Image Links = "+str(items))
@@ -121,21 +165,38 @@ print ("Starting Download...")
 
 k=0
 errorCount=0
+
 while(k<len(items)):
     from urllib2 import Request,urlopen
     from urllib2 import URLError, HTTPError
 
     try:
-        req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
-        response = urlopen(req)
-        output_file = open(str(k+1)+".jpg",'wb')
-        data = response.read()
-        output_file.write(data)
-        response.close();
+	if items[k] not in cache:
+        	req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
+        	response = urlopen(req)
+        	data = response.read()
+		response.close();
+	
+ 	       	ext = imghdr.what(None,data)
+        	if ext == None:
+                	ext = 'jpg'
 
-        print("completed ====> "+str(k+1))
+                fhash = sha256hex(data)
+                if fhash not in hashes and is_file(fhash+"."+ext) == False:
+                        output_file = open(fhash+"."+ext,'wb')
+                        output_file.write(data)
+                        output_file.close()
+                        hashes.append(fhash)
+
+                        print("completed ====> "+fhash + ext)
+                else:
+                        print("Already downloaded",fhash)
+                cache.append(item)
+        else:
+                print ("Item already in cache")
 
         k=k+1;
+
 
     except IOError:   #If there is any IOError
 
@@ -154,6 +215,8 @@ while(k<len(items)):
         print("URLError "+str(k))
         k=k+1;
 
+savefile(cache,'.cache')
+	
 print("\n")
 print("All are downloaded")
 print("\n"+str(errorCount)+" ----> total Errors")
