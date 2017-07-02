@@ -2,6 +2,8 @@
 
 #Import Libraries
 
+#coding: UTF-8
+
 import time       #Importing the time library to check the time of code execution
 import sys    #Importing the System Library
 
