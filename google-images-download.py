@@ -18,7 +18,7 @@ import urllib2
 ########### Edit From Here ###########
 
 #This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
-search_keyword = ['Australia', 'Pyramid of Giza']
+search_keyword = ['Pyramid of Giza','Taj Mahal']
 
 #This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
 keywords = [' high resolution']
@@ -118,7 +118,6 @@ while i<len(search_keyword):
     #print ("Image Links = "+str(items))
     print ("Total Image Links = "+str(len(items)))
     print ("\n")
-    i = i+1
 
 
     #This allows you to write all the links into a test file. This text file will be created in the same directory as your code. You can comment out the below 3 lines to stop writing the output to the text file.
@@ -126,52 +125,54 @@ while i<len(search_keyword):
     info.write(str(i) + ': ' + str(search_keyword[i-1]) + ": " + str(items) + "\n\n\n")         #Write the title of the page
     info.close()                            #Close the file
 
-t1 = time.time()    #stop the timer
-total_time = t1-t0   #Calculating the total time required to crawl, find and download all the links of 60,000 images
-print("Total time taken: "+str(total_time)+" Seconds")
-print ("Starting Download...")
+    t1 = time.time()    #stop the timer
+    total_time = t1-t0   #Calculating the total time required to crawl, find and download all the links of 60,000 images
+    print("Total time taken: "+str(total_time)+" Seconds")
+    print ("Starting Download...")
 
-## To save imges to the same directory
-# IN this saving process we are just skipping the URL if there is any error
+    ## To save imges to the same directory
+    # IN this saving process we are just skipping the URL if there is any error
 
-k=0
-errorCount=0
-while(k<len(items)):
-    from urllib2 import Request,urlopen
-    from urllib2 import URLError, HTTPError
+    k=0
+    errorCount=0
+    while(k<len(items)):
+        from urllib2 import Request,urlopen
+        from urllib2 import URLError, HTTPError
 
-    try:
-        req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
-        response = urlopen(req)
-        output_file = open(search_keywords+"/"+str(k+1)+".jpg",'wb')
-        
-        data = response.read()
-        output_file.write(data)
-        response.close();
+        try:
+            req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
+            response = urlopen(req)
+            output_file = open(search_keywords+"/"+str(k+1)+".jpg",'wb')
+            
+            data = response.read()
+            output_file.write(data)
+            response.close();
 
-        print("completed ====> "+str(k+1))
+            print("completed ====> "+str(k+1))
 
-        k=k+1;
+            k=k+1;
 
-    except IOError:   #If there is any IOError
+        except IOError:   #If there is any IOError
 
-        errorCount+=1
-        print("IOError on image "+str(k+1))
-        k=k+1;
+            errorCount+=1
+            print("IOError on image "+str(k+1))
+            k=k+1;
 
-    except HTTPError as e:  #If there is any HTTPError
+        except HTTPError as e:  #If there is any HTTPError
 
-        errorCount+=1
-        print("HTTPError"+str(k))
-        k=k+1;
-    except URLError as e:
+            errorCount+=1
+            print("HTTPError"+str(k))
+            k=k+1;
+        except URLError as e:
 
-        errorCount+=1
-        print("URLError "+str(k))
-        k=k+1;
+            errorCount+=1
+            print("URLError "+str(k))
+            k=k+1;
+
+    i = i+1
 
 print("\n")
-print("All are downloaded")
+print("Everything downloaded!")
 print("\n"+str(errorCount)+" ----> total Errors")
 
 #----End of the main program ----#
