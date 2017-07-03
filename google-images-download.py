@@ -1,3 +1,8 @@
+
+# coding: utf-8
+
+# In[ ]:
+
 #Searching and Downloading Google Images/Image Links
 
 #Import Libraries
@@ -6,7 +11,7 @@
 
 import time       #Importing the time library to check the time of code execution
 import sys    #Importing the System Library
-
+import os
 import urllib2
 
 
@@ -92,6 +97,16 @@ while i<len(search_keyword):
     print ("Evaluating...")
     search_keywords = search_keyword[i]
     search = search_keywords.replace(' ','%20')
+    
+     #make a search keyword  directory
+    try:
+        os.makedirs(search_keywords)
+    except OSError, e:
+        if e.errno != 17:
+            raise   
+        # time.sleep might help here
+        pass
+    
     j = 0
     while j<len(keywords):
         pure_keyword = keywords[j].replace(' ','%20')
@@ -128,7 +143,8 @@ while(k<len(items)):
     try:
         req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
         response = urlopen(req)
-        output_file = open(str(k+1)+".jpg",'wb')
+        output_file = open(search_keywords+"/"+str(k+1)+".jpg",'wb')
+        
         data = response.read()
         output_file.write(data)
         response.close();
@@ -159,3 +175,9 @@ print("All are downloaded")
 print("\n"+str(errorCount)+" ----> total Errors")
 
 #----End of the main program ----#
+
+
+# In[ ]:
+
+
+
