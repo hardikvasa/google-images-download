@@ -138,6 +138,13 @@ class Downloader:
             print("URLError {}".format(filename))
 
 
+def get_google_image_items(query):
+    quoted_query = quote(query)
+    url = 'https://www.google.com/search?q=' + quoted_query + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'  # NOQA
+    raw_html = (download_page(url))
+    return _images_get_all_items(raw_html)
+
+
 def main(search_keywords, keywords, download_limit, requests_delay, no_clobber,
          filename_format='basename'):
     t0 = time.time()  # start the timer
@@ -147,16 +154,10 @@ def main(search_keywords, keywords, download_limit, requests_delay, no_clobber,
         print("Item no.: {} --> Item name = {}".format(i + 1, search_keyword))
         print("Evaluating...")
         if not keywords:
-            search = quote(search_keyword)
-            url = 'https://www.google.com/search?q=' + search + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'  # NOQA
-            raw_html = (download_page(url))
-            items = items + (_images_get_all_items(raw_html))
+            items = items + get_google_image_items(query=search_keyword)
 
         for j, keyword in enumerate(keywords):
-            quoted_query = quote(' '.join([search_keyword, keyword]))
-            url = 'https://www.google.com/search?q=' + quoted_query + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'  # NOQA
-            raw_html = (download_page(url))
-            items = items + (_images_get_all_items(raw_html))
+            items = items + get_google_image_items(query=' '.join([search_keyword, keyword]))
 
             # delay is required here
             if requests_delay == 0:
