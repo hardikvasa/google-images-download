@@ -145,8 +145,8 @@ def get_google_image_items(query):
     return _images_get_all_items(raw_html)
 
 
-def main(search_keywords, keywords, download_limit, requests_delay, no_clobber,
-         filename_format='basename'):
+def get_image_links(search_keyword, keywords, requests_delay):
+    """get image links."""
     t0 = time.time()  # start the timer
     items = []
     # Download Image Links
@@ -167,20 +167,18 @@ def main(search_keywords, keywords, download_limit, requests_delay, no_clobber,
 
         print("Total Image Links = {}\n".format(len(items)))
 
-    # # This allows you to write all the links into a test file.
-    # This text file will be created in the same directory as your code.
-    # You can comment out the below 3 lines to stop writing the output to the text file.
-    # info = open('output.txt', 'a')  # Open the text file called database.txt
-    # Write the title of the page
-    # info.write(str(i) + ': ' + str(search_keyword[i - 1]) + ": " + str(items) + "\n\n\n")
-    # info.close()  # Close the file
-
     t1 = time.time()  # stop the timer
     # Calculating the total time required to crawl,
     # find and download all the links of 60,000 images
     total_time = t1 - t0
     print("Total time taken: {} Seconds".format(int(total_time)))
     print("Starting Download...")
+    return items
+
+
+def main(search_keywords, keywords, download_limit, requests_delay, no_clobber,
+         filename_format='basename'):
+    items = get_image_links(search_keyword, keywords, requests_delay)
 
     # To save imges to the same directory
     # IN this saving process we are just skipping the URL if there is any error
