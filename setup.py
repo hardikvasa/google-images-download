@@ -19,6 +19,7 @@ setuptools.setup(
     zip_safe=True,
 
     install_requires=[
+        'beautifulsoup4>=4.6.0',
         'click>=6.7',
         'fake-useragent==0.1.7',
         'requests>=2.14.2',
