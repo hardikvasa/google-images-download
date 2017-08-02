@@ -7,6 +7,8 @@ Changelog
 New
 ~~~
 
+- Method to get over 100 images. [rachmadaniHaryono]
+
 - New filename format option [daedalus]
 
 0.2.0 / 2017-05-16
