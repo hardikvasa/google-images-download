@@ -18,6 +18,7 @@ from fake_useragent import UserAgent
 from send2trash import send2trash
 
 from .sha256 import sha256_checksum
+from . import simple_gi as sgi
 
 
 def download_page(url):
@@ -138,25 +139,35 @@ class Downloader:
             print("URLError {}".format(filename))
 
 
-def main(search_keywords, keywords, download_limit, requests_delay, no_clobber,
-         filename_format='basename'):
+def get_google_image_items(query):
+    quoted_query = quote(query)
+    url = 'https://www.google.com/search?q=' + quoted_query + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'  # NOQA
+    raw_html = (download_page(url))
+    return _images_get_all_items(raw_html)
+
+
+def get_image_links(search_keywords, keywords, requests_delay, limit=1):
+    """get image links."""
     t0 = time.time()  # start the timer
     items = []
+    if limit > 100:
+        session = sgi.Session()
     # Download Image Links
     for i, search_keyword in enumerate(search_keywords):
         print("Item no.: {} --> Item name = {}".format(i + 1, search_keyword))
         print("Evaluating...")
-        if not keywords:
-            search = quote(search_keyword)
-            url = 'https://www.google.com/search?q=' + search + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'  # NOQA
-            raw_html = (download_page(url))
-            items = items + (_images_get_all_items(raw_html))
 
-        for j, keyword in enumerate(keywords):
-            quoted_query = quote(' '.join([search_keyword, keyword]))
-            url = 'https://www.google.com/search?q=' + quoted_query + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'  # NOQA
-            raw_html = (download_page(url))
-            items = items + (_images_get_all_items(raw_html))
+        if not keywords:
+            m_query = [search_keyword]
+        else:
+            m_query = [' '.join([search_keyword, keyword]) for keyword in keywords]
+
+        for query in m_query:
+            if limit > 100:
+                additional_item = session.get_google_images(query=query, limit=limit)
+            else:
+                additional_item = get_google_image_items(query=query)
+            items = items + additional_item
 
             # delay is required here
             if requests_delay == 0:
@@ -180,6 +191,12 @@ def main(search_keywords, keywords, download_limit, requests_delay, no_clobber,
     total_time = t1 - t0
     print("Total time taken: {} Seconds".format(int(total_time)))
     print("Starting Download...")
+    return items
+
+
+def main(search_keywords, keywords, download_limit, requests_delay, no_clobber,
+         filename_format='basename'):
+    items = get_image_links(search_keywords, keywords, requests_delay, limit=download_limit)
 
     # To save imges to the same directory
     # IN this saving process we are just skipping the URL if there is any error
