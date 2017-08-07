@@ -31,7 +31,7 @@ def download_page(url):
         response = urlopen(req)
     except URLError:  # Handling SSL certificate failed
         context = ssl._create_unverified_context()
-        response = urlopen(req,context=context)
+        response = urlopen(req, context=context)
     page = str(response.read())
     return page
 
