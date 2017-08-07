@@ -13,6 +13,7 @@ import time       #Importing the time library to check the time of code executio
 import sys    #Importing the System Library
 import os
 import urllib2
+import ssl
 
 
 ########### Edit From Here ###########
@@ -49,7 +50,11 @@ def download_page(url):
             headers = {}
             headers['User-Agent'] = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"
             req = urllib2.Request(url, headers = headers)
-            response = urllib2.urlopen(req)
+            try:
+                response = urllib2.urlopen(req)
+            except URLError: # Handling SSL certificate failed
+                context = ssl._create_unverified_context()
+                response = urlopen(req,context=context)
             page = response.read()
             return page
         except:
