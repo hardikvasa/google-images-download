@@ -9,6 +9,7 @@ import logging
 import os
 import time  # Importing the time library to check the time of code execution
 import shutil
+import ssl
 try:
     from urllib2 import urlopen, Request, URLError, HTTPError
 except ImportError:
@@ -26,7 +27,11 @@ def download_page(url):
     ua = UserAgent()
     headers = {'User-Agent': ua.firefox}
     req = Request(url, headers=headers)
-    response = urlopen(req)
+    try:
+        response = urlopen(req)
+    except URLError:  # Handling SSL certificate failed
+        context = ssl._create_unverified_context()
+        response = urlopen(req,context=context)
     page = str(response.read())
     return page
 
