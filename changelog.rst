@@ -11,6 +11,12 @@ New
 
 - New filename format option [daedalus]
 
+Fix
+~~~
+
+- Resolved SSL certificate failed error. [Anurag Patel]
+
+
 0.2.0 / 2017-05-16
 ------------------
 
