@@ -99,7 +99,7 @@ class Downloader:
         """
         try:
             req = Request(item, headers={"User-Agent": self.ua.firefox})
-            with urlopen(req) as response, \
+            with urlopen(req, context=ssl._create_unverified_context()) as response, \
                     open(filename, 'wb') as output_file:
                 data = response.read()
                 output_file.write(data)
