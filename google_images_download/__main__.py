@@ -42,7 +42,7 @@ def download(
 
 
 @cli.command()
-@click.option('--mode', type=click.Choice(['browser', 'data']))
+@click.option('--mode', type=click.Choice(['browser', 'data', 'largest', 'largest-2size']))
 @click.argument('filepath', type=click.Path(exists=True))
 def search(filepath, mode):
     search_from_file(filepath, mode)
