@@ -8,4 +8,4 @@ install:
 # command to run tests
 script:
   - python -m flake8
-  - pytest
+  - pytest -m 'not no_travis'
