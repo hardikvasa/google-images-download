@@ -22,7 +22,7 @@ log = structlog.getLogger(__name__)
 def get_default_session():
     ua = UserAgent()
     session = requests.Session()
-    session.headers.update({'User-Agent':ua.firefox})
+    session.headers.update({'User-Agent': ua.firefox})
     return session
 
 
@@ -60,7 +60,7 @@ def get_first_page_data(soup):
     else:
         log.debug('Best guess section not found.')
     # page results
-    h_div_tag  = [x for x in soup.select('#rso .srg')]
+    h_div_tag = [x for x in soup.select('#rso .srg')]
     h_div_tag_len = len(h_div_tag)
     if h_div_tag_len == 0:
         log.debug('No match tag found for page results.')
@@ -72,10 +72,10 @@ def get_first_page_data(soup):
         h_div_tag = h_div_tag[0]
         for h_tag in h_div_tag.select('.g'):
             pr_item = {}
-            pr_item['title'] =  h_tag.select_one('h3 a')
+            pr_item['title'] = h_tag.select_one('h3 a')
             if pr_item['title']:
                 pr_item['title'] = pr_item['title'].text
-            pr_item['url'] =  h_tag.select_one('h3 a').attrs.get('href', None)
+            pr_item['url'] = h_tag.select_one('h3 a').attrs.get('href', None)
             pr_item['data'] = h_tag.select_one('span.st .f')
             pr_item['data'] = pr_item['data'].text if pr_item['data'] else None
             pr_item['text'] = h_tag.select_one('span.st')
@@ -87,8 +87,8 @@ def get_first_page_data(soup):
     # visually similar link
     res['visually_similar_image_link'] = soup.select_one('.iu-card-header')
     if res['visually_similar_image_link']:
-       res['visually_similar_image_link'] = \
-           res['visually_similar_image_link'].attrs.get('href', None)
+        res['visually_similar_image_link'] = \
+            res['visually_similar_image_link'].attrs.get('href', None)
     # visually_similar_image_item
     for h_tag in soup.select('.img-brk .rg_ul .uh_r'):
         vs_item = {}
@@ -98,7 +98,7 @@ def get_first_page_data(soup):
         vs_item['json_data'] = json.loads(h_tag.select_one('.rg_meta').text)
         res.setdefault('visually_similar_image_item', []).append(vs_item)
     # pages with matching image
-    h_div_tag  = [x for x in soup.select('#rso .srg')]
+    h_div_tag = [x for x in soup.select('#rso .srg')]
     h_div_tag_len = len(h_div_tag)
     if h_div_tag_len == 0:
         log.debug('No match tag found for page with matching image.')
@@ -109,7 +109,7 @@ def get_first_page_data(soup):
                 'for page with matching image parsing is unexpected',
                 l=h_div_tag_len)
         h_div_tag = h_div_tag[1]
-        for h_tag in h_div_tag.select('.g') :
+        for h_tag in h_div_tag.select('.g'):
             pmi_item = {}
             pmi_item['link'] = h_tag.select_one('a').attrs.get('href', None)
             pmi_item['title'] = h_tag.select_one('a').text
@@ -151,7 +151,7 @@ def get_largest_image(file_path, session, n_max_size=1):
     """Get largest image."""
     post_resp = get_post_response(file_path, session)
     post_resp_headers = post_resp.headers
-    if not 'Location' in post_resp_headers:
+    if 'Location' not in post_resp_headers:
         log.debug('Can\'t find location url', headers=post_resp_headers)
         return
     resp = session.get(post_resp.headers['Location'])
@@ -188,7 +188,7 @@ def search(file_path, mode='browser'):
     """Run simple program that search image."""
     session = get_default_session()
     if mode == 'data':
-        res = first_page_data(file_path, session)
+        res = get_first_page_data(file_path, session)
         pprint(res)
     elif mode in ('largest', 'largest-2size'):
         if mode == 'largest-2size':

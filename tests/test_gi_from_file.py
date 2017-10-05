@@ -1,7 +1,6 @@
 """test module."""
 import json
 import logging
-from urllib.parse import urljoin
 
 import pytest
 import vcr
@@ -10,7 +9,6 @@ import vcr
 logging.basicConfig(level=logging.DEBUG)
 vcr_log = logging.getLogger("vcr")
 vcr_log.setLevel(logging.INFO)
-
 
 
 @pytest.mark.no_travis
