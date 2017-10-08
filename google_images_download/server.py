@@ -1,23 +1,61 @@
 """Server module."""
+from urllib.parse import urlencode
 from logging.handlers import TimedRotatingFileHandler
-import logging
+import datetime
+import logging  # pylint: disable=ungrouped-imports
+import os
 
+from fake_useragent import UserAgent
 from flask import Flask, render_template
 from flask.cli import FlaskGroup
+import requests
+import vcr
 
 from google_images_download.forms import IndexForm
 
 app = Flask(__name__)  # pylint: disable=invalid-name
 # db = SQLAlchemy()  # pylint: disable=invalid-name
+logging.basicConfig()
+vcr_log = logging.getLogger("vcr")
+vcr_log.setLevel(logging.INFO)
 
 
 @app.route('/', methods=['GET', 'POST'])
+@vcr.use_cassette(record_mode='new_episodes')
 def index():
     """Get Index page."""
     form = IndexForm()
-    app.logger.warning('sample message')
     if form.validate_on_submit():
-        return render_template('index.html', form=form)
+        query = form.query.data
+        url_base = 'https://google.com/search?{}'
+        url_q_dict = {'q': query, 'tbm': 'isch'}
+        url_q = url_base.format(urlencode(url_q_dict))
+        q_datetime_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        dump_html = os.path.join('dump', q_datetime_str + '.html')
+
+        ua = UserAgent()
+        resp = requests.get(
+            url_q, timeout=10, headers={'User-Agent': ua.firefox})
+        try:
+            with open(dump_html, 'w') as f:
+                f.write(resp.text)
+        except OSError:
+            app.logger.debug('OS error when dumping resp text.')
+            dump_html_dir = os.path.dirname(dump_html)
+            if not os.path.exists(dump_html_dir):
+                os.makedirs(dump_html_dir)
+            with open(dump_html, 'w+') as f:
+                f.write(resp.text)
+
+        debug_info = {}
+        if app.debug:
+            debug_info['query'] = query
+            debug_info['url'] = url_q
+            debug_info['dump_html'] = (
+                os.path.abspath(dump_html), q_datetime_str + '.html')
+        return render_template(
+            'index.html', form=form, query=query, debug_info=debug_info)
+    app.logger.warning('sample message2')
     return render_template('index.html', form=form)
 
 
@@ -44,7 +82,8 @@ def create_app(script_info=None):  # pylint: disable=unused-argument
         default_log_file = 'google_images_download_server.log'
         # file_handler = TimedRotatingFileHandler(
         # os.path.join(app.config['LOG_DIR'], 'candidtim_flask.log'), 'midnight')
-        file_handler = TimedRotatingFileHandler(default_log_file, 'midnight')
+        file_handler = TimedRotatingFileHandler(
+            default_log_file, 'midnight')
         file_handler.setLevel(logging.WARNING)
         file_handler.setFormatter(logging.Formatter('<%(asctime)s> <%(levelname)s> %(message)s'))
         app.logger.addHandler(file_handler)

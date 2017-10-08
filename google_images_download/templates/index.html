@@ -9,21 +9,39 @@
   <body>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <ul class=flashes>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
+       <ul class=flashes>
+       {% for message in messages %}
+         <li>{{ message }}</li>
+       {% endfor %}
+       </ul>
       {% endif %}
     {% endwith %}
     <p>Welcome to Google Image Download Server </p>
     <form method="POST" action="{{ url_for('index') }}">
-        {{ form.csrf_token }}
-        {{ form.query.label }} {{ form.query(size=20) }}
-        <br><br>
-        {{ form.starting }}
-        {{ form.ending }}
-        <input type="submit" value="Go">
+      {{ form.csrf_token }}
+      {{ form.query.label }} {{ form.query(size=20) }}
+      <br><br>
+      {{ form.starting }}
+      {{ form.ending }}
+      <input type="submit" value="Go">
     </form>
+    {% if query %}
+    <p> query is {{query}}</p>
+    {% endif %}
+    {% if debug_info %}
+      <ul>
+      {% for key, value in debug_info.items() %}
+        {% if key == 'url' %}
+	<li>{{key}}: <a href="{{value}}">{{ value.split('://')[1] }}</a></li>
+        {% elif key == 'dump_html' %}
+	<li>{{key}}: <a href="file://{{value[0]}}">{{ value[1] }}</a></li>
+	{% else %}
+        <li>{{key}}: {{value}}</li>
+        {% endif %}
+      {% else %}
+        <li> Empty debug info</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
   </body>
 </html>
