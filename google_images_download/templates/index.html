@@ -1,12 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Google image download server</title>
-    <!--<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">-->
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-  </head>
-  <body>
+{% extends "bootstrap/base.html" %}
+
+{% block title %} Google image download server {% endblock %}
+
+{% block styles %}
+  {{super()}}
+  <!--<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">-->
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+{% endblock %}
+
+{% block content %}
+  <div class="container">
     {% with messages = get_flashed_messages() %}
       {% if messages %}
        <ul class=flashes>
@@ -26,36 +29,50 @@
       <input type="submit" value="Go">
     </form>
     {% if query %}
-    <p> query is {{query}}</p>
+    <p> query [{{query}}] found {{result['match']|length}} match(s) </p>
     {% endif %}
     {% if debug_info %}
       <ul>
       {% for key, value in debug_info.items() %}
         {% if key == 'url' %}
-	<li>{{key}}: <a href="{{value}}">{{ value.split('://')[1] }}</a></li>
+        <li>{{key}}: <a href="{{value}}">{{ value.split('://')[1] }}</a></li>
         {% elif key == 'dump_html' %}
-	<li>{{key}}: <a href="file://{{value[0]}}">{{ value[1] }}</a></li>
-	{% else %}
-        <li>{{key}}: {{value}}</li>
+        <li>{{key}}: <a href="file://{{value[0]}}">{{ value[1] }}</a></li>
+        {% else %}
+        <!--{{key}}: {{value}}-->
         {% endif %}
       {% else %}
-        <li> Empty debug info</li>
+        <!--Empty debug info-->
       {% endfor %}
       </ul>
     {% endif %}
 
     {% if result %}
     <h5>Match result</h5>
+    <div>
     {% for entry in result['match'] %}
-      <div>
-	<img src='{{entry['json_data'][0]['tu']}}'>
-        <ul>
+        <div class="media col-md-6 text-center">
+          <div class="media-left">
+            <figure>
+              <img style="max-width:256px" src='{{entry['json_data'][0]['tu']}}'>
+      	<figcaption>
+      	  {{entry['json_data'][0]['ow']}}x{{entry['json_data'][0]['oh']}}
+      	  <br/>
+      	  <span data-placement="left" data-toggle="tooltip" title="{{entry['json_data'][0]['isu']}}">{{entry['json_data'][0]['isu']|truncate(20)}}</span>
+      	</figcaption>
+            </figure>
+            </div>
+          <div class="media-body text-left">
+            <h4 class="media-heading"> {{entry['json_data'][0]['pt']}}</h4>
+            <span>{{entry['json_data'][0]['s']}}</span>
+          </div>
           {% for key, value in entry['json_data'][0].items()|sort %}
-          <li>{{key}}: {{value}}</li>
+            <!--{{key}}: {{value}}-->
           {% endfor %}
-        </ul>
-      </div>
+        </div>
     {% endfor %}
+    </div>
     {% endif %}
-  </body>
-</html>
+  </div>
+
+{% endblock %}
