@@ -64,7 +64,12 @@
             </div>
           <div class="media-body text-left">
             <h4 class="media-heading"> {{entry['json_data'][0]['pt']}}</h4>
-            <span>{{entry['json_data'][0]['s']}}</span>
+	    <span>
+	      {{entry['json_data'][0]['s']}}<br/>
+	      link:
+	      <a class="label label-default" href="{{entry['json_data'][0]['ru']}}">page</a>
+	      <a class="label label-default" href="{{entry['json_data'][0]['ou']}}">image</a>
+	      <a class="label label-default" href="https://www.google.com/searchbyimage?image_url={{entry['json_data'][0]['ou']|urlencode}}&safe=off">google</a>
           </div>
           {% for key, value in entry['json_data'][0].items()|sort %}
             <!--{{key}}: {{value}}-->
