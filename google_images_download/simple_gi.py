@@ -14,22 +14,27 @@ def parse_page(html):
         yield query_dict['imgurl'][0]
 
 
+def get_json_resp(query, page=0, req=None):
+    req = requests if req is None else req
+    url_query = {
+        'q': query, 'tbm': 'isch', 'ijn': str(page), 'start': str(page * 100),
+        'asearch': 'ichunk', 'async': '_id:rg_s,_pms:s'
+    }
+    url = ParseResult(
+        scheme='https', netloc='google.com', path='/search', params=None,
+        query=urlencode(url_query), fragment=None
+    ).geturl()
+    resp = req.get(url)
+    return resp.json()[1][1]
+
+
 class Session:
 
     def __init__(self):
         self.session = requests.Session()
 
     def get_page(self, query, page=0):
-        url_query = {
-            'q': query, 'tbm': 'isch', 'ijn': str(page), 'start': str(page * 100),
-            'asearch': 'ichunk', 'async': '_id:rg_s,_pms:s'
-        }
-        url = ParseResult(
-            scheme='https', netloc='google.com', path='/search', params=None,
-            query=urlencode(url_query), fragment=None
-        ).geturl()
-        resp = self.session.get(url)
-        return resp.json()[1][1]
+        return get_json_resp(query, page=page, req=self.session)
 
     def get_images(self, query, limit=1):
         assert limit > 0
