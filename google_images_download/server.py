@@ -15,9 +15,10 @@ import requests
 import vcr
 
 from google_images_download.forms import IndexForm
+from google_images_download.models import db
 
 app = Flask(__name__)  # pylint: disable=invalid-name
-# db = SQLAlchemy()  # pylint: disable=invalid-name
+
 logging.basicConfig()
 vcr_log = logging.getLogger("vcr")
 vcr_log.setLevel(logging.INFO)
@@ -25,16 +26,20 @@ vcr_log.setLevel(logging.INFO)
 
 def dump_html(response, html_path):
     """Dump html from requests.get response."""
+    if isinstance(response, str):
+        text = response
+    else:
+        text = response.text
     try:
         with open(html_path, 'w') as f:
-            f.write(response.text)
+            f.write(text)
     except OSError:
         app.logger.debug('OS error when dumping resp text.')
         dump_html_dir = os.path.dirname(html_path)
         if not os.path.exists(dump_html_dir):
             os.makedirs(dump_html_dir)
         with open(html_path, 'w+') as f:
-            f.write(response.text)
+            f.write(text)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -68,6 +73,9 @@ def index():
         app.logger.debug(
             '%s match(s) found for [%s]', len(result['match']), query)
 
+        from google_images_download.simple_gi import get_json_resp
+        result2 = get_json_resp(query)
+
         debug_info = {}
         if app.debug:
             dump_html(resp, dump_html_path)
@@ -82,7 +90,7 @@ def index():
 
 def shell_context():
     """Return shell context."""
-    return {'app': app}
+    return {'app': app, 'db': db}
 
 
 def create_app(script_info=None):  # pylint: disable=unused-argument
