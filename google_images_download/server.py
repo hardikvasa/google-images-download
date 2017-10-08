@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from flask import Flask, render_template
 from flask.cli import FlaskGroup
+from flask_bootstrap import Bootstrap
 import requests
 import vcr
 
@@ -110,6 +111,7 @@ def create_app(script_info=None):  # pylint: disable=unused-argument
 
     # admin = Admin(app, name='microblog', template_mode='bootstrap3')
     # Add administrative views here
+    Bootstrap(app)
     return app
 
 
@@ -120,6 +122,8 @@ cli = FlaskGroup(create_app=create_app)  # pylint: disable=invalid-name
 def debug():
     """Run in debugging mode."""
     app.config.setdefault('WTF_CSRF_ENABLED', False)
+    app.jinja_env.auto_reload = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.run(debug=True)
 
 
