@@ -2,9 +2,11 @@
 from urllib.parse import urlencode
 from logging.handlers import TimedRotatingFileHandler
 import datetime
+import json
 import logging  # pylint: disable=ungrouped-imports
 import os
 
+from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from flask import Flask, render_template
 from flask.cli import FlaskGroup
@@ -20,6 +22,20 @@ vcr_log = logging.getLogger("vcr")
 vcr_log.setLevel(logging.INFO)
 
 
+def dump_html(response, html_path):
+    """Dump html from requests.get response."""
+    try:
+        with open(html_path, 'w') as f:
+            f.write(response.text)
+    except OSError:
+        app.logger.debug('OS error when dumping resp text.')
+        dump_html_dir = os.path.dirname(html_path)
+        if not os.path.exists(dump_html_dir):
+            os.makedirs(dump_html_dir)
+        with open(html_path, 'w+') as f:
+            f.write(response.text)
+
+
 @app.route('/', methods=['GET', 'POST'])
 @vcr.use_cassette(record_mode='new_episodes')
 def index():
@@ -31,31 +47,35 @@ def index():
         url_q_dict = {'q': query, 'tbm': 'isch'}
         url_q = url_base.format(urlencode(url_q_dict))
         q_datetime_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        dump_html = os.path.join('dump', q_datetime_str + '.html')
+        dump_html_path = os.path.join('dump', q_datetime_str + '.html')
 
         ua = UserAgent()
         resp = requests.get(
             url_q, timeout=10, headers={'User-Agent': ua.firefox})
-        try:
-            with open(dump_html, 'w') as f:
-                f.write(resp.text)
-        except OSError:
-            app.logger.debug('OS error when dumping resp text.')
-            dump_html_dir = os.path.dirname(dump_html)
-            if not os.path.exists(dump_html_dir):
-                os.makedirs(dump_html_dir)
-            with open(dump_html, 'w+') as f:
-                f.write(resp.text)
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        result = {'match': []}
+        match_tags = []
+        match_tags.extend(soup.select('#rg_s div.rg_bx'))
+        match_tags.extend(soup.select('.rg_add_chunk div.rg_bx'))
+        ou_values = []
+        for match_tag in match_tags:
+            rg_meta_tag = match_tag.select_one('.rg_meta')
+            if rg_meta_tag:
+                json_data = json.loads(rg_meta_tag.text),
+                result['match'].append({'json_data': json_data})
+                ou_values.append(json_data[0]['ou'])
+        app.logger.debug(
+            '%s match(s) found for [%s]', len(result['match']), query)
 
         debug_info = {}
         if app.debug:
+            dump_html(resp, dump_html_path)
             debug_info['query'] = query
             debug_info['url'] = url_q
             debug_info['dump_html'] = (
-                os.path.abspath(dump_html), q_datetime_str + '.html')
+                os.path.abspath(dump_html_path), q_datetime_str + '.html')
         return render_template(
-            'index.html', form=form, query=query, debug_info=debug_info)
-    app.logger.warning('sample message2')
+            'index.html', form=form, query=query, debug_info=debug_info, result=result)
     return render_template('index.html', form=form)
 
 

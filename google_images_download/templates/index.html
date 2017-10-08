@@ -43,5 +43,19 @@
       {% endfor %}
       </ul>
     {% endif %}
+
+    {% if result %}
+    <h5>Match result</h5>
+    {% for entry in result['match'] %}
+      <div>
+	<img src='{{entry['json_data'][0]['tu']}}'>
+        <ul>
+          {% for key, value in entry['json_data'][0].items()|sort %}
+          <li>{{key}}: {{value}}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+    {% endif %}
   </body>
 </html>
