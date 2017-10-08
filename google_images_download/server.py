@@ -1,20 +1,24 @@
 """Server module."""
 from logging.handlers import TimedRotatingFileHandler
 import logging
-# import os
 
 from flask import Flask, render_template
 from flask.cli import FlaskGroup
+
+from google_images_download.forms import IndexForm
 
 app = Flask(__name__)  # pylint: disable=invalid-name
 # db = SQLAlchemy()  # pylint: disable=invalid-name
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
     """Get Index page."""
+    form = IndexForm()
     app.logger.warning('sample message')
-    return render_template('index.html')
+    if form.validate_on_submit():
+        return render_template('index.html', form=form)
+    return render_template('index.html', form=form)
 
 
 def shell_context():
@@ -53,10 +57,11 @@ def create_app(script_info=None):  # pylint: disable=unused-argument
 cli = FlaskGroup(create_app=create_app)  # pylint: disable=invalid-name
 
 
-@app.cli.command
-def custom_command():
-    """Run custom command."""
-    print('custom_command run')
+@app.cli.command()
+def debug():
+    """Run in debugging mode."""
+    app.config.setdefault('WTF_CSRF_ENABLED', False)
+    app.run(debug=True)
 
 
 @app.cli.command()
