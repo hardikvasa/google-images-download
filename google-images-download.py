@@ -137,8 +137,8 @@ while i<len(search_keyword):
     k=0
     errorCount=0
     while(k<len(items)):
-        # from urllib2 import Request,urlopen
-        # from urllib2 import URLError, HTTPError
+        # from urllib2 import Request,urlopen   #keep it only if you are using python2.x
+        # from urllib2 import URLError, HTTPError  #keep it only if you are using python2.x
 
         try:
             req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
