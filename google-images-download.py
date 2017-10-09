@@ -12,7 +12,8 @@
 import time       #Importing the time library to check the time of code execution
 import sys    #Importing the System Library
 import os
-import urllib2
+# import urllib2  can be used for python2.x only
+from urllib.request import urlopen, URLError, HTTPError, Request #The urllib2 module has been split across several modules in Python 3 named urllib.request and urllib.error
 
 
 ########### Edit From Here ###########
@@ -101,7 +102,7 @@ while i<len(search_keyword):
      #make a search keyword  directory
     try:
         os.makedirs(search_keywords)
-    except OSError, e:
+    except OSError as e: #for python3 and use OSError,e for python2.x 
         if e.errno != 17:
             raise   
         # time.sleep might help here
@@ -136,8 +137,8 @@ while i<len(search_keyword):
     k=0
     errorCount=0
     while(k<len(items)):
-        from urllib2 import Request,urlopen
-        from urllib2 import URLError, HTTPError
+        # from urllib2 import Request,urlopen   #keep it only if you are using python2.x
+        # from urllib2 import URLError, HTTPError  #keep it only if you are using python2.x
 
         try:
             req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
