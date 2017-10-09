@@ -12,8 +12,8 @@
 import time       #Importing the time library to check the time of code execution
 import sys    #Importing the System Library
 import os
-# import urllib2
-from urllib.request import urlopen, URLError, HTTPError, Request
+# import urllib2  can be used for python2.x only
+from urllib.request import urlopen, URLError, HTTPError, Request #The urllib2 module has been split across several modules in Python 3 named urllib.request and urllib.error
 
 
 ########### Edit From Here ###########
