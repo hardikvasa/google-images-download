@@ -19,7 +19,7 @@ from urllib.request import urlopen, URLError, HTTPError, Request #The urllib2 mo
 ########### Edit From Here ###########
 
 #This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
-search_keyword = ['Birds']
+search_keyword = ['Australia']
 
 #This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
 keywords = [' high resolution']
@@ -102,7 +102,7 @@ while i<len(search_keyword):
      #make a search keyword  directory
     try:
         os.makedirs(search_keywords)
-    except OSError as e:
+    except OSError as e: #for python3 and use OSError,e for python2.x 
         if e.errno != 17:
             raise   
         # time.sleep might help here
