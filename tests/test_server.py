@@ -42,6 +42,7 @@ class ServerTestCase(unittest.TestCase):
         os.close(self.db_fd)
         os.unlink(server.app.config['DATABASE'])
 
+    @pytest.mark.no_travis
     def test_index(self):
         """Test index."""
         retval = self.client.get('/')
