@@ -26,7 +26,7 @@ vcr_log = logging.getLogger("vcr")  # pylint: disable=invalid-name
 vcr_log.setLevel(logging.INFO)
 
 
-def get_or_create_search_query(search_query, page):
+def get_or_create_search_query(search_query, page, use_cache=True):
     """Get or create search query model."""
     current_datetime = datetime.datetime.now()
     sq_kwargs = {'query': search_query, 'page': page}
@@ -42,6 +42,8 @@ def get_or_create_search_query(search_query, page):
             'Query already created and have %s match',
             len(sq_m.match_results)
         )
+    if sq_m.match_results and use_cache:
+        return sq_m, sq_created
 
     match_set = parse_json_resp_for_match_result(
         get_json_resp(search_query, page - 1))
@@ -59,8 +61,22 @@ def get_or_create_search_query(search_query, page):
                 models.db.session, models.ImageURL, **imgurl_kwargs)
             match['img_url'] = imgurl_m.url
             match['search_query'] = sq_m.id
-            match_m, _ = models.get_or_create(
-                models.db.session, models.MatchResult, **match)
+            match_in_sq_m = [
+                x for x in sq_m.match_results
+                if x.json_data_id == match['id']]
+            if match_in_sq_m:
+                if len(match_in_sq_m) > 1:
+                    app.logger.debug(
+                        'Found %s match result with same json data',
+                        len(match_in_sq_m)
+                    )
+                assert match_in_sq_m[0].json_data == match['json_data']
+                match_m = match_in_sq_m[0]
+                # match_m.img_url = match['img_url']
+                # match_m.search_query = sq_m.id
+            else:
+                match_m, _ = models.get_or_create(
+                    models.db.session, models.MatchResult, **match)
             sq_m.match_results.append(match_m)
             models.db.session.add(imgurl_m)  # pylint: disable=no-member
             models.db.session.add(match_m)  # pylint: disable=no-member
@@ -95,6 +111,7 @@ def parse_json_resp_for_match_result(response):  # pylint: disable=invalid-name
             'data_ved': match.get('data-ved', None),
             'json_data': json_data,
             'imgres_url': match.select_one('a').get('href', None),
+            'json_data_id': json_data['id']
         }
         yield match_result, img_url
 

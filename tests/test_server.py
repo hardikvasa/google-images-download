@@ -11,8 +11,8 @@ from google_images_download import server
 from google_images_download import models
 
 
-log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 vcr_log = logging.getLogger("vcr")  # pylint: disable=invalid-name
 vcr_log.setLevel(logging.INFO)
 
@@ -44,9 +44,9 @@ class ServerTestCase(unittest.TestCase):
 
     def test_index(self):
         """Test index."""
-        rv = self.app.get('/')
-        assert rv.status_code == 200
-        assert rv.data.decode()
+        retval = self.app.get('/')
+        assert retval.status_code == 200
+        assert retval.data.decode()
 
     @pytest.mark.no_travis
     @vcr.use_cassette(record_mode='new_episodes')
@@ -56,6 +56,13 @@ class ServerTestCase(unittest.TestCase):
             sq_m, sq_m_created = server.get_or_create_search_query('red', 1)
             assert sq_m
             assert sq_m_created
+            sq_m, sq_m_created = server.get_or_create_search_query('red', 1)
+            assert len(sq_m.match_results) == 100
+            assert not sq_m_created
+            sq_m, sq_m_created = server.get_or_create_search_query(
+                'red', 1, use_cache=False)
+            assert len(sq_m.match_results) == 100
+            assert not sq_m_created
 
 
 if __name__ == '__main__':

@@ -35,6 +35,7 @@ class MatchResult(db.Model):  # pylint: disable=too-few-public-methods
     """Match result."""
     id = db.Column(db.Integer, primary_key=True)  # pylint: disable=invalid-name
     json_data = db.Column(JSONType)
+    json_data_id = db.Column(db.String)
     imgres_url = db.Column(URLType)
     data_ved = db.Column(db.String)
     img_url = db.Column(URLType, db.ForeignKey('imageURL.url'), nullable=False)
