@@ -26,30 +26,15 @@ vcr_log = logging.getLogger("vcr")  # pylint: disable=invalid-name
 vcr_log.setLevel(logging.INFO)
 
 
-def get_or_create_search_query(search_query, page, use_cache=True):
-    """Get or create search query model."""
-    current_datetime = datetime.datetime.now()
-    sq_kwargs = {'query': search_query, 'page': page}
-    sq_m, sq_created = models.get_or_create(
-        models.db.session, models.SearchQuery, **sq_kwargs)
-    if sq_created:
-        sq_m.datetime_query = current_datetime
-        models.db.session.add(sq_m)  # pylint: disable=no-member
-        models.db.session.commit()  # pylint: disable=no-member
-
-    else:
-        app.logger.debug(
-            'Query already created and have %s match',
-            len(sq_m.match_results)
-        )
-    if sq_m.match_results and use_cache:
-        return sq_m, sq_created
+def cache_search_query(search_query_model, page):
+    """Cache search query."""
+    # compatibility
+    sq_m = search_query_model
 
     match_set = parse_json_resp_for_match_result(
-        get_json_resp(search_query, page - 1))
+        get_json_resp(sq_m.query, page - 1))
 
     with models.db.session.no_autoflush:  # pylint: disable=no-member
-
         for match, imgurl in match_set:
             imgres_url_query = parse_qs(urlparse(match['imgres_url']).query)
             imgurl_kwargs = {
@@ -63,7 +48,7 @@ def get_or_create_search_query(search_query, page, use_cache=True):
             match['search_query'] = sq_m.id
             match_in_sq_m = [
                 x for x in sq_m.match_results
-                if x.json_data_id == match['id']]
+                if x.json_data_id == match['json_data_id']]
             if match_in_sq_m:
                 if len(match_in_sq_m) > 1:
                     app.logger.debug(
@@ -82,6 +67,29 @@ def get_or_create_search_query(search_query, page, use_cache=True):
             models.db.session.add(match_m)  # pylint: disable=no-member
         models.db.session.add(sq_m)  # pylint: disable=no-member
     models.db.session.commit()  # pylint: disable=no-member
+
+    return sq_m
+
+
+def get_or_create_search_query(search_query, page, use_cache=True):
+    """Get or create search query model."""
+    current_datetime = datetime.datetime.now()
+    sq_kwargs = {'query': search_query, 'page': page}
+    sq_m, sq_created = models.get_or_create(
+        models.db.session, models.SearchQuery, **sq_kwargs)
+    if sq_created:
+        sq_m.datetime_query = current_datetime
+        models.db.session.add(sq_m)  # pylint: disable=no-member
+        models.db.session.commit()  # pylint: disable=no-member
+
+    else:
+        app.logger.debug(
+            'Query already created and have %s match',
+            len(sq_m.match_results)
+        )
+    if sq_m.match_results and use_cache:
+        return sq_m, sq_created
+    sq_m = cache_search_query(sq_m, page)
     return sq_m, sq_created
 
 
