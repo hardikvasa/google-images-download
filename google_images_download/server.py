@@ -57,8 +57,6 @@ def cache_search_query(search_query_model, page):
                     )
                 assert match_in_sq_m[0].json_data == match['json_data']
                 match_m = match_in_sq_m[0]
-                # match_m.img_url = match['img_url']
-                # match_m.search_query = sq_m.id
             else:
                 match_m, _ = models.get_or_create(
                     models.db.session, models.MatchResult, **match)
@@ -124,69 +122,28 @@ def parse_json_resp_for_match_result(response):  # pylint: disable=invalid-name
         yield match_result, img_url
 
 
-@vcr.use_cassette(record_mode='new_episodes')
-def get_example_query_set(query='red'):
-    """Get example query set."""
-    result = {
-        'SearchQuery': {
-            'query': query, 'datetime_query': datetime.datetime.now(), 'page': 1
-        }
-    }
-    resp, query_url = get_json_resp(query, return_url=True)
-    result['SearchQuery']['query_url'] = query_url
-    result['response'] = resp
-    soup = BeautifulSoup(resp, 'html.parser')
-    result['soup'] = soup
-    for match in soup.select('.rg_bx'):
-        imgres_url = match.select_one('a').get('href', None)
-        json_data = json.loads(match.select_one('.rg_meta').text)
-        img_url = parse_qs(urlparse(imgres_url).query)['imgurl'][0]
-        match_result = {
-            'data_ved': match.get('data-ved', None),
-            'json_data': json_data,
-            'imgres_url': match.select_one('a').get('href', None),
-        }
-        result.setdefault('results', []).append(
-            {'MatchResult': match_result, 'tag': match, 'ImageURL': img_url})
-    return result
-
-
 def shell_context():
     """Return shell context."""
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     models.db.init_app(app)
-    return {
-        'app': app, 'db': models.db, 'models': models,
-        'example_query_set': get_example_query_set(),
-    }
+    return {'app': app, 'db': models.db, 'models': models, }
 
 
 def create_app(script_info=None):  # pylint: disable=unused-argument
     """Create app."""
     app.shell_context_processor(shell_context)
-    try:
-        app.config.from_object('google_images_download.server_default_settings')
-    except ImportError as err:
-        app.logger.debug(
-            "Module 'server_default_settings' is not found, error: %s", err)
-    try:
-        app.config.from_envvar('GOOGLE_IMAGES_DOWNLOAD_SERVER_SETTINGS')
-    except RuntimeError as err:
-        app.logger.debug(
-            "The environment variable "
-            "'GOOGLE_IMAGES_DOWNLOAD_SERVER_SETTINGS' is not set, error: %s", err)
-
     if not app.debug:
-        # https://docs.python.org/3.6/library/logging.handlers.html#timedrotatingfilehandler
         directory = 'log'
         if not os.path.exists(directory):
             os.makedirs(directory)
-        default_log_file = os.path.join(directory, 'google_images_download_server.log')
+        default_log_file = os.path.join(
+            directory, 'google_images_download_server.log')
         file_handler = TimedRotatingFileHandler(
             default_log_file, 'midnight')
         file_handler.setLevel(logging.WARNING)
-        file_handler.setFormatter(logging.Formatter('<%(asctime)s> <%(levelname)s> %(message)s'))
+        file_handler.setFormatter(
+            logging.Formatter('<%(asctime)s> <%(levelname)s> %(message)s'))
         app.logger.addHandler(file_handler)
 
     admin = Admin(app, name='google image download', template_mode='bootstrap3')
@@ -215,9 +172,9 @@ def debug():
 
 
 @app.cli.command()
-def initdb():
-    """Initialize the database."""
-    print('Init the db')
+def run_custom_command():
+    """Run custom command."""
+    print('run costum command.')
 
 
 if __name__ == '__main__':
