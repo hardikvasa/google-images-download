@@ -27,14 +27,14 @@ class ServerTestCase(unittest.TestCase):
         server.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = \
             False
         server.app.testing = True
-        self.app = server.app.test_client()
+        self.client = server.app.test_client()
         # setting app config to suppres warning
         with server.app.app_context():
-            self.app.application.config.setdefault('WTF_CSRF_ENABLED', False)
-            models.db.init_app(self.app.application)
+            self.client.application.config.setdefault('WTF_CSRF_ENABLED', False)
+            models.db.init_app(self.client.application)
             models.db.create_all()
             try:
-                server.Bootstrap(self.app.application)
+                server.Bootstrap(self.client.application)
             except AssertionError as err:
                 log.debug('Expected error: %s', err)
 
@@ -44,7 +44,7 @@ class ServerTestCase(unittest.TestCase):
 
     def test_index(self):
         """Test index."""
-        retval = self.app.get('/')
+        retval = self.client.get('/')
         assert retval.status_code == 200
         assert retval.data.decode()
 
@@ -52,7 +52,7 @@ class ServerTestCase(unittest.TestCase):
     @vcr.use_cassette(record_mode='new_episodes')
     def test_query(self):
         """Test method."""
-        with self.app.application.app_context():
+        with self.client.application.app_context():
             sq_m, sq_m_created = server.get_or_create_search_query('red', 1)
             assert sq_m
             assert sq_m_created
