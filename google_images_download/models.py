@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Model module."""
+from urllib.parse import parse_qs, urlparse
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_utils.types import URLType, JSONType
 
@@ -27,12 +28,6 @@ class SearchQuery(db.Model):  # pylint: disable=too-few-public-methods
         backref=db.backref('pages', lazy=True)
     )
 
-    def __repr__(self):
-        return '<SearchQuery [%s] page %s,on datetime %s>' % (
-            self.query, self.page,
-            self.datetime_q.strftime("%Y%m%d %H%M%S")
-        )
-
 
 class MatchResult(db.Model):  # pylint: disable=too-few-public-methods
     """Match result."""
@@ -44,11 +39,28 @@ class MatchResult(db.Model):  # pylint: disable=too-few-public-methods
     search_query = db.Column(
         db.Integer, db.ForeignKey('search_query.id'), nullable=False)
 
+    @property
+    def img_url_width(self):
+        """Get image url width."""
+        return parse_qs(urlparse(self.imgres_url).query).get('w', [None])[0]
+
+    @property
+    def img_url_height(self):
+        """Get image url height."""
+        return parse_qs(urlparse(self.imgres_url).query).get('h', [None])[0]
+
+    @property
+    def imgref_url(self):
+        """Get image ref url."""
+        return parse_qs(urlparse(self.imgres_url).query).get('imgrefurl', [None])[0]
+
 
 class ImageURL(db.Model):  # pylint: disable=too-few-public-methods
     """Image URL."""
     url = db.Column(URLType, primary_key=True)
-    match_results = db.relationship('MatchResult', backref='image_url', lazy=True)
+    width = db.Column(db.Integer)
+    height = db.Column(db.Integer)
+    match_results = db.relationship('MatchResult', backref='image_url', lazy='subquery')
 
 
 def get_or_create(session, model, **kwargs):
