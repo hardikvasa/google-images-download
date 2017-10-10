@@ -31,6 +31,7 @@
     {% if entry %}
     <p> query [{{entry.query}}] found {{entry.match_results|length}} match(s) </p>
     {% endif %}
+    {% if entry.match_results %}
     <h5>Match result</h5>
     <div>
     {% for match_results in entry.match_results|batch(2) %}
@@ -69,5 +70,6 @@
     <br/>
     {% endfor %}
     </div>
+    {% endif %}
   </div>
 {% endblock %}
