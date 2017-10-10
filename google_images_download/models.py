@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Model module."""
 from urllib.parse import parse_qs, urlparse
+import os
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_utils.types import URLType, JSONType
 
@@ -53,6 +55,11 @@ class MatchResult(db.Model):  # pylint: disable=too-few-public-methods
     def imgref_url(self):
         """Get image ref url."""
         return parse_qs(urlparse(self.imgres_url).query).get('imgrefurl', [None])[0]
+
+    @property
+    def img_url_basename(self):
+        """Get image url filename."""
+        return os.path.basename(self.img_url)
 
 
 class ImageURL(db.Model):  # pylint: disable=too-few-public-methods

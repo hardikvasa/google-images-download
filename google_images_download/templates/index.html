@@ -12,11 +12,11 @@
   <div class="container">
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-       <ul class=flashes>
-       {% for message in messages %}
-         <li>{{ message }}</li>
-       {% endfor %}
-       </ul>
+      <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
       {% endif %}
     {% endwith %}
     <p>Welcome to Google Image Download Server </p>
@@ -33,26 +33,28 @@
     {% endif %}
     <h5>Match result</h5>
     <div>
-    {% for match_result in entry.match_results %}
+    {% for match_results in entry.match_results|batch(2) %}
+    <div class="row">
+    {% for match_result in match_results %}
       <!--{{match_result|safe}}-->
       <!--loop index: {{loop.index}}-->
-      <div class="media col-md-6 text-center">
+      <div class="media col-lg-6">
         <div class="media-left">
           <figure>
-            <img style="max-width:256px" src='{{match_result.json_data['tu']}}'>
-      	    <figcaption>
-      	      {{match_result.img_url_width}}x{{match_result.img_url_height}}
-      	      <br/>
-      	      <span data-placement="left" data-toggle="tooltip" title="{{match_result.json_data['isu']}}">{{match_result.json_data['isu']|truncate(20)}}</span>
-      	    </figcaption>
+            <img style="max-width:128px;max-height:128px" src='{{match_result.json_data['tu']}}'>
+      	    <figcaption> {{match_result.img_url_width}}x{{match_result.img_url_height}} </figcaption>
           </figure>
         </div>
-        <div class="media-body text-left">
+        <div class="media-body">
           <h4 class="media-heading"> {{match_result.json_data['pt']}}</h4>
           <span>
 	    {% if match_result.json_data['s'] %}
             {{match_result.json_data['s']}}<br/>
 	    {% endif %}
+	    filename: {{match_result.img_url_basename}}
+	    <br/>
+	    site: <a href"{{match_result.json_data['isu']}}">{{match_result.json_data['isu']}}</a>
+	    <br/>
             link:
             <a class="label label-default" href="{{match_result.imgref_url}}">page</a>
             <a class="label label-default" href="{{match_result.img_url}}">image</a>
@@ -61,10 +63,11 @@
         {% for key, value in match_result.json_data.items()|sort %}
           <!--{{key}}: {{value}}-->
         {% endfor %}
-        <!--{{match_result.imgres_url}}-->
       </div>
     {% endfor %}
     </div>
+    <br/>
+    {% endfor %}
+    </div>
   </div>
-
 {% endblock %}

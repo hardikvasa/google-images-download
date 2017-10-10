@@ -4,6 +4,7 @@ from urllib.parse import urlparse, parse_qs
 import datetime
 import json
 import logging  # pylint: disable=ungrouped-imports
+import os
 
 from bs4 import BeautifulSoup
 from flask import Flask, render_template
@@ -48,8 +49,11 @@ def get_or_create_search_query(search_query, page):
     with models.db.session.no_autoflush:  # pylint: disable=no-member
 
         for match, imgurl in match_set:
+            imgres_url_query = parse_qs(urlparse(match['imgres_url']).query)
             imgurl_kwargs = {
                 'url': imgurl,
+                'width': imgres_url_query.get('w', [None])[0],
+                'height': imgres_url_query.get('h', [None])[0],
             }
             imgurl_m, _ = models.get_or_create(
                 models.db.session, models.ImageURL, **imgurl_kwargs)
@@ -135,22 +139,25 @@ def shell_context():
 
 def create_app(script_info=None):  # pylint: disable=unused-argument
     """Create app."""
-    # db.init_app(app)
     app.shell_context_processor(shell_context)
-
-    # app.config.from_object('google_images_download.server_default_settings')
+    try:
+        app.config.from_object('google_images_download.server_default_settings')
+    except ImportError as err:
+        app.logger.debug(
+            "Module 'server_default_settings' is not found, error: %s", err)
     try:
         app.config.from_envvar('GOOGLE_IMAGES_DOWNLOAD_SERVER_SETTINGS')
-    except RuntimeError:
+    except RuntimeError as err:
         app.logger.debug(
             "The environment variable "
-            "'GOOGLE_IMAGES_DOWNLOAD_SERVER_SETTINGS' is not set")
+            "'GOOGLE_IMAGES_DOWNLOAD_SERVER_SETTINGS' is not set, error: %s", err)
 
     if not app.debug:
         # https://docs.python.org/3.6/library/logging.handlers.html#timedrotatingfilehandler
-        default_log_file = 'google_images_download_server.log'
-        # file_handler = TimedRotatingFileHandler(
-        # os.path.join(app.config['LOG_DIR'], 'candidtim_flask.log'), 'midnight')
+        directory = 'log'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        default_log_file = os.path.join(directory, 'google_images_download_server.log')
         file_handler = TimedRotatingFileHandler(
             default_log_file, 'midnight')
         file_handler.setLevel(logging.WARNING)
