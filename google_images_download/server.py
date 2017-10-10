@@ -1,45 +1,68 @@
 """Server module."""
-from urllib.parse import urlencode
 from logging.handlers import TimedRotatingFileHandler
+from urllib.parse import urlparse, parse_qs
 import datetime
 import json
 import logging  # pylint: disable=ungrouped-imports
-import os
 
 from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
 from flask import Flask, render_template
 from flask.cli import FlaskGroup
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 from flask_bootstrap import Bootstrap
-import requests
 import vcr
 
 from google_images_download.forms import IndexForm
-from google_images_download.models import db
+from google_images_download import models
+from google_images_download.simple_gi import get_json_resp
+
 
 app = Flask(__name__)  # pylint: disable=invalid-name
 
 logging.basicConfig()
-vcr_log = logging.getLogger("vcr")
+vcr_log = logging.getLogger("vcr")  # pylint: disable=invalid-name
 vcr_log.setLevel(logging.INFO)
 
 
-def dump_html(response, html_path):
-    """Dump html from requests.get response."""
-    if isinstance(response, str):
-        text = response
+def get_or_create_search_query(search_query, page):
+    """Get or create search query model."""
+    current_datetime = datetime.datetime.now()
+    sq_kwargs = {'query': search_query, 'page': page}
+    sq_m, sq_created = models.get_or_create(
+        models.db.session, models.SearchQuery, **sq_kwargs)
+    if sq_created:
+        sq_m.datetime_query = current_datetime
+        models.db.session.add(sq_m)  # pylint: disable=no-member
+        models.db.session.commit()  # pylint: disable=no-member
+
     else:
-        text = response.text
-    try:
-        with open(html_path, 'w') as f:
-            f.write(text)
-    except OSError:
-        app.logger.debug('OS error when dumping resp text.')
-        dump_html_dir = os.path.dirname(html_path)
-        if not os.path.exists(dump_html_dir):
-            os.makedirs(dump_html_dir)
-        with open(html_path, 'w+') as f:
-            f.write(text)
+        app.logger.debug(
+            'Query already created and have %s match',
+            len(sq_m.match_results)
+        )
+
+    match_set = parse_json_resp_for_match_result(
+        get_json_resp(search_query, page - 1))
+
+    with models.db.session.no_autoflush:  # pylint: disable=no-member
+
+        for match, imgurl in match_set:
+            imgurl_kwargs = {
+                'url': imgurl,
+            }
+            imgurl_m, _ = models.get_or_create(
+                models.db.session, models.ImageURL, **imgurl_kwargs)
+            match['img_url'] = imgurl_m.url
+            match['search_query'] = sq_m.id
+            match_m, _ = models.get_or_create(
+                models.db.session, models.MatchResult, **match)
+            sq_m.match_results.append(match_m)
+            models.db.session.add(imgurl_m)  # pylint: disable=no-member
+            models.db.session.add(match_m)  # pylint: disable=no-member
+        models.db.session.add(sq_m)  # pylint: disable=no-member
+    models.db.session.commit()  # pylint: disable=no-member
+    return sq_m, sq_created
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -48,49 +71,66 @@ def index():
     """Get Index page."""
     form = IndexForm()
     if form.validate_on_submit():
-        query = form.query.data
-        url_base = 'https://google.com/search?{}'
-        url_q_dict = {'q': query, 'tbm': 'isch'}
-        url_q = url_base.format(urlencode(url_q_dict))
-        q_datetime_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        dump_html_path = os.path.join('dump', q_datetime_str + '.html')
-
-        ua = UserAgent()
-        resp = requests.get(
-            url_q, timeout=10, headers={'User-Agent': ua.firefox})
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        result = {'match': []}
-        match_tags = []
-        match_tags.extend(soup.select('#rg_s div.rg_bx'))
-        match_tags.extend(soup.select('.rg_add_chunk div.rg_bx'))
-        ou_values = []
-        for match_tag in match_tags:
-            rg_meta_tag = match_tag.select_one('.rg_meta')
-            if rg_meta_tag:
-                json_data = json.loads(rg_meta_tag.text),
-                result['match'].append({'json_data': json_data})
-                ou_values.append(json_data[0]['ou'])
+        page = 1
+        search_query = form.query.data
+        sq_m, _ = get_or_create_search_query(search_query, page - 1)
         app.logger.debug(
-            '%s match(s) found for [%s]', len(result['match']), query)
+            '%s match(s) found for [%s]', len(sq_m.match_results), sq_m.query)
+        return render_template('index.html', form=form, entry=sq_m)
+    return render_template('index.html', form=form, entry=None)
 
-        from google_images_download.simple_gi import get_json_resp
-        result2 = get_json_resp(query)
 
-        debug_info = {}
-        if app.debug:
-            dump_html(resp, dump_html_path)
-            debug_info['query'] = query
-            debug_info['url'] = url_q
-            debug_info['dump_html'] = (
-                os.path.abspath(dump_html_path), q_datetime_str + '.html')
-        return render_template(
-            'index.html', form=form, query=query, debug_info=debug_info, result=result)
-    return render_template('index.html', form=form)
+def parse_json_resp_for_match_result(response):  # pylint: disable=invalid-name
+    """Parse json response for match result."""
+    soup = BeautifulSoup(response, 'html.parser')
+    for match in soup.select('.rg_bx'):
+        imgres_url = match.select_one('a').get('href', None)
+        json_data = json.loads(match.select_one('.rg_meta').text)
+        img_url = parse_qs(urlparse(imgres_url).query)['imgurl'][0]
+        match_result = {
+            'data_ved': match.get('data-ved', None),
+            'json_data': json_data,
+            'imgres_url': match.select_one('a').get('href', None),
+        }
+        yield match_result, img_url
+
+
+@vcr.use_cassette(record_mode='new_episodes')
+def get_example_query_set(query='red'):
+    """Get example query set."""
+    result = {
+        'SearchQuery': {
+            'query': query, 'datetime_query': datetime.datetime.now(), 'page': 1
+        }
+    }
+    resp, query_url = get_json_resp(query, return_url=True)
+    result['SearchQuery']['query_url'] = query_url
+    result['response'] = resp
+    soup = BeautifulSoup(resp, 'html.parser')
+    result['soup'] = soup
+    for match in soup.select('.rg_bx'):
+        imgres_url = match.select_one('a').get('href', None)
+        json_data = json.loads(match.select_one('.rg_meta').text)
+        img_url = parse_qs(urlparse(imgres_url).query)['imgurl'][0]
+        match_result = {
+            'data_ved': match.get('data-ved', None),
+            'json_data': json_data,
+            'imgres_url': match.select_one('a').get('href', None),
+        }
+        result.setdefault('results', []).append(
+            {'MatchResult': match_result, 'tag': match, 'ImageURL': img_url})
+    return result
 
 
 def shell_context():
     """Return shell context."""
-    return {'app': app, 'db': db}
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    models.db.init_app(app)
+    return {
+        'app': app, 'db': models.db, 'models': models,
+        'example_query_set': get_example_query_set(),
+    }
 
 
 def create_app(script_info=None):  # pylint: disable=unused-argument
@@ -117,8 +157,10 @@ def create_app(script_info=None):  # pylint: disable=unused-argument
         file_handler.setFormatter(logging.Formatter('<%(asctime)s> <%(levelname)s> %(message)s'))
         app.logger.addHandler(file_handler)
 
-    # admin = Admin(app, name='microblog', template_mode='bootstrap3')
-    # Add administrative views here
+    admin = Admin(app, name='google image download', template_mode='bootstrap3')
+    admin.add_view(ModelView(models.SearchQuery, models.db.session))
+    admin.add_view(ModelView(models.MatchResult, models.db.session))
+    admin.add_view(ModelView(models.ImageURL, models.db.session))
     Bootstrap(app)
     return app
 
@@ -132,6 +174,11 @@ def debug():
     app.config.setdefault('WTF_CSRF_ENABLED', False)
     app.jinja_env.auto_reload = True
     app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gid_debug.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    models.db.init_app(app)
+    models.db.create_all()
+    logging.basicConfig(level=logging.DEBUG)
     app.run(debug=True)
 
 
