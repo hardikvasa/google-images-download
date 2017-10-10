@@ -5,6 +5,7 @@ python:
 install:
   - pip install .
   - pip install -r requirements-dev.txt
+  - pip install .[server]
 # command to run tests
 script:
   - python -m flake8

@@ -28,6 +28,16 @@ setuptools.setup(
     ],
     setup_requires=['pytest-runner', ],
     tests_require=['pytest', ],
+    extras_require={
+        'server': [
+            'Flask-Admin>=1.5.0',
+            'Flask-Bootstrap>=3.3.7.1',
+            'Flask-SQLAlchemy>=2.3.1',
+            'Flask-WTF>=0.14.2',
+            'Flask>=0.12.2',
+            'SQLAlchemy-Utils>=0.32.18',
+        ],
+    },
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Programming Language :: Python',
