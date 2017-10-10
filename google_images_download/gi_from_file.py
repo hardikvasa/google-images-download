@@ -33,7 +33,7 @@ def get_post_response(file_path, session=None, return_mode='response'):
     multipart = {'encoded_image': (file_path, open(file_path, 'rb')), 'image_content': ''}
     response = session.post(search_url, files=multipart, allow_redirects=False)
     if return_mode == 'url':
-        return response.heaers['Location']
+        return response.headers['Location']
     else:
         return response
 
@@ -108,7 +108,11 @@ def get_first_page_data(soup):
                 'length of tag '
                 'for page with matching image parsing is unexpected',
                 l=h_div_tag_len)
-        h_div_tag = h_div_tag[1]
+        if h_div_tag_len == 1:
+            log.debug('Use first tag section')
+            h_div_tag = h_div_tag[0]
+        else:
+            h_div_tag = h_div_tag[1]
         for h_tag in h_div_tag.select('.g'):
             pmi_item = {}
             pmi_item['link'] = h_tag.select_one('a').attrs.get('href', None)
@@ -184,11 +188,24 @@ def get_largest_image(file_path, session, n_max_size=1):
     return valid_parsed_res
 
 
+def get_first_page_data_from_file(file_path, session=None):
+    session = session if session is not None else get_default_session()
+    post_resp = get_post_response(file_path, session)
+    post_resp_headers = post_resp.headers
+    if 'Location' not in post_resp_headers:
+        log.debug('Can\'t find location url', headers=post_resp_headers)
+        return
+    resp = session.get(post_resp.headers['Location'])
+    soup = BeautifulSoup(resp.text, 'html.parser')
+
+    return get_first_page_data(soup)
+
+
 def search(file_path, mode='browser'):
     """Run simple program that search image."""
     session = get_default_session()
     if mode == 'data':
-        res = get_first_page_data(file_path, session)
+        res = get_first_page_data_from_file(file_path, session)
         pprint(res)
     elif mode in ('largest', 'largest-2size'):
         if mode == 'largest-2size':
