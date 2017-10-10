@@ -28,56 +28,43 @@
       {{ form.ending }}
       <input type="submit" value="Go">
     </form>
-    {% if query %}
-    <p> query [{{query}}] found {{result['match']|length}} match(s) </p>
+    {% if entry %}
+    <p> query [{{entry.query}}] found {{entry.match_results|length}} match(s) </p>
     {% endif %}
-    {% if debug_info %}
-      <ul>
-      {% for key, value in debug_info.items() %}
-        {% if key == 'url' %}
-        <li>{{key}}: <a href="{{value}}">{{ value.split('://')[1] }}</a></li>
-        {% elif key == 'dump_html' %}
-        <li>{{key}}: <a href="file://{{value[0]}}">{{ value[1] }}</a></li>
-        {% else %}
-        <!--{{key}}: {{value}}-->
-        {% endif %}
-      {% else %}
-        <!--Empty debug info-->
-      {% endfor %}
-      </ul>
-    {% endif %}
-
-    {% if result %}
     <h5>Match result</h5>
     <div>
-    {% for entry in result['match'] %}
-        <div class="media col-md-6 text-center">
-          <div class="media-left">
-            <figure>
-              <img style="max-width:256px" src='{{entry['json_data'][0]['tu']}}'>
-      	<figcaption>
-      	  {{entry['json_data'][0]['ow']}}x{{entry['json_data'][0]['oh']}}
-      	  <br/>
-      	  <span data-placement="left" data-toggle="tooltip" title="{{entry['json_data'][0]['isu']}}">{{entry['json_data'][0]['isu']|truncate(20)}}</span>
-      	</figcaption>
-            </figure>
-            </div>
-          <div class="media-body text-left">
-            <h4 class="media-heading"> {{entry['json_data'][0]['pt']}}</h4>
-	    <span>
-	      {{entry['json_data'][0]['s']}}<br/>
-	      link:
-	      <a class="label label-default" href="{{entry['json_data'][0]['ru']}}">page</a>
-	      <a class="label label-default" href="{{entry['json_data'][0]['ou']}}">image</a>
-	      <a class="label label-default" href="https://www.google.com/searchbyimage?image_url={{entry['json_data'][0]['ou']|urlencode}}&safe=off">google</a>
-          </div>
-          {% for key, value in entry['json_data'][0].items()|sort %}
-            <!--{{key}}: {{value}}-->
-          {% endfor %}
+    {% for match_result in entry.match_results %}
+      <!--{{match_result|safe}}-->
+      <!--loop index: {{loop.index}}-->
+      <div class="media col-md-6 text-center">
+        <div class="media-left">
+          <figure>
+            <img style="max-width:256px" src='{{match_result.json_data['tu']}}'>
+      	    <figcaption>
+      	      {{match_result.img_url_width}}x{{match_result.img_url_height}}
+      	      <br/>
+      	      <span data-placement="left" data-toggle="tooltip" title="{{match_result.json_data['isu']}}">{{match_result.json_data['isu']|truncate(20)}}</span>
+      	    </figcaption>
+          </figure>
         </div>
+        <div class="media-body text-left">
+          <h4 class="media-heading"> {{match_result.json_data['pt']}}</h4>
+          <span>
+	    {% if match_result.json_data['s'] %}
+            {{match_result.json_data['s']}}<br/>
+	    {% endif %}
+            link:
+            <a class="label label-default" href="{{match_result.imgref_url}}">page</a>
+            <a class="label label-default" href="{{match_result.img_url}}">image</a>
+            <a class="label label-default" href="https://www.google.com/searchbyimage?image_url={{match_result.img_url|urlencode}}&safe=off">google</a>
+        </div>
+        {% for key, value in match_result.json_data.items()|sort %}
+          <!--{{key}}: {{value}}-->
+        {% endfor %}
+        <!--{{match_result.imgres_url}}-->
+      </div>
     {% endfor %}
     </div>
-    {% endif %}
   </div>
 
 {% endblock %}
