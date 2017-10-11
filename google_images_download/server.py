@@ -1,13 +1,13 @@
 """Server module."""
 from logging.handlers import TimedRotatingFileHandler
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs, urlencode
 import datetime
 import json
 import logging  # pylint: disable=ungrouped-imports
 import os
 
 from bs4 import BeautifulSoup
-from flask import Flask, render_template
+from flask import Flask, render_template, request, url_for
 from flask.cli import FlaskGroup
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
@@ -15,7 +15,7 @@ from flask_bootstrap import Bootstrap
 import vcr
 
 from google_images_download.forms import IndexForm
-from google_images_download import models
+from google_images_download import models, pagination
 from google_images_download.simple_gi import get_json_resp
 
 
@@ -32,7 +32,7 @@ def cache_search_query(search_query_model, page):
     sq_m = search_query_model
 
     match_set = parse_json_resp_for_match_result(
-        get_json_resp(sq_m.query, page - 1))
+        get_json_resp(sq_m.query, page))
 
     with models.db.session.no_autoflush:  # pylint: disable=no-member
         for match, imgurl in match_set:
@@ -91,19 +91,32 @@ def get_or_create_search_query(search_query, page, use_cache=True):
     return sq_m, sq_created
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'], defaults={'page': 1})
+@app.route('/p/<int:page>')
 @vcr.use_cassette(record_mode='new_episodes')
-def index():
+def index(page=1):
     """Get Index page."""
     form = IndexForm()
-    if form.validate_on_submit():
-        page = 1
-        search_query = form.query.data
+    entry = None
+    search_query = request.args.get('query', None)
+    if form.validate_on_submit() or search_query:
+        if form.validate_on_submit():
+            search_query = form.query.data
         sq_m, _ = get_or_create_search_query(search_query, page - 1)
         app.logger.debug(
             '%s match(s) found for [%s]', len(sq_m.match_results), sq_m.query)
-        return render_template('index.html', form=form, entry=sq_m)
-    return render_template('index.html', form=form, entry=None)
+        entry = sq_m
+
+    def return_page_url(page_input):
+        url = url_for('index', page=page_input)
+        if search_query:
+            url += '?' + urlencode({'query': search_query})
+            return url
+
+    return render_template(
+        'index.html', form=form, entry=entry,
+        pagination=pagination.Pagination(page, return_page_url)
+    )
 
 
 def parse_json_resp_for_match_result(response):  # pylint: disable=invalid-name
@@ -162,13 +175,13 @@ def debug():
     """Run in debugging mode."""
     app.config.setdefault('WTF_CSRF_ENABLED', False)
     app.jinja_env.auto_reload = True
-    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    # app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gid_debug.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     models.db.init_app(app)
     models.db.create_all()
     logging.basicConfig(level=logging.DEBUG)
-    app.run(debug=True)
+    app.run(debug=True, use_debugger=True, use_reloader=True)
 
 
 @app.cli.command()

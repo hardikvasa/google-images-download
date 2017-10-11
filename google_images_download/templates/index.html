@@ -31,6 +31,7 @@
     <p> query [{{entry.query}}] found {{entry.match_results|length}} match(s) </p>
     {% endif %}
     {% if entry.match_results %}
+    {{ render_pagination(pagination) }}
     <h5>Match result</h5>
     <div>
     {% for match_results in entry.match_results|batch(2) %}
@@ -87,6 +88,37 @@
         </div>
       </div>
     </div>
+    {{ render_pagination(pagination) }}
     {% endif %}
   </div>
 {% endblock %}
+
+{% macro render_pagination(pagination) %}
+  <div class="pagination">
+    <nav>
+      <ul class="pagination">
+        {% if pagination.has_prev %}
+	<li><a href="{{ pagination.page_func(pagination.page - 1) }}">Prev &laquo;</a></li>
+	{% else %}
+	<li class="disabled"><a href="#">Prev &laquo;</a></li>
+        {% endif %}
+        {%- for page in pagination.iter_pages() %}
+          {% if page %}
+          {% if page != pagination.page %}
+	  <li> <a href="{{ pagination.page_func(page) }}">{{ page }}</a> </li>
+          {% else %}
+	  <li class="active"><a href="#"><strong>{{ page }}</a></strong></li>
+          {% endif %}
+          {% else %}
+	  <li><a href="#"><span class=ellipsis>…</span></a></li>
+          {% endif %}
+        {%- endfor %}
+        {% if pagination.has_next %}
+	<li><a href="{{ pagination.page_func(pagination.page + 1) }}">Next &raquo;</a></li>
+	{% else %}
+	<li class="disabled"><a href="#">Next &raquo;</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+{% endmacro %}
