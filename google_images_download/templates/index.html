@@ -9,32 +9,36 @@
 
 {% block content %}
   <div class="container">
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-      <ul class=flashes>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-    {% endwith %}
     <p>Welcome to Google Image Download Server </p>
     <form method="POST" action="{{ url_for('index') }}">
-      {{ form.csrf_token }}
-      {{ form.query.label }} {{ form.query(size=20) }}
-      <br><br>
-      {{ form.starting }}
-      {{ form.ending }}
-      <input type="submit" value="Go">
+      {# {{ form.csrf_token }} #}
+      <dl class="dl-horizontal">
+        <dt>{{ form.query.label }} </dt><dd>{{ form.query(size=20) }}</dd>
+	<dt>{{ form.disable_image.label }}</dt><dd>{{ form.disable_image(size=5) }}</dd>
+	<dt>{{ form.limit.label }}</dt><dd>{{ form.limit }}</dd>
+      </dl>
+      <p><input type="submit" value="Go">
     </form>
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{category}}">{{ message }}</div>
+      {% endfor %}
+      {% endif %}
+    {% endwith %}
     {% if entry %}
-    <p> query [{{entry.query}}] found {{entry.match_results|length}} match(s) </p>
+    <div class="alert alert-success" role="alert">query [{{entry.query}}] found {{entry.match_results|length}} match(s)</div>
     {% endif %}
     {% if entry.match_results %}
     {{ render_pagination(pagination) }}
     <h5>Match result</h5>
     <div>
-    {% for match_results in entry.match_results|batch(2) %}
+    {% if limit %}
+    {% set entry_match_results = entry.match_results[:limit] %}
+    {% else %}
+    {% set entry_match_results = entry.match_results%}
+    {% endif %}
+    {% for match_results in entry_match_results|batch(2) %}
     <div class="row">
     {% for match_result in match_results %}
       <!--{{match_result|safe}}-->
@@ -42,7 +46,9 @@
       <div class="media col-lg-6">
         <div class="media-left">
           <figure>
+	    {% if not disable_image %}
             <img style="max-width:128px;max-height:128px" src='{{match_result.json_data['tu']}}'>
+	    {% endif %}
 	    <figcaption class="text-center"><a href="{{match_result.img_url}}">{{match_result.img_url_width}}x{{match_result.img_url_height}}</a></figcaption>
           </figure>
         </div>
