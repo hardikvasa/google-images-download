@@ -7,8 +7,8 @@ import logging  # pylint: disable=ungrouped-imports
 import os
 
 from bs4 import BeautifulSoup
-from flask import Flask, render_template, request, url_for
-from flask.cli import FlaskGroup
+import click
+from flask import Flask, render_template, request, url_for, flash
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_bootstrap import Bootstrap
@@ -21,7 +21,6 @@ from google_images_download.simple_gi import get_json_resp
 
 app = Flask(__name__)  # pylint: disable=invalid-name
 
-logging.basicConfig()
 vcr_log = logging.getLogger("vcr")  # pylint: disable=invalid-name
 vcr_log.setLevel(logging.INFO)
 
@@ -99,24 +98,69 @@ def index(page=1):
     form = IndexForm()
     entry = None
     search_query = request.args.get('query', None)
-    if form.validate_on_submit() or search_query:
-        if form.validate_on_submit():
-            search_query = form.query.data
-        sq_m, _ = get_or_create_search_query(search_query, page - 1)
-        app.logger.debug(
-            '%s match(s) found for [%s]', len(sq_m.match_results), sq_m.query)
-        entry = sq_m
+    disable_image = request.args.get('disable_image', None)
+    limit = request.args.get('limit', None)
+    render_template_kwargs = {'form': form, 'entry': entry}
+
+    if search_query:
+        pass
+    elif form.validate_on_submit():
+        search_query = form.query.data
+        disable_image = form.disable_image.data
+        limit = form.limit.data
+    elif form.is_submitted() and not form.validate():
+        flash('Form is invalid.', 'danger')
+        return render_template('index.html', **render_template_kwargs)
+    else:
+        return render_template('index.html', **render_template_kwargs)
+
+    sq_m, _ = get_or_create_search_query(search_query, page - 1)
+    app.logger.debug(
+        '%s match(s) found for [%s]', len(sq_m.match_results), sq_m.query)
+    entry = sq_m
+
+    try:
+        if limit is not None:
+            limit = int(limit)
+            if limit > 0:
+                pass
+            else:
+                app.logger.debug('Unexpected limit, so reset the limit')
+                flash("Unexpected limit, limit disabled.", 'warning')
+                limit = None
+    except Exception as err:  # pylint: disable=broad-except
+        app.logger.error('Error when parsing limit. err:%s', err)
+        flash("Limit Error, limit disabled.", 'warning')
+        limit = None
+
+    if entry and entry.match_results and limit:
+        if limit > len(entry.match_results):
+            limit = len(entry.match_results)
+            msg = 'limit is capped at {}'.format(limit)
+            app.logger.debug(msg)
+            flash(msg, 'warning')
 
     def return_page_url(page_input):
+        """Return page url."""
         url = url_for('index', page=page_input)
+        q_dict = {}
         if search_query:
-            url += '?' + urlencode({'query': search_query})
-            return url
+            q_dict['query'] = search_query
+        if limit:
+            q_dict['limit'] = limit
+        if disable_image:
+            q_dict['disable_image'] = disable_image
+        if q_dict:
+            url += '?' + urlencode(q_dict)
+        return url
 
-    return render_template(
-        'index.html', form=form, entry=entry,
-        pagination=pagination.Pagination(page, return_page_url)
-    )
+    app.logger.debug('Limit: %s', limit)
+    render_template_kwargs.update({
+        'form': form, 'entry': entry,
+        'pagination': pagination.Pagination(page, return_page_url),
+        'disable_image': disable_image, 'limit': limit
+    })
+    return render_template('index.html', **render_template_kwargs)
 
 
 def parse_json_resp_for_match_result(response):  # pylint: disable=invalid-name
@@ -167,27 +211,48 @@ def create_app(script_info=None):  # pylint: disable=unused-argument
     return app
 
 
-cli = FlaskGroup(create_app=create_app)  # pylint: disable=invalid-name
+@click.command()
+@click.option("-h", "--host", default="127.0.0.1", type=str)
+@click.option("-p", "--port", default=5000, type=int)
+@click.option("-d", "--debug", is_flag=True)
+@click.option("-r", "--reloader", is_flag=True)
+def cli(host='127.0.0.1', port=5000, debug=False, reloader=False):
+    """Run the application server."""
+    if reloader:
+        app.jinja_env.auto_reload = True
+        app.config["TEMPLATES_AUTO_RELOAD"] = True
 
+    # logging
+    directory = 'log'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    default_log_file = os.path.join(
+        directory, 'google_images_download_server.log')
+    file_handler = TimedRotatingFileHandler(
+        default_log_file, 'midnight')
+    file_handler.setLevel(logging.WARNING)
+    file_handler.setFormatter(
+        logging.Formatter('<%(asctime)s> <%(levelname)s> %(message)s'))
+    app.logger.addHandler(file_handler)
 
-@app.cli.command()
-def debug():
-    """Run in debugging mode."""
-    app.config.setdefault('WTF_CSRF_ENABLED', False)
-    app.jinja_env.auto_reload = True
-    # app.config['TEMPLATES_AUTO_RELOAD'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gid_debug.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    models.db.init_app(app)
-    models.db.create_all()
-    logging.basicConfig(level=logging.DEBUG)
-    app.run(debug=True, use_debugger=True, use_reloader=True)
+    admin = Admin(app, name='google image download', template_mode='bootstrap3')
+    admin.add_view(ModelView(models.SearchQuery, models.db.session))
+    admin.add_view(ModelView(models.MatchResult, models.db.session))
+    admin.add_view(ModelView(models.ImageURL, models.db.session))
+    Bootstrap(app)
 
+    if debug:
+        app.config.from_object('google_images_download.server_debug_config')
+        models.db.init_app(app)
+        app.app_context().push()
+        models.db.create_all()
+        logging.basicConfig(level=logging.DEBUG)
 
-@app.cli.command()
-def run_custom_command():
-    """Run custom command."""
-    print('run costum command.')
+    app.run(
+        host=host, port=port,
+        debug=debug, use_debugger=debug,
+        use_reloader=reloader,
+    )
 
 
 if __name__ == '__main__':

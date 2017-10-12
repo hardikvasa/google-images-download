@@ -11,11 +11,11 @@
   <div class="container">
     <p>Welcome to Google Image Download Server </p>
     <form method="POST" action="{{ url_for('index') }}">
-      {# {{ form.csrf_token }} #}
+      {{ form.csrf_token }}
       <dl class="dl-horizontal">
         <dt>{{ form.query.label }} </dt><dd>{{ form.query(size=20) }}</dd>
-	<dt>{{ form.disable_image.label }}</dt><dd>{{ form.disable_image(size=5) }}</dd>
-	<dt>{{ form.limit.label }}</dt><dd>{{ form.limit }}</dd>
+	<dt>{{ form.disable_image.label }}</dt><dd>{{ form.disable_image() }}</dd>
+	<dt>{{ form.limit.label }}</dt><dd>{{ form.limit(size=5) }}</dd>
       </dl>
       <p><input type="submit" value="Go">
     </form>
