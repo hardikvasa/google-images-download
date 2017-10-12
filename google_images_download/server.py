@@ -15,7 +15,7 @@ from flask_bootstrap import Bootstrap
 import vcr
 
 from google_images_download.forms import IndexForm
-from google_images_download import models, pagination
+from google_images_download import models, pagination, admin
 from google_images_download.simple_gi import get_json_resp, get_json_resp_query_url
 
 
@@ -206,10 +206,10 @@ def create_app(script_info=None):  # pylint: disable=unused-argument
             logging.Formatter('<%(asctime)s> <%(levelname)s> %(message)s'))
         app.logger.addHandler(file_handler)
 
-    admin = Admin(app, name='google image download', template_mode='bootstrap3')
-    admin.add_view(ModelView(models.SearchQuery, models.db.session))
-    admin.add_view(ModelView(models.MatchResult, models.db.session))
-    admin.add_view(ModelView(models.ImageURL, models.db.session))
+    app_admin = Admin(app, name='google image download', template_mode='bootstrap3')
+    app_admin.add_view(ModelView(models.SearchQuery, models.db.session))
+    app_admin.add_view(ModelView(models.MatchResult, models.db.session))
+    app_admin.add_view(ModelView(models.ImageURL, models.db.session))
     Bootstrap(app)
     return app
 
@@ -238,10 +238,10 @@ def cli(host='127.0.0.1', port=5000, debug=False, reloader=False):
         logging.Formatter('<%(asctime)s> <%(levelname)s> %(message)s'))
     app.logger.addHandler(file_handler)
 
-    admin = Admin(app, name='google image download', template_mode='bootstrap3')
-    admin.add_view(ModelView(models.SearchQuery, models.db.session))
-    admin.add_view(ModelView(models.MatchResult, models.db.session))
-    admin.add_view(ModelView(models.ImageURL, models.db.session))
+    app_admin = Admin(app, name='google image download', template_mode='bootstrap3')
+    app_admin.add_view(admin.SearchQueryView(models.SearchQuery, models.db.session))
+    app_admin.add_view(admin.MatchResultView(models.MatchResult, models.db.session))
+    app_admin.add_view(ModelView(models.ImageURL, models.db.session))
     Bootstrap(app)
 
     if debug:
