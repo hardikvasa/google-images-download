@@ -15,16 +15,21 @@ def parse_page(html):
         yield query_dict['imgurl'][0]
 
 
-def get_json_resp(query, page=0, req_func=None, return_url=False):
-    """get json response."""
+def get_json_resp_query_url(query, page):
+    """Get url to get json response."""
     url_query = {
         'q': query, 'tbm': 'isch', 'ijn': str(page), 'start': str(page * 100),
         'asearch': 'ichunk', 'async': '_id:rg_s,_pms:s'
     }
-    url = ParseResult(
+    return ParseResult(
         scheme='https', netloc='google.com', path='/search', params=None,
         query=urlencode(url_query), fragment=None
     ).geturl()
+
+
+def get_json_resp(query, page=0, req_func=None, return_url=False):
+    """get json response."""
+    url = get_json_resp_query_url(query, page)
     if req_func is None:
         req = requests
         resp = req.get(url)

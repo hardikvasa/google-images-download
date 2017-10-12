@@ -16,7 +16,7 @@ import vcr
 
 from google_images_download.forms import IndexForm
 from google_images_download import models, pagination
-from google_images_download.simple_gi import get_json_resp
+from google_images_download.simple_gi import get_json_resp, get_json_resp_query_url
 
 
 app = Flask(__name__)  # pylint: disable=invalid-name
@@ -71,7 +71,10 @@ def cache_search_query(search_query_model, page):
 def get_or_create_search_query(search_query, page, use_cache=True):
     """Get or create search query model."""
     current_datetime = datetime.datetime.now()
-    sq_kwargs = {'query': search_query, 'page': page}
+    sq_kwargs = {
+        'query': search_query, 'page': page,
+        'query_url': get_json_resp_query_url(search_query, page)
+    }
     sq_m, sq_created = models.get_or_create(
         models.db.session, models.SearchQuery, **sq_kwargs)
     if sq_created:
