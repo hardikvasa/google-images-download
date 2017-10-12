@@ -60,7 +60,7 @@ class MatchResult(db.Model):  # pylint: disable=too-few-public-methods
     @property
     def img_url_basename(self):
         """Get image url filename."""
-        return os.path.basename(self.img_url)
+        return os.path.basename(urlparse(self.img_url).path)
 
 
 class ImageURL(db.Model):  # pylint: disable=too-few-public-methods
