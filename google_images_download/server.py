@@ -1,17 +1,19 @@
 """Server module."""
+from difflib import ndiff
 from logging.handlers import TimedRotatingFileHandler
-from urllib.parse import urlparse, parse_qs, urlencode
+from urllib.parse import urlparse, parse_qs, urlencode, urljoin
 import datetime
 import json
 import logging  # pylint: disable=ungrouped-imports
 import os
 
 from bs4 import BeautifulSoup
-import click
 from flask import Flask, render_template, request, url_for, flash
+from flask_restless import APIManager  # pylint: disable=import-error
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_bootstrap import Bootstrap
+import click
 import vcr
 
 from google_images_download.forms import IndexForm
@@ -25,25 +27,34 @@ vcr_log = logging.getLogger("vcr")  # pylint: disable=invalid-name
 vcr_log.setLevel(logging.INFO)
 
 
-def cache_search_query(search_query_model, page):
+def cache_search_query(search_query_model):
     """Cache search query."""
     # compatibility
     sq_m = search_query_model
+    page = sq_m.page
 
-    match_set = parse_json_resp_for_match_result(
+    matches = parse_json_resp_for_match_result(
         get_json_resp(sq_m.query, page))
 
     with models.db.session.no_autoflush:  # pylint: disable=no-member
-        for match, imgurl in match_set:
+        for match in matches:
             imgres_url_query = parse_qs(urlparse(match['imgres_url']).query)
-            imgurl_kwargs = {
-                'url': imgurl,
+            img_url_kwargs = {
+                'url': imgres_url_query.get('imgurl', [None])[0],
                 'width': imgres_url_query.get('w', [None])[0],
                 'height': imgres_url_query.get('h', [None])[0],
             }
-            imgurl_m, _ = models.get_or_create(
-                models.db.session, models.ImageURL, **imgurl_kwargs)
-            match['img_url'] = imgurl_m.url
+            img_url_m, _ = models.get_or_create(
+                models.db.session, models.ImageURL, **img_url_kwargs)
+            thumb_url_kwargs = {
+                'url': match['json_data']['tu'],
+                'width': match['json_data']['tw'],
+                'height': match['json_data']['th'],
+            }
+            thumb_url_m, _ = models.get_or_create(
+                models.db.session, models.ImageURL, **thumb_url_kwargs)
+            match['img_url'] = img_url_m.url
+            match['thumb_url'] = thumb_url_m.url
             match['search_query'] = sq_m.id
             match_in_sq_m = [
                 x for x in sq_m.match_results
@@ -60,7 +71,7 @@ def cache_search_query(search_query_model, page):
                 match_m, _ = models.get_or_create(
                     models.db.session, models.MatchResult, **match)
             sq_m.match_results.append(match_m)
-            models.db.session.add(imgurl_m)  # pylint: disable=no-member
+            models.db.session.add(img_url_m)  # pylint: disable=no-member
             models.db.session.add(match_m)  # pylint: disable=no-member
         models.db.session.add(sq_m)  # pylint: disable=no-member
     models.db.session.commit()  # pylint: disable=no-member
@@ -89,7 +100,7 @@ def get_or_create_search_query(search_query, page, use_cache=True):
         )
     if sq_m.match_results and use_cache:
         return sq_m, sq_created
-    sq_m = cache_search_query(sq_m, page)
+    sq_m = cache_search_query(sq_m)
     return sq_m, sq_created
 
 
@@ -171,15 +182,27 @@ def parse_json_resp_for_match_result(response):  # pylint: disable=invalid-name
     soup = BeautifulSoup(response, 'html.parser')
     for match in soup.select('.rg_bx'):
         imgres_url = match.select_one('a').get('href', None)
+        imgref_url = parse_qs(
+            urlparse(imgres_url).query).get('imgref_url', [None])[0]
         json_data = json.loads(match.select_one('.rg_meta').text)
-        img_url = parse_qs(urlparse(imgres_url).query)['imgurl'][0]
+        if json_data['msu'] != json_data['si']:
+            app.logger.warning(
+                ''.join(ndiff([json_data['msu']], [json_data['si']])))
+
         match_result = {
             'data_ved': match.get('data-ved', None),
+            'imgres_url': imgres_url,
+            'imgref_url': imgref_url,
+            # json data
             'json_data': json_data,
-            'imgres_url': match.select_one('a').get('href', None),
-            'json_data_id': json_data['id']
+            'json_data_id': json_data['id'],
+            'picture_title': json_data['pt'],
+            'site': json_data['isu'],
+            'site_title': json_data.get('st', None),
+            'img_ext': json_data['ity'],
+            'json_search_url': urljoin('https://www.google.com', json_data['msu'])
         }
-        yield match_result, img_url
+        yield match_result
 
 
 def shell_context():
@@ -244,6 +267,9 @@ def run(host='127.0.0.1', port=5000, debug=False, reloader=False):
         logging.Formatter('<%(asctime)s> <%(levelname)s> %(message)s'))
     app.logger.addHandler(file_handler)
 
+    api_manager = APIManager(app, flask_sqlalchemy_db=models.db)
+    api_manager.create_api(models.SearchQuery, methods=['GET'])
+    api_manager.create_api(models.MatchResult, methods=['GET'])
     app_admin = Admin(app, name='google image download', template_mode='bootstrap3')
     app_admin.add_view(admin.SearchQueryView(models.SearchQuery, models.db.session))
     app_admin.add_view(admin.MatchResultView(models.MatchResult, models.db.session))

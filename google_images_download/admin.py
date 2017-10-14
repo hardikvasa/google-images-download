@@ -65,4 +65,3 @@ class MatchResultView(ModelView):
         'imgres_url': url_formatter,
         'json_data': json_formatter,
     }
-    column_exclude_list = ('json_data_id', 'data_ved')

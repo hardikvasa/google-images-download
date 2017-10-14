@@ -65,6 +65,13 @@ class ServerTestCase(unittest.TestCase):
             assert len(sq_m.match_results) == 100
             assert not sq_m_created
 
+    @pytest.mark.no_travis
+    @vcr.use_cassette(record_mode='new_episodes')
+    def test_get_or_create_search_query(self):
+        """Test method."""
+        with self.client.application.app_context():
+            sq_m, _ = server.get_or_create_search_query('blue', 1)
+
 
 if __name__ == '__main__':
     unittest.main()
