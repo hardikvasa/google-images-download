@@ -35,7 +35,6 @@ class SearchQuery(db.Model):  # pylint: disable=too-few-public-methods
         'MatchResult', secondary=match_results, lazy='subquery',
         backref=db.backref('match_results', lazy=True)
     )
-    __table_args__ = (UniqueConstraint('query', 'page'),)
 
 
 class MatchResult(db.Model):  # pylint: disable=too-few-public-methods
@@ -71,6 +70,11 @@ class ImageURL(db.Model):  # pylint: disable=too-few-public-methods
         TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     width = db.Column(db.Integer)
     height = db.Column(db.Integer)
+
+    @property
+    def basename(self):
+        """Get image url filename."""
+        return os.path.basename(urlparse(self.url).path)
 
 
 def get_or_create(session, model, **kwargs):

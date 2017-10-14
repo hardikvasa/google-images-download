@@ -183,7 +183,7 @@ def parse_json_resp_for_match_result(response):  # pylint: disable=invalid-name
     for match in soup.select('.rg_bx'):
         imgres_url = match.select_one('a').get('href', None)
         imgref_url = parse_qs(
-            urlparse(imgres_url).query).get('imgref_url', [None])[0]
+            urlparse(imgres_url).query).get('imgrefurl', [None])[0]
         json_data = json.loads(match.select_one('.rg_meta').text)
         if json_data['msu'] != json_data['si']:
             app.logger.warning(
