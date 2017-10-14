@@ -214,12 +214,18 @@ def create_app(script_info=None):  # pylint: disable=unused-argument
     return app
 
 
-@click.command()
+@click.group()
+def cli():
+    """CLI command."""
+    pass
+
+
+@cli.command()
 @click.option("-h", "--host", default="127.0.0.1", type=str)
 @click.option("-p", "--port", default=5000, type=int)
 @click.option("-d", "--debug", is_flag=True)
 @click.option("-r", "--reloader", is_flag=True)
-def cli(host='127.0.0.1', port=5000, debug=False, reloader=False):
+def run(host='127.0.0.1', port=5000, debug=False, reloader=False):
     """Run the application server."""
     if reloader:
         app.jinja_env.auto_reload = True
