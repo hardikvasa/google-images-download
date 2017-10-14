@@ -95,7 +95,12 @@ def get_first_page_data(soup):
         vs_item['link'] = h_tag.select_one('a').attrs.get('href', None)
         vs_item['img_src'] = h_tag.select_one('img').attrs.get('src', None)
         vs_item['img_title'] = h_tag.select_one('img').attrs.get('title', None)
-        vs_item['json_data'] = json.loads(h_tag.select_one('.rg_meta').text)
+        vs_item['json_data'] = h_tag.select_one('.rg_meta')
+        if hasattr(vs_item['json_data'], 'text'):
+            vs_item['json_data'] = json.loads(h_tag.select_one('.rg_meta').text)
+        else:
+            log.debug('Can\'t find json data text on div.rg_meta')
+            vs_item['json_data'] = None
         res.setdefault('visually_similar_image_item', []).append(vs_item)
     # pages with matching image
     h_div_tag = [x for x in soup.select('#rso .srg')]
@@ -123,9 +128,13 @@ def get_first_page_data(soup):
                 pmi_item['text_data'] = pmi_item['text_data'].text
                 pmi_item['text'] = pmi_item['text'].replace(
                     pmi_item['text_data'], '', 1)
-            pmi_item['img_src'] = h_tag.select_one('img').attrs.get(
-                'src', None)
-            res.setdefault('pages_with_matching_image', []).append(vs_item)
+            pmi_item['img_src'] = h_tag.select_one('img')
+            if hasattr(pmi_item['img_src'], 'attrs'):
+                pmi_item['img_src'] = pmi_item['img_src'].attrs.get('src', None)
+            else:
+                log.debug('Can\'t find image source on img-tga')
+                pmi_item['img_src'] = None
+            res.setdefault('pages_with_matching_image', []).append(pmi_item)
     # pages link
     for h_tag in soup.select('table#nav a'):
         res.setdefault('pages_link', {}).update({
@@ -134,7 +143,13 @@ def get_first_page_data(soup):
     log.debug('other size', n=len(res['other_size']))
     log.debug('best guess', bg=res['best_guess'])
     log.debug('page results', n=len(res['page_results']))
-    log.debug('visually similar image link', vsil=res['visually_similar_image_link'][:70] + '...')
+    if res['visually_similar_image_link']:
+        log.debug(
+            'visually similar image link',
+            vsil=res['visually_similar_image_link'][:70] + '...'
+        )
+    else:
+        log.debug('visually similar image link not found.')
     log.debug('visually similar image item', n=len(res['visually_similar_image_item']))
     log.debug('Page with matching image', n=len(res['pages_with_matching_image']))
     return res
