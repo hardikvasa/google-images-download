@@ -8,5 +8,6 @@ install:
   - pip install .[server]
 # command to run tests
 script:
+  - python -m pylint --rcfile .pylintrc ./google_images_download
   - python -m flake8
   - pytest -m 'not no_travis'
