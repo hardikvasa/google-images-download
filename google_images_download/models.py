@@ -114,11 +114,14 @@ class Tag(db.Model):
 
     def __repr__(self):
         """Repr."""
+        return '<Tag {}, {}>'.format(self.id, self.full_name)
+
+    @property
+    def full_name(self):
+        """Get tag full name format."""
         if self.namespace:
-            tag_str = '{}:{}'.format(self.namespace, self.name)
-        else:
-            tag_str = name
-        return '<Tag {}, {}>'.format(self.name, tag_str)
+            return '{}:{}'.format(self.namespace, self.name)
+        return self.name
 
 
 def get_or_create(session, model, **kwargs):
