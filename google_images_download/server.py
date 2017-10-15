@@ -71,11 +71,8 @@ def cache_search_query(search_query_model):
                 match_m, _ = models.get_or_create(
                     models.db.session, models.MatchResult, **match)
             sq_m.match_results.append(match_m)
-            models.db.session.add(img_url_m)  # pylint: disable=no-member
-            models.db.session.add(match_m)  # pylint: disable=no-member
-        models.db.session.add(sq_m)  # pylint: disable=no-member
+    models.db.session.add(sq_m)  # pylint: disable=no-member
     models.db.session.commit()  # pylint: disable=no-member
-
     return sq_m
 
 
@@ -274,6 +271,7 @@ def run(host='127.0.0.1', port=5000, debug=False, reloader=False):
     app_admin.add_view(admin.SearchQueryView(models.SearchQuery, models.db.session))
     app_admin.add_view(admin.MatchResultView(models.MatchResult, models.db.session))
     app_admin.add_view(ModelView(models.ImageURL, models.db.session))
+    app_admin.add_view(ModelView(models.Tag, models.db.session))
     Bootstrap(app)
 
     if debug:
