@@ -101,9 +101,17 @@ def get_or_create_search_query(search_query, page, use_cache=True):
     return sq_m, sq_created
 
 
+@app.route('/u/', methods=['GET', 'POST'], defaults={'page': 1})
+@app.route('/u/p/<int:page>')
+def image_url_view(page=1):
+    """View for image url."""
+    search_url = request.args.get('u', None)
+    return render_template('image_url.html', entries=[search_url], page=page)
+
+
 @app.route('/', methods=['GET', 'POST'], defaults={'page': 1})
 @app.route('/p/<int:page>')
-@vcr.use_cassette(record_mode='new_episodes')
+# @vcr.use_cassette(record_mode='new_episodes')
 def index(page=1):
     """Get Index page."""
     form = IndexForm()
@@ -112,6 +120,9 @@ def index(page=1):
     disable_image = request.args.get('disable_image', None)
     limit = request.args.get('limit', None)
     render_template_kwargs = {'form': form, 'entry': entry}
+    page_from_query = request.args.get('page', None)
+    if page_from_query:
+        page = int(page_from_query)
 
     if search_query:
         pass
