@@ -42,7 +42,7 @@
     {% else %}
     {% set entry_match_results = entry.match_results%}
     {% endif %}
-    {% for match_results in entry_match_results|batch(2) %}
+    {% for match_results in entry_match_results|sort(attribute='id')|batch(2) %}
     <div class="row">
     {% for match_result in match_results %}
       <!--{{match_result|safe}}-->
@@ -51,7 +51,9 @@
         <div class="media-left">
           <figure>
 	    {% if not disable_image %}
-            <img style="max-width:128px;max-height:128px" src='{{match_result.thumbnail.url}}'>
+	    <a class="thumb" href="{{url_for('image_url_view', u=match_result.img_url)}}">
+	      <img style="max-width:128px;max-height:128px" src='{{match_result.thumbnail.url}}'>
+	    </a>
 	    {% endif %}
 	    <figcaption class="text-center">
 	      <a href="{{match_result.img_url}}">{{match_result.img_ext|upper}} {{match_result.image.width}}x{{match_result.image.height}}</a>
