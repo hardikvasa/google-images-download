@@ -18,15 +18,15 @@ match_results = db.Table(  # pylint: disable=invalid-name
 match_result_tags = db.Table(  # pylint: disable=invalid-name
     'match_result_tags',
     db.Column('match_result_id', db.Integer, db.ForeignKey('match_result.id'), primary_key=True),
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True))
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.full_name'), primary_key=True))
 search_query_tags = db.Table(  # pylint: disable=invalid-name
     'search_query_tags',
     db.Column('search_query_id', db.Integer, db.ForeignKey('search_query.id'), primary_key=True),
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True))
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.full_name'), primary_key=True))
 image_url_tags = db.Table(  # pylint: disable=invalid-name
     'image_url_tags',
     db.Column('image_url_id', db.Integer, db.ForeignKey('imageURL.url'), primary_key=True),
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True))
+    db.Column('tag_id', db.Integer, db.ForeignKey('tag.full_name'), primary_key=True))
 
 
 class SearchQuery(db.Model):
@@ -108,20 +108,23 @@ class ImageURL(db.Model):
 
 class Tag(db.Model):
     """Tag model."""
-    id = db.Column(db.Integer, primary_key=True)  # pylint: disable=invalid-name
-    name = db.Column(db.String, nullable=False)
-    namespace = db.Column(db.String)
-
-    def __repr__(self):
-        """Repr."""
-        return '<Tag {}, {}>'.format(self.id, self.full_name)
+    full_name = db.Column(db.String, primary_key=True)
+    created_at = db.Column(TIMESTAMP, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(
+        TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     @property
-    def full_name(self):
-        """Get tag full name format."""
-        if self.namespace:
-            return '{}:{}'.format(self.namespace, self.name)
-        return self.name
+    def name(self):
+        """Get tag name."""
+        if ':' in self.full_name:
+            return self.full_name.split(':', 1)[1]
+        return self.full_name
+
+    @property
+    def namespace(self):
+        """Get tag namespace."""
+        if ':' in self.full_name:
+            return self.full_name.split(':', 1)[0]
 
 
 def get_or_create(session, model, **kwargs):
