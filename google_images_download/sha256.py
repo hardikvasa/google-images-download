@@ -7,17 +7,17 @@ import sys
 def sha256_checksum(filename, block_size=65536):
     """sha256 checksum."""
     sha256 = hashlib.sha256()
-    with open(filename, 'rb') as f:
-        for block in iter(lambda: f.read(block_size), b''):
+    with open(filename, 'rb') as file_path:
+        for block in iter(lambda: file_path.read(block_size), b''):
             sha256.update(block)
     return sha256.hexdigest()
 
 
 def main():
     """main func."""
-    for f in sys.argv[1:]:
-        checksum = sha256_checksum(f)
-        print(f + '\t' + checksum)
+    for f_input in sys.argv[1:]:
+        checksum = sha256_checksum(f_input)
+        print(f_input + '\t' + checksum)
 
 
 if __name__ == '__main__':
