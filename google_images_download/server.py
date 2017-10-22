@@ -2,6 +2,7 @@
 from difflib import ndiff
 from logging.handlers import TimedRotatingFileHandler
 from urllib.parse import urlparse, parse_qs, urlencode, urljoin
+from json.decoder import JSONDecodeError
 import datetime
 import json
 import logging  # pylint: disable=ungrouped-imports
@@ -33,8 +34,12 @@ def cache_search_query(search_query_model):
     sq_m = search_query_model
     page = sq_m.page
 
-    matches = parse_json_resp_for_match_result(
-        get_json_resp(sq_m.query, page))
+    try:
+        matches = parse_json_resp_for_match_result(
+            get_json_resp(sq_m.query, page))
+
+    except JSONDecodeError as err:
+        return sq_m
 
     with models.db.session.no_autoflush:  # pylint: disable=no-member
         for match in matches:
@@ -55,7 +60,6 @@ def cache_search_query(search_query_model):
                 models.db.session, models.ImageURL, **thumb_url_kwargs)
             match['img_url'] = img_url_m.url
             match['thumb_url'] = thumb_url_m.url
-            match['search_query'] = sq_m.id
             match_in_sq_m = [
                 x for x in sq_m.match_results
                 if x.json_data_id == match['json_data_id']]
