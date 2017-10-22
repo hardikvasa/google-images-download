@@ -97,17 +97,17 @@
 	    <span style="display: inline-block;" >
 	      <button class="btn btn-info btn-xs" data-toggle="collapse" data-target="#img-url-list">show</button>
 	    </span>
-	  </h4>
-        </div>
+	  </h4>  <!-- .panel-title -->
+	</div>  <!-- .panel-heading -->
         <div id="img-url-list" class="panel-collapse collapse">
           <ul class="list-group">
 	    {% for match_result in entry.match_results|sort(attribute='img_url') %}
 	      <li style="word-wrap:break-word;" class="list-group-item"><a href="{{match_result.img_url}}">{{match_result.img_url}}</a></li>
 	    {% endfor %}
           </ul>
-        </div>
-      </div>
-    </div>
+	</div>  <!-- #img-url-list -->
+      </div>  <!-- .panel.panel-default -->
+    </div>  <!-- .panel-group -->
     {{ render_pagination(pagination) }}
     {% endif %}
   </div>
