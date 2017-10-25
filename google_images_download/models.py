@@ -1,19 +1,26 @@
 #!/usr/bin/env python3
 """Model module."""
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from datetime import datetime
 import os
 import tempfile
 import shutil
 
 from appdirs import user_data_dir
+from bs4 import BeautifulSoup
 from flask_sqlalchemy import SQLAlchemy
 from PIL import Image
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 from sqlalchemy_utils.types import URLType, JSONType, ChoiceType
+import requests
+import structlog
+from fake_useragent import UserAgent
 
 from google_images_download import sha256
+
+
+log = structlog.getLogger(__name__)   # pylint: disable=invalid-name
 
 db = SQLAlchemy()  # pylint: disable=invalid-name
 match_results = db.Table(  # pylint: disable=invalid-name
@@ -186,7 +193,34 @@ class SearchFile(ImageFile):
             return os.path.join(thumb_folder, self.thumbnail_checksum + '.jpg')
 
     @staticmethod
-    def get_or_create_from_input_file(file_path, thumb_folder=THUMB_FOLDER):
+    def get_page_search_result(file_path):
+        """Get page search result from file."""
+        res = {
+            'image_guess': None,
+            'search_url': None,
+            'similar_search_url': None,
+            'size_search_url': None,
+        }
+        try:
+            res['search_url'] = SearchFile.get_file_post_response(file_path, 'url')
+        except Exception as err:  # pylint: disable=broad-except
+            log.warning('Error getting search url', err=err)
+        if res['search_url'] is not None:
+            user_agent = UserAgent()
+            resp = requests.get(res['search_url'], headers={'User-Agent': user_agent.firefox})
+            search_page = BeautifulSoup(resp.text, 'lxml')
+            base_url = 'https://www.google.com'
+            size_search_url = search_page.select_one('._v6 .gl a').attrs.get('href', None)
+            if size_search_url:
+                res['size_search_url'] = urljoin(base_url, size_search_url)
+            similar_search_url = search_page.select_one('h3._DM a').attrs.get('href', None)
+            if similar_search_url:
+                res['similar_search_url'] = urljoin(base_url, similar_search_url)
+            res['image_guess'] = search_page.select_one('._hUb a').text
+        return res
+
+    @staticmethod
+    def get_or_create_from_input_file(file_path, thumb_folder=THUMB_FOLDER, get_page_search=False):
         """Get or create from file."""
         checksum = sha256.sha256_checksum(file_path)
         model, model_created = get_or_create(db.session, SearchFile, checksum=checksum)
@@ -205,7 +239,23 @@ class SearchFile(ImageFile):
             with db.session.no_autoflush:  # pylint: disable=no-member
                 thumb_m, _ = ImageFile.get_or_create_from_file(file_path=thumbnail_path)
                 model.thumbnail = thumb_m
+        if not get_page_search:
+            return model, True
+        res = model.SearchFile.get_page_search_result(file_path)
+        for key, item in res.items():
+            if item:
+                setattr(model, key, item)
         return model, True
+
+    @staticmethod
+    def get_file_post_response(file_path, return_mode='response'):
+        """Get post response."""
+        search_url = 'http://www.google.com/searchbyimage/upload'
+        multipart = {'encoded_image': (file_path, open(file_path, 'rb')), 'image_content': ''}
+        response = requests.post(search_url, files=multipart, allow_redirects=False)
+        if return_mode == 'url':
+            return response.headers['Location']
+        return response
 
 
 class SearchModel(db.Model):
