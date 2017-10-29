@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Model module."""
-from urllib.parse import urlparse, urljoin
 from datetime import datetime
+from difflib import ndiff
+from urllib.parse import urlparse, urljoin, urlencode, parse_qs
+import json
 import os
-import tempfile
 import shutil
+import tempfile
 
 from appdirs import user_data_dir
 from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 from flask_sqlalchemy import SQLAlchemy
 from PIL import Image
 from sqlalchemy.orm import relationship
@@ -15,7 +18,6 @@ from sqlalchemy.types import TIMESTAMP
 from sqlalchemy_utils.types import URLType, JSONType, ChoiceType
 import requests
 import structlog
-from fake_useragent import UserAgent
 
 from google_images_download import sha256
 
@@ -27,14 +29,14 @@ match_results = db.Table(  # pylint: disable=invalid-name
     'match_results',
     db.Column(
         'match_result_id', db.Integer, db.ForeignKey('match_result.id'), primary_key=True),
-    db.Column('search_query_id', db.Integer, db.ForeignKey('search_query.id'), primary_key=True))
+    db.Column('search_query_url', db.Integer, db.ForeignKey('search_query.query_url'), primary_key=True))
 match_result_tags = db.Table(  # pylint: disable=invalid-name
     'match_result_tags',
     db.Column('match_result_id', db.Integer, db.ForeignKey('match_result.id'), primary_key=True),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.full_name'), primary_key=True))
 search_query_tags = db.Table(  # pylint: disable=invalid-name
     'search_query_tags',
-    db.Column('search_query_id', db.Integer, db.ForeignKey('search_query.id'), primary_key=True),
+    db.Column('search_query_url', db.Integer, db.ForeignKey('search_query.query_url'), primary_key=True),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.full_name'), primary_key=True))
 image_url_tags = db.Table(  # pylint: disable=invalid-name
     'image_url_tags',
@@ -54,12 +56,11 @@ THUMB_FOLDER = os.path.join(user_data_dir('google_images_download', 'hardikvasa'
 
 class SearchQuery(db.Model):
     """Search query."""
-    id = db.Column(db.Integer, primary_key=True)  # pylint: disable=invalid-name
+    query_url = db.Column(URLType, primary_key=True)
     created_at = db.Column(TIMESTAMP, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
         TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     query = db.Column(db.String, nullable=False)
-    query_url = db.Column(URLType)
     page = db.Column(db.Integer)
     match_results = db.relationship(
         'MatchResult', secondary=match_results, lazy='subquery',
@@ -70,7 +71,30 @@ class SearchQuery(db.Model):
 
     def __repr__(self):
         """Repr."""
-        return '<Search query {}, query:[{}] page: {}>'.format(self.id, self.query, self.page)
+        return '<Search query:[{}] page: {}>'.format(self.query, self.page)
+
+    @staticmethod
+    def get_or_create_from_query(query, page=1):
+        """Get or create from query."""
+        url_query = {
+            'q': query, 'tbm': 'isch', 'ijn': str(page), 'start': str(int(page) * 100),
+            'asearch': 'ichunk', 'async': '_id:rg_s,_pms:s'
+        }
+        parsed_url = urlparse('https://www.google.com/search')
+        query_url = parsed_url._replace(query=urlencode(url_query)).geturl()
+        kwargs = {'query': query, 'query_url': query_url, 'page': page}
+        model, created = get_or_create(db.session, SearchQuery, **kwargs)
+        return model, created
+
+    def get_match_results(self):
+        """Get match results."""
+        if self.match_results:
+            return self.match_results
+        resp = requests.get(self.query_url)
+        res = MatchResult.get_or_create_from_json_resp(resp.json())
+        match_results = [x[0] for x in res]
+        self.match_results.add(match_results)
+        return match_results
 
 
 class MatchResult(db.Model):
@@ -104,6 +128,40 @@ class MatchResult(db.Model):
         """Repr."""
         return '<Match result {}, site: {}, title: {}>'.format(
             self.id, self.site, self.picture_title)
+
+    @staticmethod
+    def get_or_create_from_json_resp(json_resp):
+        """Get or create from json resp."""
+        html = json_resp[1][1]
+        soup = BeautifulSoup(html, 'html.parser')
+        for html_tag in soup.select('.rg_bx'):
+            model, created = MatchResult.get_or_create_from_html_tag(html_tag)
+            yield (model, created)
+
+    @staticmethod
+    def get_or_create_from_html_tag(html_tag):
+        """Get or create from html tag."""
+        imgres_url = html_tag.select_one('a').get('href', None)
+        imgref_url = parse_qs(
+            urlparse(imgres_url).query).get('imgrefurl', [None])[0]
+        json_data = json.loads(html_tag.select_one('.rg_meta').text)
+        if json_data['msu'] != json_data['si']:
+            log.warning(
+                ''.join(ndiff([json_data['msu']], [json_data['si']])))
+        kwargs = {
+            'data_ved': html_tag.get('data-ved', None),
+            'imgres_url': imgres_url,
+            'imgref_url': imgref_url,
+            # json data
+            'json_data': json_data,
+            'json_data_id': json_data['id'],
+            'picture_title': json_data['pt'],
+            'site': json_data['isu'],
+            'site_title': json_data.get('st', None),
+            'img_ext': json_data['ity'],
+            'json_search_url': urljoin('https://www.google.com', json_data['msu'])
+        }
+        return get_or_create(db.session, MatchResult, **kwargs)
 
 
 class ImageURL(db.Model):

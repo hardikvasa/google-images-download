@@ -1,4 +1,6 @@
 """Test for models module."""
+from urllib.parse import urlparse, parse_qs
+
 from PIL import Image
 from flask import Flask
 import pytest
@@ -45,16 +47,22 @@ def tmp_pic(tmpdir):
             'ved=0ahUKEwi3o6zp3IrXAhUJahoKHfAKCekQ2A4IIygB'}
 
 
-def test_get_or_create_from_file(tmpdir, tmp_pic):  # pylint: disable=redefined-outer-name
-    """Test method."""
+@pytest.fixture()
+def tmp_db(tmpdir):
+    """Get tmp db."""
     app = Flask(__name__)
-    tmp_db = tmpdir.join('temp.db')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + tmp_db.strpath
+    tmp_db_path = tmpdir.join('temp.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + tmp_db_path.strpath
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     models.db.init_app(app)
     app.app_context().push()
     models.db.create_all()
+    return models.db
 
+
+def test_get_or_create_from_file(tmpdir, tmp_pic, tmp_db):
+    # pylint: disable=redefined-outer-name, unused-argument
+    """Test method."""
     thumb_folder = tmpdir.mkdir('thumb')
     res, created = models.SearchFile.get_or_create_from_input_file(
         tmp_pic['image_input'].strpath, thumb_folder.strpath)
@@ -71,3 +79,38 @@ def test_get_page_search_result(tmp_pic):  # pylint: disable=redefined-outer-nam
     res = models.SearchFile.get_page_search_result(tmp_pic['image_input'].strpath)
     for key in ['search_url', 'similar_search_url', 'size_search_url', 'image_guess']:
         assert res[key] == tmp_pic[key], 'error on key: {}'.format(key)
+
+
+def test_get_or_create_from_query(tmp_db):
+    # pylint: disable=redefined-outer-name, unused-argument
+    """Test method."""
+    query = 'red'
+    query_url = \
+        'https://www.google.com/search' \
+        '?ijn=1&async=_id%3Arg_s%2C_pms%3As&q=red&tbm=isch&start=100&asearch=ichunk'
+    model1, created = models.SearchQuery.get_or_create_from_query(query)
+    assert created
+    exp_vars1 = {'page': 1, 'query': query, 'query_url': query_url}
+
+    def assert_model_and_exp_vars(model, exp_vars):
+        """Assert model and exp vars."""
+        model_vars = vars(model)
+        for key, item in exp_vars.items():
+            if key == 'query_url':
+                model_url = urlparse(model_vars[key])
+                ev_url = urlparse(exp_vars[key])
+                urlparse_keys = ['scheme', 'netloc', 'path', 'params', 'query', 'fragment']
+                for ukey in urlparse_keys:
+                    if ukey == 'query':
+                        assert \
+                            parse_qs(getattr(model_url, ukey)) == parse_qs(getattr(ev_url, ukey))
+                    else:
+                        assert getattr(model_url, ukey) == getattr(ev_url, ukey)
+            else:
+                assert item == model_vars[key]
+
+    assert_model_and_exp_vars(model1, exp_vars1)
+
+    model2, created = models.SearchQuery.get_or_create_from_query(query)
+    assert not created
+    assert_model_and_exp_vars(model2, exp_vars1)
