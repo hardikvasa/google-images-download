@@ -29,14 +29,16 @@ search_query_match_results = db.Table(  # pylint: disable=invalid-name
     'match_results',
     db.Column(
         'match_result_id', db.Integer, db.ForeignKey('match_result.id'), primary_key=True),
-    db.Column('search_query_url', db.Integer, db.ForeignKey('search_query.query_url'), primary_key=True))
+    db.Column(
+        'search_query_url', db.Integer, db.ForeignKey('search_query.query_url'), primary_key=True))
 match_result_tags = db.Table(  # pylint: disable=invalid-name
     'match_result_tags',
     db.Column('match_result_id', db.Integer, db.ForeignKey('match_result.id'), primary_key=True),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.full_name'), primary_key=True))
 search_query_tags = db.Table(  # pylint: disable=invalid-name
     'search_query_tags',
-    db.Column('search_query_url', db.Integer, db.ForeignKey('search_query.query_url'), primary_key=True),
+    db.Column(
+        'search_query_url', db.Integer, db.ForeignKey('search_query.query_url'), primary_key=True),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.full_name'), primary_key=True))
 image_url_tags = db.Table(  # pylint: disable=invalid-name
     'image_url_tags',
@@ -91,12 +93,53 @@ class SearchQuery(db.Model):
         if self.match_results:
             return self.match_results
         resp = requests.get(self.query_url)
-        res = MatchResult.get_or_create_from_json_resp(resp.json())
+        resp_json = resp.json()
+        res = MatchResult.get_or_create_from_json_resp(resp_json)
         res_match_results = [x[0] for x in res]
         self.match_results.extend(res_match_results)
         db.session.add(self)  # pylint: disable=no-member
         db.session.commit()  # pylint: disable=no-member
         return res_match_results
+
+
+class GoogleURLQuery(SearchQuery):
+    """Search file."""
+    __mapper_args__ = {'polymorphic_identity': 'google_url_query'}
+    data = db.Column(JSONType)
+
+    @property
+    def google_url(self):
+        """Get google url."""
+        parsed_url = urlparse('https://www.google.com/search')
+        url = parsed_url._replace(query=urlencode(self.data)).geturl()
+        return url
+
+    @staticmethod
+    def get_or_create_from_google_url(url, page=1):
+        """Get or create from google url."""
+        # compatibility
+        input_url = url
+
+        input_url_query = parse_qs(urlparse(input_url).query)
+        query = input_url_query.get('q', [None])[0]
+        url_query = {
+            'tbm': ['isch'], 'ijn': [str(page)], 'start': [str(int(page) * 100)],
+            'asearch': ['ichunk'], 'async': ['_id:rg_s,_pms:s']
+        }
+        for key, value in url_query.items():
+            if key in input_url_query and value == url_query[key]:
+                if key != 'tbm':
+                    log.debug('pop item', k=key)
+                input_url_query.pop(key, None)
+        url_query.update(input_url_query)
+        parsed_url = urlparse('https://www.google.com/search')
+        query_url = parsed_url._replace(query=urlencode(url_query, doseq=True)).geturl()
+        input_url_query_json = json.dumps(input_url_query)
+        kwargs = {
+            'query': query, 'query_url': query_url, 'page': page,
+            'data': input_url_query_json}
+        model, created = get_or_create(db.session, GoogleURLQuery, **kwargs)
+        return model, created
 
 
 class MatchResult(db.Model):

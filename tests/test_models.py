@@ -144,3 +144,19 @@ def test_unique_result_on_multisearch(tmp_db):
     model.get_match_results()
     m_res = models.MatchResult.query.all()
     assert len(m_res) == 200
+
+
+@pytest.mark.no_travis
+@vcr.use_cassette('cassette/test_get_or_create_from_google_url.yaml', record_mode='new_episodes')
+def test_get_or_create_from_google_url(tmp_db):
+    # pylint: disable=unused-argument,redefined-outer-name,invalid-name
+    """Test method."""
+    url = \
+        'https://www.google.co.id/search?biw=1362&bih=576&tbm=isch&sa=1'\
+        '&q=kobayashi+maid&oq=kobayashi+maid' \
+        '&gs_l=psy-ab.3..0j0i67k1l3j0j0i67k1j0l2j0i67k1j0.10744.' \
+        '12509.0.12676.7.6.1.0.0.0.334.474.0j1j0j1.2.0....0...1.1.64.' \
+        'psy-ab..4.3.482....0.HOUo_YnMT8k#imgrc=_'
+    model, _ = models.GoogleURLQuery.get_or_create_from_google_url(url)
+    res = model.get_match_results()
+    assert len(res) > 0
