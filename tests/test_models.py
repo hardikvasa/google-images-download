@@ -81,6 +81,7 @@ def test_get_page_search_result(tmp_pic):  # pylint: disable=redefined-outer-nam
         assert res[key] == tmp_pic[key], 'error on key: {}'.format(key)
 
 
+@pytest.mark.no_travis
 def test_get_or_create_from_query(tmp_db):
     # pylint: disable=redefined-outer-name, unused-argument
     """Test method."""
@@ -116,6 +117,7 @@ def test_get_or_create_from_query(tmp_db):
     assert_model_and_exp_vars(model2, exp_vars1)
 
 
+@pytest.mark.no_travis
 @vcr.use_cassette('cassette/test_get_match_results.yaml', record_mode='new_episodes')
 def test_get_match_results(tmp_db):
     # pylint: disable=redefined-outer-name, unused-argument
@@ -129,3 +131,16 @@ def test_get_match_results(tmp_db):
     assert item.image
     assert item.image.height > 0
     assert item.image.width > 0
+
+
+@pytest.mark.no_travis
+@vcr.use_cassette('cassette/test_unique_result_on_multisearch.yaml', record_mode='new_episodes')
+def test_unique_result_on_multisearch(tmp_db):
+    # pylint: disable=unused-argument,redefined-outer-name,invalid-name
+    """Test method."""
+    model, _ = models.SearchQuery.get_or_create_from_query('red')
+    model.get_match_results()
+    model, _ = models.SearchQuery.get_or_create_from_query('red', page=2)
+    model.get_match_results()
+    m_res = models.MatchResult.query.all()
+    assert len(m_res) == 200

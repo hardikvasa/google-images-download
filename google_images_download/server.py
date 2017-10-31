@@ -1,13 +1,9 @@
 """Server module."""
-from difflib import ndiff
 from logging.handlers import TimedRotatingFileHandler
-from urllib.parse import urlparse, parse_qs, urlencode, urljoin
-import datetime
-import json
+from urllib.parse import urlencode
 import logging  # pylint: disable=ungrouped-imports
 import os
 
-from bs4 import BeautifulSoup
 from flask import Flask, render_template, request, url_for, flash
 from flask_restless import APIManager  # pylint: disable=import-error
 from flask_admin import Admin
@@ -17,7 +13,6 @@ import click
 
 from google_images_download.forms import IndexForm
 from google_images_download import models, pagination, admin
-from google_images_download.simple_gi import get_json_resp, get_json_resp_query_url
 
 
 app = Flask(__name__)  # pylint: disable=invalid-name
@@ -31,7 +26,9 @@ vcr_log.setLevel(logging.INFO)
 def image_url_view(page=1):
     """View for image url."""
     search_url = request.args.get('u', None)
-    return render_template('image_url.html', entries=[search_url], page=page)
+    entries = [  # pylint: disable=no-member
+        models.ImageURL.query.filter_by(url=search_url).one_or_none()]
+    return render_template('image_url.html', entries=entries, page=page)
 
 
 @app.route('/', methods=['GET', 'POST'], defaults={'page': 1})

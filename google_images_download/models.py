@@ -119,7 +119,9 @@ class MatchResult(db.Model):
     # image and thumbnail
     img_url = db.Column(URLType, db.ForeignKey('imageURL.url'), nullable=False)
     thumb_url = db.Column(URLType, db.ForeignKey('imageURL.url'), nullable=False)
-    image = db.relationship('ImageURL', foreign_keys='MatchResult.img_url')
+    image = db.relationship(
+        'ImageURL', foreign_keys='MatchResult.img_url', lazy='subquery',
+        backref=db.backref('match_results', lazy=True))
     thumbnail = relationship('ImageURL', foreign_keys='MatchResult.thumb_url')
     # others
     tags = db.relationship(
