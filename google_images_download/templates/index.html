@@ -45,8 +45,6 @@
     {% for match_results in entry_match_results|sort(attribute='id')|batch(2) %}
     <div class="row">
     {% for match_result in match_results %}
-      <!--{{match_result|safe}}-->
-      <!--loop index: {{loop.index}}-->
       <div class="media col-lg-6">
         <div class="media-left">
           <figure>
@@ -81,9 +79,6 @@
 	    {% endif %}
 	  </span>
         </div>
-        {% for key, value in match_result.json_data.items()|sort %}
-          <!--{{key}}: {{value}}-->
-        {% endfor %}
       </div>
     {% endfor %}
     </div>
