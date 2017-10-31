@@ -114,3 +114,18 @@ def test_get_or_create_from_query(tmp_db):
     model2, created = models.SearchQuery.get_or_create_from_query(query)
     assert not created
     assert_model_and_exp_vars(model2, exp_vars1)
+
+
+@vcr.use_cassette('cassette/test_get_match_results.yaml', record_mode='new_episodes')
+def test_get_match_results(tmp_db):
+    # pylint: disable=redefined-outer-name, unused-argument
+    """Test method."""
+    search_query, _ = models.SearchQuery.get_or_create_from_query('red')
+    res = search_query.get_match_results()
+    item = res[0]
+    assert item.thumbnail
+    assert item.thumbnail.height > 0
+    assert item.thumbnail.width > 0
+    assert item.image
+    assert item.image.height > 0
+    assert item.image.width > 0

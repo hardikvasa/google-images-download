@@ -2,7 +2,6 @@
 from difflib import ndiff
 from logging.handlers import TimedRotatingFileHandler
 from urllib.parse import urlparse, parse_qs, urlencode, urljoin
-from json.decoder import JSONDecodeError
 import datetime
 import json
 import logging  # pylint: disable=ungrouped-imports
@@ -15,7 +14,6 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_bootstrap import Bootstrap
 import click
-import vcr
 
 from google_images_download.forms import IndexForm
 from google_images_download import models, pagination, admin
@@ -38,7 +36,8 @@ def cache_search_query(search_query_model):
         matches = parse_json_resp_for_match_result(
             get_json_resp(sq_m.query, page))
 
-    except JSONDecodeError as err:
+    except json.decoder.JSONDecodeError as err:
+        app.logger.debug('Error when caching. error:{}'.format(err))
         return sq_m
 
     with models.db.session.no_autoflush:  # pylint: disable=no-member
@@ -140,7 +139,9 @@ def index(page=1):
     else:
         return render_template('index.html', **render_template_kwargs)
 
-    sq_m, _ = get_or_create_search_query(search_query, page - 1)
+    sq_m, created = models.SearchQuery.get_or_create_from_query(search_query, page - 1)
+    if created or not sq_m.match_results:
+        sq_m.get_match_results()
     app.logger.debug(
         '%s match(s) found for [%s]', len(sq_m.match_results), sq_m.query)
     entry = sq_m

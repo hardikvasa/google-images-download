@@ -25,7 +25,7 @@ from google_images_download import sha256
 log = structlog.getLogger(__name__)   # pylint: disable=invalid-name
 
 db = SQLAlchemy()  # pylint: disable=invalid-name
-match_results = db.Table(  # pylint: disable=invalid-name
+search_query_match_results = db.Table(  # pylint: disable=invalid-name
     'match_results',
     db.Column(
         'match_result_id', db.Integer, db.ForeignKey('match_result.id'), primary_key=True),
@@ -63,7 +63,7 @@ class SearchQuery(db.Model):
     query = db.Column(db.String, nullable=False)
     page = db.Column(db.Integer)
     match_results = db.relationship(
-        'MatchResult', secondary=match_results, lazy='subquery',
+        'MatchResult', secondary=search_query_match_results, lazy='subquery',
         backref=db.backref('search_query', lazy=True))
     tags = db.relationship(
         'Tag', secondary=search_query_tags, lazy='subquery',
@@ -92,9 +92,11 @@ class SearchQuery(db.Model):
             return self.match_results
         resp = requests.get(self.query_url)
         res = MatchResult.get_or_create_from_json_resp(resp.json())
-        match_results = [x[0] for x in res]
-        self.match_results.add(match_results)
-        return match_results
+        res_match_results = [x[0] for x in res]
+        self.match_results.extend(res_match_results)
+        db.session.add(self)  # pylint: disable=no-member
+        db.session.commit()  # pylint: disable=no-member
+        return res_match_results
 
 
 class MatchResult(db.Model):
@@ -161,7 +163,41 @@ class MatchResult(db.Model):
             'img_ext': json_data['ity'],
             'json_search_url': urljoin('https://www.google.com', json_data['msu'])
         }
-        return get_or_create(db.session, MatchResult, **kwargs)
+
+        # img_url
+        imgres_url_query = parse_qs(urlparse(imgres_url).query)
+        url_from_img_url = imgres_url_query.get('imgurl', [None])[0]
+        img_url_kwargs = {
+            'url': url_from_img_url,
+            'width': int(imgres_url_query.get('w', [None])[0]),
+            'height': int(imgres_url_query.get('w', [None])[0]),
+        }
+        with db.session.no_autoflush:  # pylint: disable=no-member
+            img_url, _ = get_or_create(db.session, ImageURL, **{'url': url_from_img_url})
+        if img_url.height != img_url_kwargs['height']:
+            img_url.height = img_url_kwargs['height']
+        if img_url.width != img_url_kwargs['width']:
+            img_url.width = img_url_kwargs['width']
+        kwargs['image'] = img_url
+
+        # thumb_url
+        url_from_thumb_url = json_data['tu']
+        thumb_url_kwargs = {
+            'url': url_from_thumb_url,
+            'width': int(json_data['tw']),
+            'height': int(json_data['th']),
+        }
+        with db.session.no_autoflush:  # pylint: disable=no-member
+            thumb_url, _ = get_or_create(db.session, ImageURL, **{'url': url_from_thumb_url})
+        if thumb_url.height != thumb_url_kwargs['height']:
+            thumb_url.height = thumb_url_kwargs['height']
+        if thumb_url.width != thumb_url_kwargs['width']:
+            thumb_url.width = thumb_url_kwargs['width']
+        kwargs['thumbnail'] = thumb_url
+
+        with db.session.no_autoflush:  # pylint: disable=no-member
+            model, created = get_or_create(db.session, MatchResult, **kwargs)
+        return model, created
 
 
 class ImageURL(db.Model):
