@@ -26,84 +26,6 @@ vcr_log = logging.getLogger("vcr")  # pylint: disable=invalid-name
 vcr_log.setLevel(logging.INFO)
 
 
-def cache_search_query(search_query_model):
-    """Cache search query."""
-    # compatibility
-    sq_m = search_query_model
-    page = sq_m.page
-
-    try:
-        matches = parse_json_resp_for_match_result(
-            get_json_resp(sq_m.query, page))
-
-    except json.decoder.JSONDecodeError as err:
-        app.logger.debug('Error when caching. error:{}'.format(err))
-        return sq_m
-
-    with models.db.session.no_autoflush:  # pylint: disable=no-member
-        for match in matches:
-            imgres_url_query = parse_qs(urlparse(match['imgres_url']).query)
-            img_url_kwargs = {
-                'url': imgres_url_query.get('imgurl', [None])[0],
-                'width': imgres_url_query.get('w', [None])[0],
-                'height': imgres_url_query.get('h', [None])[0],
-            }
-            img_url_m, _ = models.get_or_create(
-                models.db.session, models.ImageURL, **img_url_kwargs)
-            thumb_url_kwargs = {
-                'url': match['json_data']['tu'],
-                'width': match['json_data']['tw'],
-                'height': match['json_data']['th'],
-            }
-            thumb_url_m, _ = models.get_or_create(
-                models.db.session, models.ImageURL, **thumb_url_kwargs)
-            match['img_url'] = img_url_m.url
-            match['thumb_url'] = thumb_url_m.url
-            match_in_sq_m = [
-                x for x in sq_m.match_results
-                if x.json_data_id == match['json_data_id']]
-            if match_in_sq_m:
-                if len(match_in_sq_m) > 1:
-                    app.logger.debug(
-                        'Found %s match result with same json data',
-                        len(match_in_sq_m)
-                    )
-                assert match_in_sq_m[0].json_data == match['json_data']
-                match_m = match_in_sq_m[0]
-            else:
-                match_m, _ = models.get_or_create(
-                    models.db.session, models.MatchResult, **match)
-            sq_m.match_results.append(match_m)
-    models.db.session.add(sq_m)  # pylint: disable=no-member
-    models.db.session.commit()  # pylint: disable=no-member
-    return sq_m
-
-
-def get_or_create_search_query(search_query, page, use_cache=True):
-    """Get or create search query model."""
-    current_datetime = datetime.datetime.now()
-    sq_kwargs = {
-        'query': search_query, 'page': page,
-        'query_url': get_json_resp_query_url(search_query, page)
-    }
-    sq_m, sq_created = models.get_or_create(
-        models.db.session, models.SearchQuery, **sq_kwargs)
-    if sq_created:
-        sq_m.datetime_query = current_datetime
-        models.db.session.add(sq_m)  # pylint: disable=no-member
-        models.db.session.commit()  # pylint: disable=no-member
-
-    else:
-        app.logger.debug(
-            'Query already created and have %s match',
-            len(sq_m.match_results)
-        )
-    if sq_m.match_results and use_cache:
-        return sq_m, sq_created
-    sq_m = cache_search_query(sq_m)
-    return sq_m, sq_created
-
-
 @app.route('/u/', methods=['GET', 'POST'], defaults={'page': 1})
 @app.route('/u/p/<int:page>')
 def image_url_view(page=1):
@@ -188,34 +110,6 @@ def index(page=1):
         'disable_image': disable_image, 'limit': limit
     })
     return render_template('index.html', **render_template_kwargs)
-
-
-def parse_json_resp_for_match_result(response):  # pylint: disable=invalid-name
-    """Parse json response for match result."""
-    soup = BeautifulSoup(response, 'html.parser')
-    for match in soup.select('.rg_bx'):
-        imgres_url = match.select_one('a').get('href', None)
-        imgref_url = parse_qs(
-            urlparse(imgres_url).query).get('imgrefurl', [None])[0]
-        json_data = json.loads(match.select_one('.rg_meta').text)
-        if json_data['msu'] != json_data['si']:
-            app.logger.warning(
-                ''.join(ndiff([json_data['msu']], [json_data['si']])))
-
-        match_result = {
-            'data_ved': match.get('data-ved', None),
-            'imgres_url': imgres_url,
-            'imgref_url': imgref_url,
-            # json data
-            'json_data': json_data,
-            'json_data_id': json_data['id'],
-            'picture_title': json_data['pt'],
-            'site': json_data['isu'],
-            'site_title': json_data.get('st', None),
-            'img_ext': json_data['ity'],
-            'json_search_url': urljoin('https://www.google.com', json_data['msu'])
-        }
-        yield match_result
 
 
 def shell_context():
