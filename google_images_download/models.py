@@ -500,7 +500,7 @@ class SearchModel(db.Model):
             log.debug('Not matching condition', search_type=search_type)
         if req_url is not None:
             user_agent = UserAgent()
-            resp = requests.get(req_url, headers={'User-Agent': user_agent.firefox})
+            resp = requests.get(req_url, headers={'User-Agent': user_agent.firefox}, timeout=10)
             soup = BeautifulSoup(resp.text, 'html.parser')
             for html_tag in soup.select('.rg_bx'):
                 model, _ = MatchResult.get_or_create_from_html_tag(html_tag)
