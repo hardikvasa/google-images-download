@@ -31,8 +31,10 @@
 	  <a href="{{entry.search_file.similar_search_url}}">{{entry.search_file.similar_search_url|truncate(70) if entry.search_file.similar_search_url}}</a>
 	</td>
       </tr>
-      <tr><td>Size search url</td><td><a href="{{entry.search_file.size_search_url}}">{{entry.search_file.size_search_url|truncate(70)}}</a></td></tr>
-      <tr><td>Image guess</td><td>{{entry.search_file.image_guess}}</td></tr>
+      <tr>
+        <td>Size search url</td>
+	<td><a href="{{entry.search_file.size_search_url}}">{{entry.search_file.size_search_url|truncate(70) if entry.search_file.size_search_url}}</a></td></tr>
+      <tr><td>Image guess</td><td>{{entry.search_file.image_guess if entry.search_file.image_guess}}</td></tr>
     </table>
     {{show_match_results(entry.match_results)}}
     {% endif %}
