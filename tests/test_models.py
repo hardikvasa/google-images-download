@@ -172,6 +172,9 @@ def test_get_result_from_file(tmp_db, tmp_pic):
     model, created = models.SearchModel.get_or_create_from_file(
         tmp_pic['image_input'].strpath, 'size')
     first_match_result_total = len(model.match_results)
+    url_keys = ['search_url', 'similar_search_url', 'size_search_url', 'image_guess']
+    for key in url_keys:
+        assert getattr(model.search_file, key), 'key:{}'.format(key)
     assert created
     assert first_match_result_total > 0  # pylint: disable=len-as-condition
     assert model.search_file_id == tmp_pic['checksum']

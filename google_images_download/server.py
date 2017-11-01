@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 import logging  # pylint: disable=ungrouped-imports
 import os
 
-from flask import Flask, render_template, request, url_for, flash
+from flask import Flask, render_template, request, url_for, flash, send_from_directory
 from flask_restless import APIManager  # pylint: disable=import-error
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
@@ -107,6 +107,29 @@ def index(page=1):
         'disable_image': disable_image, 'limit': limit
     })
     return render_template('index.html', **render_template_kwargs)
+
+
+@app.route('/t/<path:filename>')
+def thumbnail(filename):
+    """Thumbnail url."""
+    return send_from_directory(models.THUMB_FOLDER, filename)
+
+
+@app.route('/f/size/', methods=['GET'], defaults={'page': 1})
+@app.route('/f/size/p/<int:page>')
+# @vcr.use_cassette(record_mode='new_episodes')
+def file_similar_search_page(page=1):
+    """Get search page using google url."""
+    file_path = request.args.get('file', None)
+    render_template_kwargs = {}
+    if not file_path:
+        return render_template(
+            'google_images_download/file_size_search.html', entry=None, **render_template_kwargs)
+    entry = models.SearchModel.get_or_create_from_file(file_path, 'size', page)[0]
+    if not entry.search_file.thumbnail:
+        entry.search_file.create_thumbnail(file_path)
+    return render_template(
+        'google_images_download/file_size_search.html', entry=entry, **render_template_kwargs)
 
 
 def shell_context():

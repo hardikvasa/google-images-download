@@ -70,6 +70,7 @@ class SearchQuery(db.Model):
     tags = db.relationship(
         'Tag', secondary=search_query_tags, lazy='subquery',
         backref=db.backref('search_query', lazy=True), enable_typechecks=False)
+    query_data = db.Column(JSONType)
 
     def __repr__(self):
         """Repr."""
@@ -101,17 +102,11 @@ class SearchQuery(db.Model):
         db.session.commit()  # pylint: disable=no-member
         return res_match_results
 
-
-class GoogleURLQuery(SearchQuery):
-    """Search file."""
-    __mapper_args__ = {'polymorphic_identity': 'google_url_query'}
-    data = db.Column(JSONType)
-
     @property
     def google_url(self):
         """Get google url."""
         parsed_url = urlparse('https://www.google.com/search')
-        url = parsed_url._replace(query=urlencode(self.data)).geturl()
+        url = parsed_url._replace(query=urlencode(self.query_data)).geturl()
         return url
 
     @staticmethod
@@ -137,8 +132,8 @@ class GoogleURLQuery(SearchQuery):
         input_url_query_json = json.dumps(input_url_query)
         kwargs = {
             'query': query, 'query_url': query_url, 'page': page,
-            'data': input_url_query_json}
-        model, created = get_or_create(db.session, GoogleURLQuery, **kwargs)
+            'query_data': input_url_query_json}
+        model, created = get_or_create(db.session, SearchQuery, **kwargs)
         return model, created
 
 
@@ -329,11 +324,6 @@ class SearchFile(ImageFile):
     size_search_url = db.Column(URLType)
     image_guess = db.Column(db.String)
 
-    def get_thumb_path(self, thumb_folder=THUMB_FOLDER):
-        """Get thumbnail path."""
-        if self.thumbnail_checksum:
-            return os.path.join(thumb_folder, self.thumbnail_checksum + '.jpg')
-
     @staticmethod
     def get_page_search_result(file_path):
         """Get page search result from file."""
@@ -355,11 +345,39 @@ class SearchFile(ImageFile):
             size_search_url = search_page.select_one('._v6 .gl a').attrs.get('href', None)
             if size_search_url:
                 res['size_search_url'] = urljoin(base_url, size_search_url)
-            similar_search_url = search_page.select_one('h3._DM a').attrs.get('href', None)
-            if similar_search_url:
-                res['similar_search_url'] = urljoin(base_url, similar_search_url)
+            similar_search_tag = search_page.select_one('h3._DM a')
+            if similar_search_tag:
+                similar_search_url = similar_search_tag.attrs.get('href', None)
+                if similar_search_url:
+                    res['similar_search_url'] = urljoin(base_url, similar_search_url)
             res['image_guess'] = search_page.select_one('._hUb a').text
         return res
+
+    @property
+    def thumbnail_basename(self):
+        """Get thumbnail basename."""
+        if self.thumbnail_checksum:
+            return self.thumbnail_checksum + '.jpg'
+
+    @property
+    def default_thumbnail_path(self):
+        """Get default thumbnail path."""
+        if self.thumbnail_checksum:
+            return os.path.join(THUMB_FOLDER, self.thumbnail_basename)
+
+    def is_thumbnail_exist(self, thumb_folder=THUMB_FOLDER):
+        """Check if thumbnail exist."""
+        if not self.thumbnail_checksum:
+            return
+        thumbnail_path = self.get_thumb_path(thumb_folder)
+        if not thumbnail_path:
+            return None
+        return os.path.isfile(thumbnail_path)
+
+    def get_thumb_path(self, thumb_folder=THUMB_FOLDER):
+        """Get thumbnail path."""
+        if self.thumbnail_checksum:
+            return os.path.join(thumb_folder, self.thumbnail_basename)
 
     def create_thumbnail(self, file_path, thumb_folder=THUMB_FOLDER):
         """Create thumbnail."""
@@ -376,15 +394,17 @@ class SearchFile(ImageFile):
                 self.thumbnail_checksum = thumb_m.checksum
 
     @staticmethod
-    def get_or_create_from_input_file(file_path, thumb_folder=THUMB_FOLDER, get_page_search=False):
+    def get_or_create_from_input_file(
+            file_path, thumb_folder=THUMB_FOLDER, get_page_search=False, use_cache=True):
         """Get or create from file."""
         checksum = sha256.sha256_checksum(file_path)
         model, model_created = get_or_create(db.session, SearchFile, checksum=checksum)
         db.session.commit()  # pylint: disable=no-member
-        if not model_created:
+        if not model_created and use_cache:
             return model, False
         model.image, _ = ImageFile.get_or_create_from_file(file_path=file_path)
-        model.create_thumbnail(file_path, thumb_folder)
+        if not model.is_thumbnail_exist(thumb_folder):
+            model.create_thumbnail(file_path, thumb_folder)
         if not get_page_search:
             return model, True
         keys_values = [
@@ -392,7 +412,7 @@ class SearchFile(ImageFile):
             for x in [
                 'image_guess', 'search_url', 'similar_search_url', 'size_search_url']
         ]
-        if not any(keys_values):
+        if not any(keys_values) or not use_cache:
             res = SearchFile.get_page_search_result(file_path)
             for key, item in res.items():
                 if item:
@@ -421,37 +441,44 @@ class SearchModel(db.Model):
     updated_at = db.Column(
         TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     search_file_id = db.Column(db.String, db.ForeignKey('image_file.checksum'))
+    search_file = relationship(
+        "SearchFile", backref="search_model", remote_side='SearchFile.checksum',
+        enable_typechecks=False)
     search_file = db.relationship('SearchFile', backref='search_models')
     search_type = db.Column(ChoiceType(TYPES))
     page = db.Column(db.Integer)
     match_results = db.relationship(
         'MatchResult', secondary=search_model_match_results, lazy='subquery',
-        backref=db.backref('search_models', lazy=True))
+        backref=db.backref('search_models', lazy=True), enable_typechecks=False)
 
     @staticmethod
-    def get_or_create_from_file(file_input, search_type, page=1):
+    def get_or_create_from_file(file_input, search_type, page=1, use_cache=True):
         """Get result from file."""
         with db.session.no_autoflush:  # pylint: disable=no-member
             file_model, _ = SearchFile.get_or_create_from_input_file(
-                file_input, get_page_search=True)
+                file_input, get_page_search=True, use_cache=use_cache)
+        db.session.add(file_model)  # pylint: disable=no-member
+        db.session.commit()  # pylint: disable=no-member
         kwargs = {
-            'search_file_id': file_model.checksum,
+            'search_file': file_model,
             'search_type': search_type,
             'page': page,
         }
         with db.session.no_autoflush:  # pylint: disable=no-member
             sm_model, created = get_or_create(db.session, SearchModel, **kwargs)
+        db.session.add(sm_model)  # pylint: disable=no-member
+        db.session.commit()  # pylint: disable=no-member
         match_results = None
-        if sm_model.match_results:
+        if sm_model.match_results and use_cache:
             return sm_model, created
         if search_type == 'similar'and file_model.similar_search_url:
             with db.session.no_autoflush:  # pylint: disable=no-member
-                gu_query, _ = GoogleURLQuery.get_or_create_from_google_url(
+                gu_query, _ = SearchQuery.get_or_create_from_google_url(
                     file_model.similar_search_url, page)
             match_results = gu_query.get_match_results()
         elif search_type == 'size' and file_model.size_search_url:
             with db.session.no_autoflush:  # pylint: disable=no-member
-                gu_query, _ = GoogleURLQuery.get_or_create_from_google_url(
+                gu_query, _ = SearchQuery.get_or_create_from_google_url(
                     file_model.size_search_url, page)
             match_results = gu_query.get_match_results()
         elif search_type not in list(zip(*SearchModel.TYPES))[0]:
