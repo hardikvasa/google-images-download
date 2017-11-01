@@ -1,5 +1,6 @@
 """Test for models module."""
 from urllib.parse import urlparse, parse_qs
+import os
 
 from PIL import Image
 from flask import Flask
@@ -159,4 +160,23 @@ def test_get_or_create_from_google_url(tmp_db):
         'psy-ab..4.3.482....0.HOUo_YnMT8k#imgrc=_'
     model, _ = models.GoogleURLQuery.get_or_create_from_google_url(url)
     res = model.get_match_results()
-    assert len(res) > 0
+    assert len(res) > 0  # pylint: disable=len-as-condition
+
+
+@pytest.mark.no_travis
+@vcr.use_cassette('cassette/test_get_result_from_file.yaml', record_mode='new_episodes')
+def test_get_result_from_file(tmp_db, tmp_pic):
+    # pylint: disable=unused-argument,redefined-outer-name,invalid-name
+    """Test method."""
+    os.makedirs(models.THUMB_FOLDER, exist_ok=True)
+    model, created = models.SearchModel.get_or_create_from_file(
+        tmp_pic['image_input'].strpath, 'size')
+    first_match_result_total = len(model.match_results)
+    assert created
+    assert first_match_result_total > 0  # pylint: disable=len-as-condition
+    assert model.search_file_id == tmp_pic['checksum']
+    assert model.search_file.thumbnail_checksum == tmp_pic['thumb_checksum']
+    model, created = models.SearchModel.get_or_create_from_file(
+        tmp_pic['image_input'].strpath, 'size')
+    assert not created
+    assert first_match_result_total == len(model.match_results)
