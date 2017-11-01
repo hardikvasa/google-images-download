@@ -1,0 +1,40 @@
+{% extends "google_images_download/base.html" %}
+
+{% block content %}
+  <div class="container">
+    <form class="form" method="GET" action="{{ url_for('from_file_search_page') }}">
+      <div class="form-group">
+        <label for="file">File path</label>
+	<input class="form-control" type="text" id="file" name="file">
+        <label>Search type</label>
+	<label class="radio-inline">
+	 <input name="search_type" id="search_type_similar" value="similar" type="radio" checked />similar
+	</label>
+	<label class="radio-inline">
+	 <input name="search_type" id="search_type_size" value="size" type="radio" />size
+	</label>
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+    {% if entry %}
+    <img src="{{url_for('thumbnail', filename=entry.search_file.thumbnail_basename)}}">
+    <table class="table table-condensed table-bordered">
+      <tr>
+        <td>Search url</td>
+	<td>
+          <a href="{{entry.search_file.search_url}}">{{entry.search_file.search_url|truncate(70) if entry.search_file.search_url}}</a>
+	</td>
+      </tr>
+      <tr>
+        <td>Similar search url</td>
+	<td>
+	  <a href="{{entry.search_file.similar_search_url}}">{{entry.search_file.similar_search_url|truncate(70) if entry.search_file.similar_search_url}}</a>
+	</td>
+      </tr>
+      <tr><td>Size search url</td><td><a href="{{entry.search_file.size_search_url}}">{{entry.search_file.size_search_url|truncate(70)}}</a></td></tr>
+      <tr><td>Image guess</td><td>{{entry.search_file.image_guess}}</td></tr>
+    </table>
+    {{show_match_results(entry.match_results)}}
+    {% endif %}
+  </div>
+{% endblock %}

@@ -26,10 +26,17 @@
       <tr> <td>JSON data ID</td> <td>{{match_result.json_data_id}}</td> </tr>
       <tr> <td>JSON search url</td> <td><a href="{{match_result.json_search_url}}">{{match_result.json_search_url}}</a></td> </tr>
       <tr> <td>Picture title</td> <td class="tag-picture-title"><a href="#">{{match_result.picture_title}}</a></td> </tr>
+      <tr> <td>Picture subtitle</td> <td class="tag-picture-subtitle"><a href="#">{{match_result.picture_subtitle}}</a></td> </tr>
+      <tr>
+        <td>Image page url</td>
+	<td class="tag-page-url">
+          <a href="{{match_result.image_page_url if match_result.image_page_url else '#'}}">{{match_result.image_page_url}}</a>
+	</td>
+      </tr>
       <tr> <td>Site</td> <td class="tag-site"><a href="https://{{match_result.site}}">{{match_result.site}}</a></td> </tr>
       <tr> <td>Site title</td> <td class="tag-site-title"><a href="#">{{match_result.site_title}}</a></td> </tr>
       <tr>
-        <td> Search query</td>
+        <td>Search Query</td>
         <td>
 	  <table class="table table-condensed table-bordered">
 	    <tr>
@@ -40,6 +47,23 @@
 	    <tr>
 	      <th class="tag-query"><a href="#">{{search_query.query}}</a></th>
 	      <th>{{search_query.page}}</th>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	</td>
+      </tr>
+      <tr>
+        <td>JSON</td>
+        <td>
+	  <table class="table table-condensed table-bordered">
+	    <tr>
+	      <th>Key</th>
+	      <th>Value</th>
+	    </tr>
+	    {% for key, value in match_result.json_data.items()|sort %}
+	    <tr>
+	      <th>{{key}}</th>
+	      <th>{{value}}</th>
 	    </tr>
 	    {% endfor %}
 	  </table>

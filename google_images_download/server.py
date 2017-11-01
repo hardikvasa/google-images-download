@@ -30,7 +30,7 @@ def image_url_view(page=1):
     search_url = request.args.get('u', None)
     entries = [  # pylint: disable=no-member
         models.ImageURL.query.filter_by(url=search_url).one_or_none()]
-    return render_template('image_url.html', entries=entries, page=page)
+    return render_template('google_images_download/image_url.html', entries=entries, page=page)
 
 
 @app.route('/', methods=['GET', 'POST'], defaults={'page': 1})
