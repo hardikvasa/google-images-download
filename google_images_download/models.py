@@ -150,8 +150,10 @@ class MatchResult(db.Model):
     json_data = db.Column(JSONType)
     json_data_id = db.Column(db.String)
     picture_title = db.Column(db.String)
+    picture_subtitle = db.Column(db.String)
     site = db.Column(URLType)
     site_title = db.Column(db.String)
+    image_page_url = db.Column(URLType)
     img_ext = db.Column(db.String)
     json_search_url = db.Column(db.String)
     # image and thumbnail
@@ -187,9 +189,10 @@ class MatchResult(db.Model):
         imgref_url = parse_qs(
             urlparse(imgres_url).query).get('imgrefurl', [None])[0]
         json_data = json.loads(html_tag.select_one('.rg_meta').text)
-        if json_data['msu'] != json_data['si']:
-            log.warning(
-                ''.join(ndiff([json_data['msu']], [json_data['si']])))
+        if 'msu' in json_data:
+            if json_data['msu'] != json_data['si']:
+                log.warning(
+                    ''.join(ndiff([json_data['msu']], [json_data['si']])))
         kwargs = {
             'data_ved': html_tag.get('data-ved', None),
             'imgres_url': imgres_url,
@@ -201,17 +204,31 @@ class MatchResult(db.Model):
             'site': json_data['isu'],
             'site_title': json_data.get('st', None),
             'img_ext': json_data['ity'],
-            'json_search_url': urljoin('https://www.google.com', json_data['msu'])
         }
+        if 'msu' in json_data:
+            kwargs['json_search_url'] = urljoin('https://www.google.com', json_data['msu'])
+
+        if 'ru' in json_data:
+            kwargs['image_page_url'] = json_data['ru']
+        if 's' in json_data:
+            kwargs['picture_subtitle'] = json_data['s']
 
         # img_url
         imgres_url_query = parse_qs(urlparse(imgres_url).query)
-        url_from_img_url = imgres_url_query.get('imgurl', [None])[0]
-        img_url_kwargs = {
-            'url': url_from_img_url,
-            'width': int(imgres_url_query.get('w', [None])[0]),
-            'height': int(imgres_url_query.get('w', [None])[0]),
-        }
+        if imgres_url_query:
+            url_from_img_url = imgres_url_query.get('imgurl', [None])[0]
+            img_url_kwargs = {
+                'url': url_from_img_url,
+                'width': int(imgres_url_query.get('w', [None])[0]),
+                'height': int(imgres_url_query.get('h', [None])[0]),
+            }
+        else:
+            url_from_img_url = json_data['ou']
+            img_url_kwargs = {
+                'url': url_from_img_url,
+                'width': int(json_data['oh']),
+                'height': int(json_data['ow']),
+            }
         with db.session.no_autoflush:  # pylint: disable=no-member
             img_url, _ = get_or_create(db.session, ImageURL, **{'url': url_from_img_url})
         if img_url.height != img_url_kwargs['height']:
@@ -446,6 +463,7 @@ class SearchModel(db.Model):
         enable_typechecks=False)
     search_file = db.relationship('SearchFile', backref='search_models')
     search_type = db.Column(ChoiceType(TYPES))
+    query_url = db.Column(URLType)
     page = db.Column(db.Integer)
     match_results = db.relationship(
         'MatchResult', secondary=search_model_match_results, lazy='subquery',
@@ -468,25 +486,28 @@ class SearchModel(db.Model):
             sm_model, created = get_or_create(db.session, SearchModel, **kwargs)
         db.session.add(sm_model)  # pylint: disable=no-member
         db.session.commit()  # pylint: disable=no-member
-        match_results = None
         if sm_model.match_results and use_cache:
             return sm_model, created
+        req_url = None
+        match_results = []
         if search_type == 'similar'and file_model.similar_search_url:
-            with db.session.no_autoflush:  # pylint: disable=no-member
-                gu_query, _ = SearchQuery.get_or_create_from_google_url(
-                    file_model.similar_search_url, page)
-            match_results = gu_query.get_match_results()
+            req_url = file_model.similar_search_url
         elif search_type == 'size' and file_model.size_search_url:
-            with db.session.no_autoflush:  # pylint: disable=no-member
-                gu_query, _ = SearchQuery.get_or_create_from_google_url(
-                    file_model.size_search_url, page)
-            match_results = gu_query.get_match_results()
+            req_url = file_model.size_search_url
         elif search_type not in list(zip(*SearchModel.TYPES))[0]:
             log.error('Unknown search type', t=search_type)
         else:
             log.debug('Not matching condition', search_type=search_type)
+        if req_url is not None:
+            user_agent = UserAgent()
+            resp = requests.get(req_url, headers={'User-Agent': user_agent.firefox})
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            for html_tag in soup.select('.rg_bx'):
+                model, _ = MatchResult.get_or_create_from_html_tag(html_tag)
+                match_results.append(model)
         if match_results:
             sm_model.match_results.extend(match_results)
+            db.session.commit()  # pylint: disable=no-member
         return sm_model, created
 
     @staticmethod
