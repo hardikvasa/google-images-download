@@ -438,11 +438,15 @@ class SearchFile(ImageFile):
                 'image_guess', 'search_url', 'similar_search_url', 'size_search_url']
         ]
         if not any(keys_values) or not use_cache:
-            res = SearchFile.get_page_search_result(file_path)
-            for key, item in res.items():
-                if item:
-                    setattr(model, key, item)
+            model.cache_page_search_result(file_path)
         return model, True
+
+    def cache_page_search_result(self, file_path):
+        """Cache page search result."""
+        res = SearchFile.get_page_search_result(file_path)
+        for key, item in res.items():
+            if item:
+                setattr(self, key, item)
 
     @staticmethod
     def get_file_post_response(file_path, return_mode='response'):
@@ -496,12 +500,18 @@ class SearchModel(db.Model):
         db.session.commit()  # pylint: disable=no-member
         if sm_model.match_results and use_cache:
             return sm_model, created
+        sm_model.get_match_results()
+        return sm_model, created
+
+    def get_match_results(self):
+        """Get match results."""
+        search_type = self.search_type
         req_url = None
         match_results = []
-        if search_type == 'similar'and file_model.similar_search_url:
-            req_url = file_model.similar_search_url
-        elif search_type == 'size' and file_model.size_search_url:
-            req_url = file_model.size_search_url
+        if search_type == 'similar'and self.search_file.similar_search_url:
+            req_url = self.search_file.similar_search_url
+        elif search_type == 'size' and self.search_file.size_search_url:
+            req_url = self.search_file.size_search_url
         elif search_type not in list(zip(*SearchModel.TYPES))[0]:
             log.error('Unknown search type', t=search_type)
         else:
@@ -514,19 +524,9 @@ class SearchModel(db.Model):
                 model, _ = MatchResult.get_or_create_from_html_tag(html_tag)
                 match_results.append(model)
         if match_results:
-            sm_model.match_results.extend(match_results)
+            self.match_results.extend(match_results)
             db.session.commit()  # pylint: disable=no-member
-        return sm_model, created
-
-    @staticmethod
-    def get_similar_from_file(file_input, page=1):
-        """Get similar image from file."""
-        return SearchModel.get_result_from_file(file_input, 'similar', page)
-
-    @staticmethod
-    def get_alt_size_from_file(file_input, page=1):
-        """Get similar image from file."""
-        return SearchModel.get_result_from_file(file_input, 'size', page)
+        return match_results
 
 
 def get_or_create(session, model, **kwargs):
