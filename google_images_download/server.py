@@ -124,7 +124,8 @@ def from_file_search_page():
     """Get search page using google url."""
     file_path = request.args.get('file', None)
     search_type = request.args.get('search_type', 'similar')
-    disable_cache = False
+    disable_cache = request.args.get('disable_cache', '')
+    disable_cache = True if disable_cache == 'on' else False
     render_template_kwargs = {}
     file_exist = os.path.isfile(file_path) if file_path is not None else False
     if not file_path or not file_exist:
@@ -136,10 +137,8 @@ def from_file_search_page():
 
     with tempfile.NamedTemporaryFile() as temp:
         shutil.copyfile(file_path, temp.name)
-        entry, _ = models.SearchModel.get_or_create_from_file(temp.name, search_type)
-        if disable_cache:
-            entry.search_file.cache_page_search_result(temp.name)
-            entry.get_match_results()
+        entry, _ = models.SearchModel.get_or_create_from_file(
+            temp.name, search_type, use_cache=not disable_cache)
         if not entry.search_file.thumbnail:
             entry.search_file.create_thumbnail(temp.name)
     app.logger.debug('[%s],[%s],file:%s', search_type, len(entry.match_results), file_path)
