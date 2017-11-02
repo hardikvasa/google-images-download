@@ -124,7 +124,10 @@ def from_file_search_page():
     file_path = request.args.get('file', None)
     search_type = request.args.get('search_type', 'similar')
     render_template_kwargs = {}
-    if not file_path:
+    file_exist = os.path.isfile(file_path) if file_path is not None else False
+    if not file_path or not file_exist:
+        if not file_exist:
+            app.logger.debug('File not exist:%s', file_path)
         return render_template(
             'google_images_download/from_file_search_page.html',
             entry=None, **render_template_kwargs)
@@ -134,6 +137,7 @@ def from_file_search_page():
         entry, _ = models.SearchModel.get_or_create_from_file(temp.name, search_type)
         if not entry.search_file.thumbnail:
             entry.search_file.create_thumbnail(temp.name)
+    app.logger.debug('[%s],[%s],file:%s', search_type, len(entry.match_results), file_path)
     return render_template(
         'google_images_download/from_file_search_page.html', entry=entry, **render_template_kwargs)
 
@@ -181,7 +185,8 @@ def cli():
 @click.option("-p", "--port", default=5000, type=int)
 @click.option("-d", "--debug", is_flag=True)
 @click.option("-r", "--reloader", is_flag=True)
-def run(host='127.0.0.1', port=5000, debug=False, reloader=False):
+@click.option("-t", "--threaded", is_flag=True)
+def run(host='127.0.0.1', port=5000, debug=False, reloader=False, threaded=False):
     """Run the application server."""
     if reloader:
         app.jinja_env.auto_reload = True
@@ -221,6 +226,7 @@ def run(host='127.0.0.1', port=5000, debug=False, reloader=False):
         host=host, port=port,
         debug=debug, use_debugger=debug,
         use_reloader=reloader,
+        threaded=threaded
     )
 
 
