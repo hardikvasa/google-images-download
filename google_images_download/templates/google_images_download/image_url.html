@@ -43,7 +43,7 @@
       <tr>
         <td>Image page url</td>
 	<td class="tag-page-url">
-          <a href="{{match_result.image_page_url if match_result.image_page_url else '#'}}">{{match_result.image_page_url}}</a>
+          <a href="{{match_result.image_page_url if match_result.image_page_url else '#'}}">{{match_result.image_page_url if match_result.image_page_url}}</a>
 	</td>
       </tr>
       <tr> <td>Site</td> <td class="tag-site"><a href="https://{{match_result.site}}">{{match_result.site}}</a></td> </tr>
