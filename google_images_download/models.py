@@ -359,15 +359,19 @@ class SearchFile(ImageFile):
             resp = requests.get(res['search_url'], headers={'User-Agent': user_agent.firefox})
             search_page = BeautifulSoup(resp.text, 'lxml')
             base_url = 'https://www.google.com'
-            size_search_url = search_page.select_one('._v6 .gl a').attrs.get('href', None)
-            if size_search_url:
-                res['size_search_url'] = urljoin(base_url, size_search_url)
+            size_search_tag = search_page.select_one('._v6 .gl a')
+            if size_search_tag:
+                size_search_url = size_search_tag.attrs.get('href', None)
+                if size_search_url:
+                    res['size_search_url'] = urljoin(base_url, size_search_url)
             similar_search_tag = search_page.select_one('h3._DM a')
             if similar_search_tag:
                 similar_search_url = similar_search_tag.attrs.get('href', None)
                 if similar_search_url:
                     res['similar_search_url'] = urljoin(base_url, similar_search_url)
-            res['image_guess'] = search_page.select_one('._hUb a').text
+            image_guess_tag = search_page.select_one('._hUb a')
+            if image_guess_tag:
+                res['image_guess'] = image_guess_tag.text
         return res
 
     @property
@@ -401,7 +405,11 @@ class SearchFile(ImageFile):
         with tempfile.NamedTemporaryFile() as temp:
             img = Image.open(file_path)
             img.thumbnail((256, 256))
-            img.save(temp.name, 'JPEG')
+            try:
+                img.save(temp.name, 'JPEG')
+            except OSError as err:
+                log.warning('Error create thumbnail, convert to jpg first', error=err)
+                img.convert('RGB').save(temp.name, 'JPEG')
             thumb_checksum = sha256.sha256_checksum(temp.name)
             thumbnail_path = os.path.join(thumb_folder, thumb_checksum + '.jpg')
             if not os.path.isfile(thumbnail_path):
