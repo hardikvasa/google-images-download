@@ -25,7 +25,13 @@
         </figure>
       </div>
       <div class="media-body">
-        <h4 class="media-heading"> <a href="{{match_result.imgref_url}}">{{match_result.picture_title}}</a></h4>
+        <h4 class="media-heading">
+	  {% if match_result.imgref_url %}
+	  <a href="{{match_result.imgref_url}}">{{match_result.picture_title}}</a>
+	  {% else %}
+	  {{match_result.picture_title}}
+	  {% endif %}
+	</h4>
         <span>
           {% if match_result.json_data['s'] %}{{match_result.json_data['s']}}<br/>{% endif %}
           {% if match_result.image.basename %}Filename:<a href="{{match_result.img_url}}"> {{match_result.image.basename}}</a><br/>{% endif %}
@@ -33,7 +39,12 @@
           <br/>
           Link:
           <a class="label label-default" href="{{url_for('matchresult.edit_view', id=match_result.id)}}">edit</a>
+	  {% if match_result.imgref_url %}
           <a class="label label-default" href="{{match_result.imgref_url}}">page</a>
+	  {% endif %}
+	  {% if match_result.image_page_url %}
+          <a class="label label-default" href="{{match_result.image_page_url}}">image page</a>
+	  {% endif %}
           <a class="label label-default" href="{{match_result.img_url}}">image</a>
           <a class="label label-default" href="https://www.google.com/searchbyimage?image_url={{match_result.img_url|urlencode}}&safe=off">google image</a>
           {% if match_result.tags %}

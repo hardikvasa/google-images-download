@@ -3,7 +3,9 @@
   <div class="container">
     <div>
       <figure>
+	{% if entries[0].match_results %}
 	<a href="{{entries[0].url}}"><img src='{{entries[0].match_results[0].thumbnail.url}}'></a>
+	{% endif %}
         {% if entries[0].match_results|length == 1 %}
 	<figcaption>{{entries[0].width}} x {{entries[0].height}}<br>{{entries[0].match_results[0].picture_title}}</figcaption>
         {% else %}
@@ -14,11 +16,22 @@
     <br>
     <h3>INFO</h3>
     <table class="table table-condensed">
-      <tr> <td>URL</td> <td><a href="{{entries[0].url}}">[link]</a> <a href="{{entries[0].url}}">{{entries[0].url}}</a></td> </tr>
+      <tr>
+        <td>URL</td>
+	<td>
+	  {% if entries[0].url %}
+	  <a href="{{entries[0].url}}">[link]</a> <a href="{{entries[0].url}}">{{entries[0].url}}</a>
+	  {% elif search_url %}
+	  <a href="{{search_url}}">[link]</a> <a href="{{search_url}}">{{search_url}}</a>
+	  {% endif %}
+	</td>
+      </tr>
       <tr> <td>Width</td> <td>{{entries[0].width}}</td> </tr>
       <tr> <td>Height</td> <td>{{entries[0].height}}</td> </tr>
     </table>
+    {% if entries[0].match_results %}
     <h3>MATCH RESULTS</h3>
+    {% endif %}
     {% for match_result in entries[0].match_results %}
     <table class="table table-condensed table-bordered">
       <tr> <td>ID</td> <td>{{match_result.id}}</td> </tr>
