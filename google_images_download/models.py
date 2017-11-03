@@ -10,12 +10,12 @@ import tempfile
 
 from appdirs import user_data_dir
 from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
 from flask_sqlalchemy import SQLAlchemy
 from PIL import Image
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
 from sqlalchemy_utils.types import URLType, JSONType, ChoiceType
+import fake_useragent
 import requests
 import structlog
 
@@ -54,6 +54,16 @@ search_model_match_results = db.Table(  # pylint: disable=invalid-name
     db.Column('match_result_id', db.Integer, db.ForeignKey('match_result.id'), primary_key=True))
 
 THUMB_FOLDER = os.path.join(user_data_dir('google_images_download', 'hardikvasa'), 'thumb')
+
+
+def get_user_agent():
+    """Get user agent."""
+    user_agent = fake_useragent.UserAgent()
+    try:
+        return user_agent.firefox
+    except fake_useragent.errors.FakeUserAgentError as err:
+        log.error("Can't get useragent, use default", err=err)
+        return 'Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1'
 
 
 class SearchQuery(db.Model):
@@ -355,8 +365,7 @@ class SearchFile(ImageFile):
         except Exception as err:  # pylint: disable=broad-except
             log.warning('Error getting search url', err=err)
         if res['search_url'] is not None:
-            user_agent = UserAgent()
-            resp = requests.get(res['search_url'], headers={'User-Agent': user_agent.firefox})
+            resp = requests.get(res['search_url'], headers={'User-Agent': get_user_agent()})
             search_page = BeautifulSoup(resp.text, 'lxml')
             base_url = 'https://www.google.com'
             size_search_tag = search_page.select_one('._v6 .gl a')
@@ -517,8 +526,7 @@ class SearchModel(db.Model):
         else:
             log.debug('Not matching condition', search_type=search_type)
         if req_url is not None:
-            user_agent = UserAgent()
-            resp = requests.get(req_url, headers={'User-Agent': user_agent.firefox}, timeout=10)
+            resp = requests.get(req_url, headers={'User-Agent': get_user_agent()}, timeout=10)
             soup = BeautifulSoup(resp.text, 'html.parser')
             for html_tag in soup.select('.rg_bx'):
                 model, _ = MatchResult.get_or_create_from_html_tag(html_tag)
