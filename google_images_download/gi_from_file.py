@@ -68,7 +68,7 @@ def get_first_page_data(soup):
         if not h_div_tag_len == 2:
             log.debug(
                 'length of tag for page result parsing is unexpected',
-                l=h_div_tag_len)
+                length=h_div_tag_len)
         h_div_tag = h_div_tag[0]
         for h_tag in h_div_tag.select('.g'):
             pr_item = {}
@@ -112,7 +112,7 @@ def get_first_page_data(soup):
             log.debug(
                 'length of tag '
                 'for page with matching image parsing is unexpected',
-                l=h_div_tag_len)
+                length=h_div_tag_len)
         if h_div_tag_len == 1:
             log.debug('Use first tag section')
             h_div_tag = h_div_tag[0]

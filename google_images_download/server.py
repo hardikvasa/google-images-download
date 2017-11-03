@@ -19,9 +19,6 @@ from google_images_download import models, pagination, admin
 
 app = Flask(__name__)  # pylint: disable=invalid-name
 
-vcr_log = logging.getLogger("vcr")  # pylint: disable=invalid-name
-vcr_log.setLevel(logging.INFO)
-
 
 @app.route('/u/', methods=['GET', 'POST'], defaults={'page': 1})
 @app.route('/u/p/<int:page>')
@@ -36,7 +33,6 @@ def image_url_view(page=1):
 
 @app.route('/', methods=['GET', 'POST'], defaults={'page': 1})
 @app.route('/p/<int:page>')
-# @vcr.use_cassette(record_mode='new_episodes')
 def index(page=1):
     """Get Index page."""
     form = IndexForm()
@@ -119,7 +115,6 @@ def thumbnail(filename):
 
 
 @app.route('/f/')
-# @vcr.use_cassette(record_mode='new_episodes')
 def from_file_search_page():
     """Get search page using google url."""
     file_path = request.args.get('file', None)
