@@ -38,7 +38,12 @@
       <tr> <td>ID</td> <td>{{match_result.id}}</td> </tr>
       <tr> <td>Image extension</td> <td>{{match_result.img_ext}}</td> </tr>
       <tr> <td>JSON data ID</td> <td>{{match_result.json_data_id}}</td> </tr>
-      <tr> <td>JSON search url</td> <td><a href="{{match_result.json_search_url}}">{{match_result.json_search_url}}</a></td> </tr>
+      <tr>
+        <td>JSON search url</td>
+	<td>
+	  <a href="{{match_result.json_search_url if match_result.json_search_url else '#'}}">{{match_result.json_search_url if match_result.json_search_url}}</a>
+	</td>
+      </tr>
       <tr> <td>Picture title</td> <td class="tag-picture-title"><a href="#">{{match_result.picture_title}}</a></td> </tr>
       <tr> <td>Picture subtitle</td> <td class="tag-picture-subtitle"><a href="#">{{match_result.picture_subtitle}}</a></td> </tr>
       <tr>
@@ -48,10 +53,11 @@
 	</td>
       </tr>
       <tr> <td>Site</td> <td class="tag-site"><a href="https://{{match_result.site}}">{{match_result.site}}</a></td> </tr>
-      <tr> <td>Site title</td> <td class="tag-site-title"><a href="#">{{match_result.site_title}}</a></td> </tr>
+      <tr> <td>Site title</td> <td class="tag-site-title"> <a href="#">{{match_result.site_title if match_result.site_title}}</a> </td> </tr>
       <tr>
         <td>Search Query</td>
         <td>
+	  {% if match_result.search_query %}
 	  <table class="table table-condensed table-bordered">
 	    <tr>
 	      <th>Query</th>
@@ -64,6 +70,7 @@
 	    </tr>
 	    {% endfor %}
 	  </table>
+	  {% endif %}
 	</td>
       </tr>
       <tr>
@@ -77,7 +84,13 @@
 	    {% for key, value in match_result.json_data.items()|sort %}
 	    <tr>
 	      <th>{{key}}</th>
-	      <th>{{value}}</th>
+	      <th>
+		{% if value.startswith and value.startswith('http') %}
+		<a href="{{value}}">{{value}}</a>
+		{% else %}
+	        {{value}}
+		{% endif %}
+	      </th>
 	    </tr>
 	    {% endfor %}
 	  </table>
