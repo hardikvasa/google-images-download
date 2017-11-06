@@ -13,7 +13,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_bootstrap import Bootstrap
 import click
 
-from google_images_download.forms import IndexForm
+from google_images_download.forms import IndexForm, FileForm
 from google_images_download import models, pagination, admin
 
 
@@ -117,15 +117,14 @@ def thumbnail(filename):
 @app.route('/f/')
 def from_file_search_page():
     """Get search page using google url."""
-    file_path = request.args.get('file', None)
-    search_type = request.args.get('search_type', 'similar')
-    disable_cache = request.args.get('disable_cache', '')
-    disable_cache = True if disable_cache == 'on' else False
-    render_template_kwargs = {}
+    form = FileForm(request.args)
+    file_path = form.file_path.data
+    search_type = form.search_type.data
+    disable_cache = form.disable_cache.data
+    render_template_kwargs = {'entry': None, 'form': form}
     file_exist = os.path.isfile(file_path) if file_path is not None else False
     empty_response = render_template(
-        'google_images_download/from_file_search_page.html',
-        entry=None, **render_template_kwargs)
+        'google_images_download/from_file_search_page.html', **render_template_kwargs)
 
     if not file_path or not file_exist:
         if not file_exist:
@@ -143,8 +142,9 @@ def from_file_search_page():
             return empty_response
     app.logger.debug('[%s],[%s],file:%s', search_type, len(entry.match_results), file_path)
     app.logger.debug('URL:%s', request.url)
+    render_template_kwargs['entry'] = entry
     return render_template(
-        'google_images_download/from_file_search_page.html', entry=entry, **render_template_kwargs)
+        'google_images_download/from_file_search_page.html', **render_template_kwargs)
 
 
 def shell_context():
