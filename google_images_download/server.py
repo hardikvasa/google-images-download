@@ -43,8 +43,8 @@ def index():
     if not search_query:
         return render_template('index.html', **render_template_kwargs)
 
-    sq_m, created = models.SearchQuery.get_or_create_from_query(search_query, page - 1)
-    if created or not sq_m.match_results:
+    sq_m, _ = models.SearchQuery.get_or_create_from_query(search_query, page - 1)
+    if not sq_m.match_results:
         sq_m.get_match_results()
     app.logger.debug(
         '%s match(s) found for [%s] page:%s', len(sq_m.match_results), sq_m.query, page)
