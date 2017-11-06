@@ -3,20 +3,10 @@
 {% block content %}
   <div class="container">
     <form class="form" method="GET" action="{{ url_for('from_file_search_page') }}">
-      <div class="form-group">
-        <label for="file">File path</label>
-	<input class="form-control" type="text" id="file" name="file">
-        <label>Search type</label>
-	<label class="radio-inline">
-	 <input name="search_type" id="search_type_similar" value="similar" type="radio" checked />similar
-	</label>
-	<label class="radio-inline">
-	 <input name="search_type" id="search_type_size" value="size" type="radio" />size
-	</label>
- 	<div class="checkbox">
-	  <label> <input type="checkbox" name="disable_cache" value="on">Disable cache</label>
-	</div>
-      </div>
+      <div class="form-group">{{form.file_path.label}} {{form.file_path(class_="form-control")}}</div>
+      <div class="form-group">{{form.search_type.label}} {{form.search_type()}}</div>
+      <div class="form-group">{{form.disable_cache.label}} {{form.disable_cache()}}</div>
+      <div class="form-group">{{form.disable_image.label}} {{form.disable_image()}}</div>
       <button type="submit" class="btn btn-default">Submit</button>
     </form>
     {{show_flash_message()}}
