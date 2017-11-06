@@ -123,19 +123,24 @@ def from_file_search_page():
     disable_cache = True if disable_cache == 'on' else False
     render_template_kwargs = {}
     file_exist = os.path.isfile(file_path) if file_path is not None else False
+    empty_response = render_template(
+        'google_images_download/from_file_search_page.html',
+        entry=None, **render_template_kwargs)
+
     if not file_path or not file_exist:
         if not file_exist:
             app.logger.debug('File not exist:%s', file_path)
-        return render_template(
-            'google_images_download/from_file_search_page.html',
-            entry=None, **render_template_kwargs)
-
+        return empty_response
     with tempfile.NamedTemporaryFile() as temp:
         shutil.copyfile(file_path, temp.name)
-        entry, _ = models.SearchModel.get_or_create_from_file(
-            temp.name, search_type, use_cache=not disable_cache)
-        if not entry.search_file.thumbnail:
-            entry.search_file.create_thumbnail(temp.name)
+        try:
+            entry, _ = models.SearchModel.get_or_create_from_file(
+                temp.name, search_type, use_cache=not disable_cache)
+            if not entry.search_file.thumbnail:
+                entry.search_file.create_thumbnail(temp.name)
+        except Exception as err:  # pylint: disable=broad-except
+            flash('{} raised:{}'.format(type(err), err), 'danger')
+            return empty_response
     app.logger.debug('[%s],[%s],file:%s', search_type, len(entry.match_results), file_path)
     app.logger.debug('URL:%s', request.url)
     return render_template(
