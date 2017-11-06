@@ -390,6 +390,7 @@ class SearchFile(ImageFile):
                         )
                     log.error(err_msg)
                     raise ValueError(err_msg)
+                log.debug('Use phantomjs to get html text.')
                 html_text = get_html_text_with_phantomjs(resp['search_url'])
             search_page = BeautifulSoup(html_text, 'lxml')
             base_url = 'https://www.google.com'
