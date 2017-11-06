@@ -4,8 +4,7 @@
 
 {% block content %}
   <div class="container">
-    <form method="POST" action="{{ url_for('index') }}">
-      {{ form.csrf_token }}
+    <form method="GET" action="{{ url_for('index') }}">
       <dl class="dl-horizontal">
         <dt>{{ form.query.label }} </dt><dd>{{ form.query(size=20) }}</dd>
 	<dt>{{ form.disable_image.label }}</dt><dd>{{ form.disable_image() }}</dd>
@@ -25,12 +24,7 @@
     {{ render_pagination(pagination) }}
     <h5>Match result</h5>
     <div>
-    {% if limit %}
-    {% set entry_match_results = entry.match_results[:limit] %}
-    {% else %}
-    {% set entry_match_results = entry.match_results%}
-    {% endif %}
-    {{show_match_results(entry_match_results, disable_image=disable_image)}}
+    {{show_match_results(entry_match_results, disable_image=form.disable_image.data)}}
     </div>
     <div class="panel-group">
       <div class="panel panel-default">
