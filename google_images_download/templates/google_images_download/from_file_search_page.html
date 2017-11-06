@@ -19,6 +19,7 @@
       </div>
       <button type="submit" class="btn btn-default">Submit</button>
     </form>
+    {{show_flash_message()}}
     {% if entry %}
     <img src="{{url_for('thumbnail', filename=entry.search_file.thumbnail_basename)}}">
     <table class="table table-condensed table-bordered">

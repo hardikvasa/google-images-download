@@ -7,6 +7,16 @@
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 {% endblock %}
 
+{% macro show_flash_message() %}
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{category}}">{{ message }}</div>
+      {% endfor %}
+      {% endif %}
+    {% endwith %}
+{% endmacro %}
+
 {% macro show_match_results(entry_match_results, disable_image=False) %}
   {% for match_results in entry_match_results|sort(attribute='id')|batch(2) %}
   <div class="row">

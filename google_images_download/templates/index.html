@@ -1,11 +1,6 @@
-{% extends "bootstrap/base.html" %}
+{% extends "google_images_download/base.html" %}
 
 {% block title %} Google image download server {% endblock %}
-
-{% block styles %}
-  {{super()}}
-  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-{% endblock %}
 
 {% block content %}
   <div class="container">
@@ -19,13 +14,7 @@
       </dl>
       <p><input type="submit" value="Go">
     </form>
-    {% with messages = get_flashed_messages(with_categories=True) %}
-      {% if messages %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{category}}">{{ message }}</div>
-      {% endfor %}
-      {% endif %}
-    {% endwith %}
+    {{show_flash_message()}}
     {% if entry %}
     <div class="alert alert-success" role="alert">
       query [{{entry.query}}] found {{entry.match_results|length}} match(s)
