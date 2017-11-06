@@ -168,7 +168,6 @@ class MatchResult(db.Model):
     created_at = db.Column(TIMESTAMP, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
         TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-    data_ved = db.Column(db.String)
     imgres_url = db.Column(URLType)
     imgref_url = db.Column(URLType)
     # column with valuew from json data
@@ -219,7 +218,6 @@ class MatchResult(db.Model):
                 log.warning(
                     ''.join(ndiff([json_data['msu']], [json_data['si']])))
         kwargs = {
-            'data_ved': html_tag.get('data-ved', None),
             'imgres_url': imgres_url,
             'imgref_url': imgref_url,
             # json data
