@@ -31,48 +31,7 @@
     {% else %}
     {% set entry_match_results = entry.match_results%}
     {% endif %}
-    {% for match_results in entry_match_results|sort(attribute='id')|batch(2) %}
-    <div class="row">
-    {% for match_result in match_results %}
-      <div class="media col-lg-6">
-        <div class="media-left">
-          <figure>
-	    {% if not disable_image %}
-	    <a class="thumb" href="{{url_for('image_url_view', u=match_result.img_url)}}">
-	      <img style="max-width:128px;max-height:128px" src='{{match_result.thumbnail.url}}'>
-	    </a>
-	    {% endif %}
-	    <figcaption class="text-center">
-	      <a href="{{match_result.img_url}}">{{match_result.img_ext|upper}} {{match_result.image.width}}x{{match_result.image.height}}</a>
-	    </figcaption>
-          </figure>
-        </div>
-        <div class="media-body">
-	  <h4 class="media-heading"> <a href="{{match_result.imgref_url}}">{{match_result.picture_title}}</a></h4>
-          <span>
-	    {% if match_result.json_data['s'] %}{{match_result.json_data['s']}}<br/>{% endif %}
-	    {% if match_result.image.basename %}Filename:<a href="{{match_result.img_url}}"> {{match_result.image.basename}}</a><br/>{% endif %}
-	    Site: <a href="https://{{match_result.site}}">{{match_result.site}} - {{match_result.site_title}}</a>
-	    <br/>
-            Link:
-            <a class="label label-default" href="{{url_for('matchresult.edit_view', id=match_result.id)}}">edit</a>
-            <a class="label label-default" href="{{match_result.imgref_url}}">page</a>
-            <a class="label label-default" href="{{match_result.img_url}}">image</a>
-            <a class="label label-default" href="https://www.google.com/searchbyimage?image_url={{match_result.img_url|urlencode}}&safe=off">google image</a>
-	    {% if match_result.tags %}
-	    <br/>
-	    Tags:
-	    {% for tag in match_result.tags %}
-              <a class="label label-default" href="#">{{tag.full_name}}</a>
-	    {% endfor %}
-	    {% endif %}
-	  </span>
-        </div>
-      </div>
-    {% endfor %}
-    </div>
-    <br/>
-    {% endfor %}
+    {{show_match_results(entry_match_results, disable_image=disable_image)}}
     </div>
     <div class="panel-group">
       <div class="panel panel-default">
