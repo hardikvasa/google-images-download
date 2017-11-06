@@ -12,16 +12,15 @@
 import time       #Importing the time library to check the time of code execution
 import sys    #Importing the System Library
 import os
-import urllib2
 
 
 ########### Edit From Here ###########
 
 #This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
-search_keyword = ['Australia']
+search_keyword = ['Rejected passport']
 
 #This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
-keywords = [' high resolution']
+keywords = ['photos','images','visa photos','usa','london','singapore','australian']
 
 ########### End of Editing ###########
 
@@ -101,7 +100,7 @@ while i<len(search_keyword):
      #make a search keyword  directory
     try:
         os.makedirs(search_keywords)
-    except OSError, e:
+    except OSError as e:
         if e.errno != 17:
             raise   
         # time.sleep might help here
@@ -136,38 +135,74 @@ while i<len(search_keyword):
     k=0
     errorCount=0
     while(k<len(items)):
-        from urllib2 import Request,urlopen
-        from urllib2 import URLError, HTTPError
+        version = (3,0)
+        cur_version = sys.version_info
+        if cur_version >= version: # version in above 3.x
+            import urllib.request
+            import urllib.error
+            try:
+                req = urllib.request.Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
+                response = urllib.request.urlopen(req,None,15)
+                output_file = open(search_keywords+"/"+str(k+1)+".jpg",'wb')
 
-        try:
-            req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
-            response = urlopen(req,None,15)
-            output_file = open(search_keywords+"/"+str(k+1)+".jpg",'wb')
+                data = response.read()
+                output_file.write(data)
+                response.close();
+
+                print("completed ====> "+str(k+1))
+
+                k=k+1;
+
+            except IOError:   #If there is any IOError
+
+                errorCount+=1
+                print("IOError on image "+str(k+1))
+                k=k+1;
+
+            except urllib.error.HTTPError as e:  #If there is any HTTPError
+
+                errorCount+=1
+                print("HTTPError"+str(k))
+                k=k+1;
+            except urllib.error.URLError as e:
+
+                    errorCount+=1
+                    print("URLError "+str(k))
+                    k=k+1;
+
+        else: # version in 2.x
+            from urllib2 import Request,urlopen
+            from urllib2 import URLError, HTTPError
+
+            try:
+                req = Request(items[k], headers={"User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
+                response = urlopen(req,None,15)
+                output_file = open(search_keywords+"/"+str(k+1)+".jpg",'wb')
             
-            data = response.read()
-            output_file.write(data)
-            response.close();
+                data = response.read()
+                output_file.write(data)
+                response.close();
 
-            print("completed ====> "+str(k+1))
+                print("completed ====> "+str(k+1))
 
-            k=k+1;
+                k=k+1;
 
-        except IOError:   #If there is any IOError
+            except IOError:   #If there is any IOError
 
-            errorCount+=1
-            print("IOError on image "+str(k+1))
-            k=k+1;
+                errorCount+=1
+                print("IOError on image "+str(k+1))
+                k=k+1;
 
-        except HTTPError as e:  #If there is any HTTPError
+            except HTTPError as e:  #If there is any HTTPError
 
-            errorCount+=1
-            print("HTTPError"+str(k))
-            k=k+1;
-        except URLError as e:
+                errorCount+=1
+                print("HTTPError"+str(k))
+                k=k+1;
+            except URLError as e:
 
-            errorCount+=1
-            print("URLError "+str(k))
-            k=k+1;
+                errorCount+=1
+                print("URLError "+str(k))
+                k=k+1;
 
     i = i+1
 
