@@ -4,7 +4,7 @@ from wtforms import StringField, BooleanField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Optional, ValidationError
 
 
-def validate_limit(_, field):
+def validate_postitive_number(_, field):
     """Check limit."""
     if not field.data > 0:
         raise ValidationError('Limit must be bigger than 0')
@@ -14,7 +14,8 @@ class IndexForm(FlaskForm):  # pylint: disable=too-few-public-methods
     """Form for index."""
     query = StringField('query', validators=[DataRequired()])
     disable_image = BooleanField(validators=[Optional()])
-    limit = IntegerField(validators=[Optional(), validate_limit])
+    limit = IntegerField(validators=[Optional(), validate_postitive_number])
+    page = IntegerField(validators=[Optional(), validate_postitive_number])
 
 
 class FileForm(FlaskForm):
