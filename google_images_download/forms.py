@@ -1,5 +1,6 @@
+"""Forms module."""
 from flask_wtf import FlaskForm
-from wtforms import StringField, BooleanField, IntegerField
+from wtforms import StringField, BooleanField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Optional, ValidationError
 
 
@@ -14,3 +15,12 @@ class IndexForm(FlaskForm):  # pylint: disable=too-few-public-methods
     query = StringField('query', validators=[DataRequired()])
     disable_image = BooleanField(validators=[Optional()])
     limit = IntegerField(validators=[Optional(), validate_limit])
+
+
+class FileForm(FlaskForm):
+    """Form for getting result from file search."""
+    file_path = StringField('File Path', validators=[DataRequired()])
+    search_type = SelectField(
+        'Search Type', validators=[Optional()], choices=[('similar', 'similar'), ('size', 'size')])
+    disable_image = BooleanField(validators=[Optional()])
+    disable_cache = BooleanField(validators=[Optional()])
