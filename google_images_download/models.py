@@ -543,9 +543,9 @@ class SearchModel(db.Model):
         search_type = self.search_type
         req_url = None
         match_results = []
-        if search_type == 'similar'and self.search_file.similar_search_url:
+        if search_type == 'similar':
             req_url = self.search_file.similar_search_url
-        elif search_type == 'size' and self.search_file.size_search_url:
+        elif search_type == 'size':
             req_url = self.search_file.size_search_url
         elif search_type not in list(zip(*SearchModel.TYPES))[0]:
             log.error('Unknown search type', t=search_type)
@@ -557,6 +557,8 @@ class SearchModel(db.Model):
             for html_tag in soup.select('.rg_bx'):
                 model, _ = MatchResult.get_or_create_from_html_tag(html_tag)
                 match_results.append(model)
+        else:
+            log.debug('Unknown url', search_type=search_type)
         if match_results:
             self.match_results.extend(match_results)
             db.session.commit()  # pylint: disable=no-member
