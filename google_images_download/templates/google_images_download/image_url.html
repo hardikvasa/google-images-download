@@ -83,14 +83,14 @@
 	    </tr>
 	    {% for key, value in match_result.json_data.items()|sort %}
 	    <tr>
-	      <th>{{key}}</th>
-	      <th>
+	      <td>{{key}}</td>
+	      <td>
 		{% if value.startswith and value.startswith('http') %}
 		<a href="{{value}}">{{value}}</a>
 		{% else %}
 	        {{value}}
 		{% endif %}
-	      </th>
+	      </td>
 	    </tr>
 	    {% endfor %}
 	  </table>
