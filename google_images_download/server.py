@@ -1,6 +1,6 @@
 """Server module."""
 from logging.handlers import TimedRotatingFileHandler
-from urllib.parse import urlencode
+from urllib.parse import urlencode, parse_qs, urlparse
 import logging  # pylint: disable=ungrouped-imports
 import os
 import shutil
@@ -31,79 +31,44 @@ def image_url_view(page=1):
         'google_images_download/image_url.html', entries=entries, page=page, search_url=search_url)
 
 
-@app.route('/', methods=['GET', 'POST'], defaults={'page': 1})
-@app.route('/p/<int:page>')
-def index(page=1):
+@app.route('/')
+def index():
     """Get Index page."""
-    form = IndexForm()
+    form = IndexForm(request.args)
+    search_query = form.query.data
+    limit = form.limit.data
     entry = None
-    search_query = request.args.get('query', None)
-    disable_image = request.args.get('disable_image', None)
-    limit = request.args.get('limit', None)
     render_template_kwargs = {'form': form, 'entry': entry}
-    page_from_query = request.args.get('page', None)
-    if page_from_query:
-        page = int(page_from_query)
-
-    if search_query:
-        pass
-    elif form.validate_on_submit():
-        search_query = form.query.data
-        disable_image = form.disable_image.data
-        limit = form.limit.data
-    elif form.is_submitted() and not form.validate():
-        flash('Form is invalid.', 'danger')
-        return render_template('index.html', **render_template_kwargs)
-    else:
+    page = form.page.data if form.page.data else 1
+    if not search_query:
         return render_template('index.html', **render_template_kwargs)
 
     sq_m, created = models.SearchQuery.get_or_create_from_query(search_query, page - 1)
     if created or not sq_m.match_results:
         sq_m.get_match_results()
     app.logger.debug(
-        '%s match(s) found for [%s]', len(sq_m.match_results), sq_m.query)
+        '%s match(s) found for [%s] page:%s', len(sq_m.match_results), sq_m.query, page)
     entry = sq_m
 
-    try:
-        if limit is not None:
-            limit = int(limit)
-            if limit > 0:
-                pass
-            else:
-                app.logger.debug('Unexpected limit, so reset the limit')
-                flash("Unexpected limit, limit disabled.", 'warning')
-                limit = None
-    except Exception as err:  # pylint: disable=broad-except
-        app.logger.error('Error when parsing limit. err:%s', err)
-        flash("Limit Error, limit disabled.", 'warning')
-        limit = None
-
-    if entry and entry.match_results and limit:
-        if limit > len(entry.match_results):
-            limit = len(entry.match_results)
-            msg = 'limit is capped at {}'.format(limit)
-            app.logger.debug(msg)
-            flash(msg, 'warning')
+    entry_match_results = entry.match_results
+    if limit and limit < len(entry.match_results):
+        entry_match_results = entry.match_results[:limit]
+    render_template_kwargs['entry_match_results'] = entry_match_results
 
     def return_page_url(page_input):
         """Return page url."""
-        url = url_for('index', page=page_input)
-        q_dict = {}
-        if search_query:
-            q_dict['query'] = search_query
-        if limit:
-            q_dict['limit'] = limit
-        if disable_image:
-            q_dict['disable_image'] = disable_image
-        if q_dict:
-            url += '?' + urlencode(q_dict)
-        return url
+        url_query = parse_qs(urlparse(request.url).query)
+        url_query['page'] = [page_input]
+        new_query = urlencode(url_query, True)
+        parsed_url = urlparse(url_for('index'))
+        parsed_url = parsed_url._replace(query=new_query)
+        return parsed_url.geturl()
 
     app.logger.debug('Limit: %s', limit)
     render_template_kwargs.update({
         'form': form, 'entry': entry,
         'pagination': pagination.Pagination(page, return_page_url),
-        'disable_image': disable_image, 'limit': limit
+        'limit': limit
     })
     return render_template('index.html', **render_template_kwargs)
 
