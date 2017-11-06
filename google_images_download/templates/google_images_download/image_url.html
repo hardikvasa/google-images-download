@@ -47,6 +47,12 @@
       <tr> <td>Picture title</td> <td class="tag-picture-title"><a href="#">{{match_result.picture_title}}</a></td> </tr>
       <tr> <td>Picture subtitle</td> <td class="tag-picture-subtitle"><a href="#">{{match_result.picture_subtitle}}</a></td> </tr>
       <tr>
+        <td>Image ref url</td>
+	<td class="tag-page-url">
+          <a href="{{match_result.imgref_url if match_result.imgref_url else '#'}}">{{match_result.imgref_url if match_result.imgref_url}}</a>
+	</td>
+      </tr>
+      <tr>
         <td>Image page url</td>
 	<td class="tag-page-url">
           <a href="{{match_result.image_page_url if match_result.image_page_url else '#'}}">{{match_result.image_page_url if match_result.image_page_url}}</a>
@@ -74,26 +80,29 @@
 	</td>
       </tr>
       <tr>
-        <td>JSON</td>
-        <td>
-	  <table class="table table-condensed table-bordered">
-	    <tr>
-	      <th>Key</th>
-	      <th>Value</th>
-	    </tr>
-	    {% for key, value in match_result.json_data.items()|sort %}
-	    <tr>
-	      <td>{{key}}</td>
-	      <td>
-		{% if value.startswith and value.startswith('http') %}
-		<a href="{{value}}">{{value}}</a>
-		{% else %}
-	        {{value}}
-		{% endif %}
-	      </td>
-	    </tr>
-	    {% endfor %}
-	  </table>
+	<td>JSON <button class="btn btn-primary btn-xs" type="button" data-toggle="collapse" data-target="#json-table-{{match_result.id}}"> show </button> <td>
+	  <div id="json-table-{{match_result.id}}" class="collapse">
+	    <table class="table table-condensed table-bordered">
+	      <tr>
+	        <th>Key</th>
+	        <th>Value</th>
+	      </tr>
+	      {% for key, value in match_result.json_data.items()|sort %}
+	      <tr>
+	        <td>{{key}}</td>
+	        <td>
+	          {% if value.startswith and value.startswith('http') %}
+	          <a href="{{value}}">{{value}}</a>
+	          {% elif value.startswith and value.startswith('/search?q=') %}
+	          <a href="https://www.google.com{{value}}">{{value}}</a>
+	          {% else %}
+	          {{value}}
+	          {% endif %}
+	        </td>
+	      </tr>
+	      {% endfor %}
+	    </table>
+	  </div>
 	</td>
       </tr>
     </table>
