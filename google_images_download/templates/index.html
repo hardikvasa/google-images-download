@@ -5,12 +5,11 @@
 {% block content %}
   <div class="container">
     <form method="GET" action="{{ url_for('index') }}">
-      <dl class="dl-horizontal">
-        <dt>{{ form.query.label }} </dt><dd>{{ form.query(size=20) }}</dd>
-	<dt>{{ form.disable_image.label }}</dt><dd>{{ form.disable_image() }}</dd>
-	<dt>{{ form.limit.label }}</dt><dd>{{ form.limit(size=5) }}</dd>
-      </dl>
-      <p><button type="submit" class="btn btn-default">Submit</button>
+      <div class="form-group">{{ form.query.label }} {{ form.query(size=20, class_="form-control") }}</div>
+      <div class="form-inline">{{ form.disable_image.label }} {{ form.disable_image() }}</div>
+      <div class="form-inline">{{ form.limit.label }} {{ form.limit(size=5, class_="form-control") }}</div>
+      <br>
+      <button type="submit" class="btn btn-default">Submit</button>
     </form>
     {{show_flash_message()}}
     {% if entry %}
