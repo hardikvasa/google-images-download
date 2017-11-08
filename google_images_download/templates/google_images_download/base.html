@@ -7,6 +7,33 @@
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 {% endblock %}
 
+{% block navbar %}
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+	<a class="navbar-brand" href="{{url_for('index')}}">Google images download</a>
+      </div>
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+	  <li><a href="{{url_for('index')}}">Search query</a></li>
+	  <li><a href="{{url_for('from_file_search_page')}}">Search file</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/admin">Admin</a></li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+{% endblock %}
+
 {% macro show_flash_message() %}
     {% with messages = get_flashed_messages(with_categories=True) %}
       {% if messages %}
