@@ -11,6 +11,7 @@
     </form>
     {{show_flash_message()}}
     {% if entry %}
+    <h4>Result</h4>
     <img src="{{url_for('thumbnail', filename=entry.search_file.thumbnail_basename)}}">
     <table class="table table-condensed table-bordered">
       <tr>
@@ -34,7 +35,13 @@
 	  <a href="{{entry.search_file.size_search_url}}">{{entry.search_file.size_search_url|truncate(70) if entry.search_file.size_search_url}}</a>
 	  {% endif %}
 	</td></tr>
-      <tr><td>Image guess</td><td>{{entry.search_file.image_guess if entry.search_file.image_guess}}</td></tr>
+      <tr>
+        <td>Image guess</td>
+	{%  if entry.search_file.image_guess %}
+	<td>
+	  <a href="{{url_for('index', query=entry.search_file.image_guess)}}">{{entry.search_file.image_guess}}</a>
+	</td></tr>
+        {% endif %}
     </table>
     {{show_match_results(entry.match_results)}}
     {% endif %}
