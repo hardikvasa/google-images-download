@@ -54,3 +54,9 @@ pip-selfcheck.json
 # SPECIFIC
 *.jpg
 output.txt
+
+# CUSTOM
+cassette/
+google_images_download/gid_debug.db
+log/
+tests/local_data/

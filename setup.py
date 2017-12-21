@@ -19,14 +19,29 @@ setuptools.setup(
     zip_safe=True,
 
     install_requires=[
+        'appdirs>=1.4.3',
         'beautifulsoup4>=4.6.0',
         'click>=6.7',
         'fake-useragent==0.1.7',
+        'lxml>=4.0.0',
+        'Pillow>=4.3.0',
         'requests>=2.14.2',
         'Send2Trash>=1.3.0',
+        'structlog>=17.2.0',
     ],
     setup_requires=['pytest-runner', ],
     tests_require=['pytest', ],
+    extras_require={
+        'server': [
+            'Flask-Admin>=1.5.0',
+            'Flask-Bootstrap>=3.3.7.1',
+            'Flask-Restless>=0.17.0',
+            'Flask-SQLAlchemy>=2.3.1',
+            'Flask-WTF>=0.14.2',
+            'Flask>=0.12.2',
+            'SQLAlchemy-Utils>=0.32.18',
+        ],
+    },
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Programming Language :: Python',
@@ -37,7 +52,8 @@ setuptools.setup(
 
     entry_points={
         'console_scripts': [
-            'google-images-download = google_images_download.__main__:cli'
+            'google-images-download = google_images_download.__main__:cli',
+            'google-images-download-server = google_images_download.server:cli'
         ]
     },
 )

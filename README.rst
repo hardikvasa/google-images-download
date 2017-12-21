@@ -63,6 +63,86 @@ Starting from version 0.2.0 it also can search similar picture from the file. To
   # this willl open google image to search image similar to 'filename.jpg'
 
 
+Usage as server for Hydrus (alpha)
+----------------------------------
+
+1. Run server with following command
+
+.. code:: bash
+
+  google-images-download-server run -d -p 5001 -t
+
+It will run on debug and threaded mode on port 5001
+
+2. choose which booru mode to install in Hydrus:
+
+Simple google image search
+
+.. code:: yaml
+
+  !Booru
+  _advance_by_page_num: true
+  _image_data: '[link]'
+  _image_id: null
+  _name: gid_booru
+  _search_separator: +
+  _search_url: http://127.0.0.1:5001/?query=%tags%&page=%index%
+  _tag_classnames_to_namespaces: {tag-page-url: gid page url, tag-picture-subtitle: gid
+      subtitle, tag-picture-title: gid title, tag-query: gid query, tag-site: gid site,
+    tag-site-title: gid site title}
+  _thumb_classname: thumb
+
+Google simlar image search
+
+.. code:: yaml
+
+  !Booru
+  _advance_by_page_num: false
+  _image_data: '[link]'
+  _image_id: null
+  _name: gid_similar_booru
+  _search_separator: +
+  _search_url: http://127.0.0.1:5001/f/?file_path=%tags%&search_type=similar
+  _tag_classnames_to_namespaces: {tag-page-url: gid page url, tag-picture-subtitle: gid
+      subtitle, tag-picture-title: gid title, tag-query: gid query, tag-site: gid site,
+    tag-site-title: gid site title}
+  _thumb_classname: thumb
+
+Google image size search
+
+.. code:: yaml
+
+  !Booru
+  _advance_by_page_num: false
+  _image_data: '[link]'
+  _image_id: null
+  _name: gid_size_booru
+  _search_separator: +
+  _search_url: http://127.0.0.1:5001/f/?file_path=%tags%&search_type=size
+  _tag_classnames_to_namespaces: {tag-page-url: gid page url, tag-picture-subtitle: gid
+      subtitle, tag-picture-title: gid title, tag-query: gid query, tag-site: gid site,
+    tag-site-title: gid site title}
+  _thumb_classname: thumb
+
+Google image size search without cache
+
+.. code:: yaml
+
+  !Booru
+  _advance_by_page_num: false
+  _image_data: '[link]'
+  _image_id: null
+  _name: gid_size(dc)_booru
+  _search_separator: +
+  _search_url: http://127.0.0.1:5001/f/?file_path=%tags%&search_type=size&disable_cache=y
+  _tag_classnames_to_namespaces: {tag-page-url: gid page url, tag-picture-subtitle: gid
+      subtitle, tag-picture-title: gid title, tag-query: gid query, tag-site: gid site,
+    tag-site-title: gid site title}
+  _thumb_classname: thumb
+
+3. Search the image. For similar image search and size image search you need to input image path.
+
+
 Installation
 ------------
 
@@ -70,20 +150,15 @@ Installation
 
   git clone https://github.com/rachmadaniHaryono/google-images-download
   cd ./google-images-download
-  python setup.py install
+  pip install .
+  # to install package needed for server
+  pip install .[server]
 
 or using pip to install it directly from github
 
 .. code:: bash
 
   pip install git+https://github.com/rachmadaniHaryono/google-images-download.git
-
-Requirements
-^^^^^^^^^^^^
-
-- click
-- requests
-
 
 Compatibility
 -------------

@@ -1,3 +1,5 @@
 -r requirements.txt
-tox>=2.7.0
 flake8>=3.3.0
+pylint>=1.7.4
+tox>=2.7.0
+vcrpy>=1.11.1

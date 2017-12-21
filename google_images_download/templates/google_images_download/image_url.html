@@ -1,0 +1,111 @@
+{% extends "google_images_download/base.html" %}
+
+{% block body %}
+  <div class="container">
+    <div>
+      <figure>
+	{% if entries[0].match_results %}
+	<a href="{{entries[0].url}}"><img src='{{entries[0].match_results[0].thumbnail.url}}'></a>
+	{% endif %}
+        {% if entries[0].match_results|length == 1 %}
+	<figcaption>{{entries[0].width}} x {{entries[0].height}}<br>{{entries[0].match_results[0].picture_title}}</figcaption>
+        {% else %}
+	<figcaption>{{entries[0].width}} x {{entries[0].height}}</figcaption>
+        {% endif %}
+      </figure>
+    </div>
+    <br>
+    <h3>INFO</h3>
+    <table class="table table-condensed">
+      <tr>
+        <td>URL</td>
+	<td>
+	  {% if entries[0].url %}
+	  <a href="{{entries[0].url}}">[link]</a> <a href="{{entries[0].url}}">{{entries[0].url}}</a>
+	  {% elif search_url %}
+	  <a href="{{search_url}}">[link]</a> <a href="{{search_url}}">{{search_url}}</a>
+	  {% endif %}
+	</td>
+      </tr>
+      <tr> <td>Width</td> <td>{{entries[0].width}}</td> </tr>
+      <tr> <td>Height</td> <td>{{entries[0].height}}</td> </tr>
+    </table>
+    {% if entries[0].match_results %}
+    <h3>MATCH RESULTS</h3>
+    {% endif %}
+    {% for match_result in entries[0].match_results %}
+    <table class="table table-condensed table-bordered">
+      <tr> <td>ID</td> <td>{{match_result.id}}</td> </tr>
+      <tr> <td>Image extension</td> <td>{{match_result.img_ext}}</td> </tr>
+      <tr> <td>JSON data ID</td> <td>{{match_result.json_data_id}}</td> </tr>
+      <tr>
+        <td>JSON search url</td>
+	<td>
+	  <a href="{{match_result.json_search_url if match_result.json_search_url else '#'}}">{{match_result.json_search_url if match_result.json_search_url}}</a>
+	</td>
+      </tr>
+      <tr> <td>Picture title</td> <td class="tag-picture-title"><a href="#">{{match_result.picture_title}}</a></td> </tr>
+      <tr> <td>Picture subtitle</td> <td class="tag-picture-subtitle"><a href="#">{{match_result.picture_subtitle}}</a></td> </tr>
+      <tr>
+        <td>Image ref url</td>
+	<td class="tag-page-url">
+          <a href="{{match_result.imgref_url if match_result.imgref_url else '#'}}">{{match_result.imgref_url if match_result.imgref_url}}</a>
+	</td>
+      </tr>
+      <tr>
+        <td>Image page url</td>
+	<td class="tag-page-url">
+          <a href="{{match_result.image_page_url if match_result.image_page_url else '#'}}">{{match_result.image_page_url if match_result.image_page_url}}</a>
+	</td>
+      </tr>
+      <tr> <td>Site</td> <td class="tag-site"><a href="https://{{match_result.site}}">{{match_result.site}}</a></td> </tr>
+      <tr> <td>Site title</td> <td class="tag-site-title"> <a href="#">{{match_result.site_title if match_result.site_title}}</a> </td> </tr>
+      <tr>
+        <td>Search Query</td>
+        <td>
+	  {% if match_result.search_query %}
+	  <table class="table table-condensed table-bordered">
+	    <tr>
+	      <th>Query</th>
+	      <th>Page</th>
+	    </tr>
+	    {% for search_query in match_result.search_query %}
+	    <tr>
+	      <th class="tag-query"><a href="#">{{search_query.query}}</a></th>
+	      <th>{{search_query.page}}</th>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	  {% endif %}
+	</td>
+      </tr>
+      <tr>
+	<td>JSON <button class="btn btn-primary btn-xs" type="button" data-toggle="collapse" data-target="#json-table-{{match_result.id}}"> show </button> <td>
+	  <div id="json-table-{{match_result.id}}" class="collapse">
+	    <table class="table table-condensed table-bordered">
+	      <tr>
+	        <th>Key</th>
+	        <th>Value</th>
+	      </tr>
+	      {% for key, value in match_result.json_data.items()|sort %}
+	      <tr>
+	        <td>{{key}}</td>
+	        <td>
+	          {% if value.startswith and value.startswith('http') %}
+	          <a href="{{value}}">{{value}}</a>
+	          {% elif value.startswith and value.startswith('/search?q=') %}
+	          <a href="https://www.google.com{{value}}">{{value}}</a>
+	          {% else %}
+	          {{value}}
+	          {% endif %}
+	        </td>
+	      </tr>
+	      {% endfor %}
+	    </table>
+	  </div>
+	</td>
+      </tr>
+    </table>
+    {% endfor %}
+  </div>
+{% endblock %}

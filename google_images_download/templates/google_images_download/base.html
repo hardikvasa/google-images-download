@@ -1,0 +1,103 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %} Google image download server {% endblock %}
+
+{% block styles %}
+  {{super()}}
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+{% endblock %}
+
+{% block navbar %}
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+	<a class="navbar-brand" href="{{url_for('index')}}">Google images download</a>
+      </div>
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+	  <li><a href="{{url_for('index')}}">Search query</a></li>
+	  <li><a href="{{url_for('from_file_search_page')}}">Search file</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/admin">Admin</a></li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+{% endblock %}
+
+{% macro show_flash_message() %}
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{category}}">{{ message }}</div>
+      {% endfor %}
+      {% endif %}
+    {% endwith %}
+{% endmacro %}
+
+{% macro show_match_results(entry_match_results, disable_image=False) %}
+  {% for match_results in entry_match_results|sort(attribute='id')|batch(2) %}
+  <div class="row">
+  {% for match_result in match_results %}
+    <div class="media col-lg-6">
+      <div class="media-left">
+        <figure>
+          {% if not disable_image %}
+          <a class="thumb" href="{{url_for('image_url_view', u=match_result.img_url)}}">
+            <img style="max-width:128px;max-height:128px" src='{{match_result.thumbnail.url}}'>
+          </a>
+          {% endif %}
+          <figcaption class="text-center">
+            <a href="{{match_result.img_url}}">{{match_result.img_ext|upper}} {{match_result.image.width}}x{{match_result.image.height}}</a>
+          </figcaption>
+        </figure>
+      </div>
+      <div class="media-body">
+        <h4 class="media-heading">
+	  {% if match_result.imgref_url %}
+	  <a href="{{match_result.imgref_url}}">{{match_result.picture_title}}</a>
+	  {% elif match_result.image_page_url %}
+	  <a href="{{match_result.image_page_url}}">{{match_result.picture_title}}</a>
+	  {% else %}
+	  {{match_result.picture_title}}
+	  {% endif %}
+        </h4>
+        <span>
+          {% if match_result.json_data['s'] %}{{match_result.json_data['s']}}<br/>{% endif %}
+          {% if match_result.image.basename %}Filename:<a href="{{match_result.img_url}}"> {{match_result.image.basename}}</a><br/>{% endif %}
+          Site: <a href="https://{{match_result.site}}">{{match_result.site}} - {{match_result.site_title}}</a>
+          <br/>
+          Link:
+          <a class="label label-default" href="{{url_for('matchresult.edit_view', id=match_result.id)}}">edit</a>
+	  {% if match_result.imgref_url %}
+          <a class="label label-default" href="{{match_result.imgref_url}}">page</a>
+	  {% endif %}
+	  {% if match_result.image_page_url %}
+          <a class="label label-default" href="{{match_result.image_page_url}}">image page</a>
+	  {% endif %}
+          <a class="label label-default" href="{{match_result.img_url}}">image</a>
+          <a class="label label-default" href="https://www.google.com/searchbyimage?image_url={{match_result.img_url|urlencode}}&safe=off">google image</a>
+          {% if match_result.tags %}
+          <br/>
+          Tags:
+          {% for tag in match_result.tags %}
+            <a class="label label-default" href="#">{{tag.full_name}}</a>
+          {% endfor %}
+          {% endif %}
+        </span>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+  <br/>
+  {% endfor %}
+{% endmacro %}

@@ -99,10 +99,17 @@ class Downloader:
         """
         try:
             req = Request(item, headers={"User-Agent": self.ua.firefox})
-            with urlopen(req) as response, \
-                    open(filename, 'wb') as output_file:
-                data = response.read()
-                output_file.write(data)
+            try:
+                with urlopen(req) as response, \
+                        open(filename, 'wb') as output_file:
+                    data = response.read()
+                    output_file.write(data)
+            except ssl.CertificateError as e:
+                logging.debug('Error raised, create unverified context', e=str(e))
+                with urlopen(req, context=ssl._create_unverified_context()) as response, \
+                        open(filename, 'wb') as output_file:
+                    data = response.read()
+                    output_file.write(data)
 
             # assume file is not exist when another filename_format is choosen
             file_already_exist = False

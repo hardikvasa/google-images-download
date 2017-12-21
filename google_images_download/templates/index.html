@@ -1,0 +1,79 @@
+{% extends "google_images_download/base.html" %}
+
+{% block title %} Google image download server {% endblock %}
+
+{% block content %}
+  <div class="container">
+    <form method="GET" action="{{ url_for('index') }}">
+      <div class="form-group">{{ form.query.label }} {{ form.query(size=20, class_="form-control") }}</div>
+      <div class="form-inline">{{ form.disable_image.label }} {{ form.disable_image() }}</div>
+      <div class="form-inline">{{ form.limit.label }} {{ form.limit(size=5, class_="form-control") }}</div>
+      <br>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+    {{show_flash_message()}}
+    {% if entry %}
+    <div class="alert alert-success" role="alert">
+      query [{{entry.query}}] found {{entry.match_results|length}} match(s)
+      <a class="label label-default" href="{{entry.query_url}}">link</a>
+      <a class="label label-default" href="https://google.com/search?q={{entry.query|urlencode}}&tbm=isch">google image</a>
+    </div>
+    {% endif %}
+    {% if entry.match_results %}
+    {{ render_pagination(pagination) }}
+    <h5>Match result</h5>
+    <div>
+    {{show_match_results(entry_match_results, disable_image=form.disable_image.data)}}
+    </div>
+    <div class="panel-group">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title"> List of image URL
+	    <span style="display: inline-block;" >
+	      <button class="btn btn-info btn-xs" data-toggle="collapse" data-target="#img-url-list">show</button>
+	    </span>
+	  </h4>  <!-- .panel-title -->
+	</div>  <!-- .panel-heading -->
+        <div id="img-url-list" class="panel-collapse collapse">
+          <ul class="list-group">
+	    {% for match_result in entry.match_results|sort(attribute='img_url') %}
+	      <li style="word-wrap:break-word;" class="list-group-item"><a href="{{match_result.img_url}}">{{match_result.img_url}}</a></li>
+	    {% endfor %}
+          </ul>
+	</div>  <!-- #img-url-list -->
+      </div>  <!-- .panel.panel-default -->
+    </div>  <!-- .panel-group -->
+    {{ render_pagination(pagination) }}
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% macro render_pagination(pagination) %}
+  <div class="pagination">
+    <nav>
+      <ul class="pagination">
+        {% if pagination.has_prev %}
+	<li><a href="{{ pagination.page_func(pagination.page - 1) }}">Prev &laquo;</a></li>
+	{% else %}
+	<li class="disabled"><a href="#">Prev &laquo;</a></li>
+        {% endif %}
+        {%- for page in pagination.iter_pages() %}
+          {% if page %}
+          {% if page != pagination.page %}
+	  <li> <a href="{{ pagination.page_func(page) }}">{{ page }}</a> </li>
+          {% else %}
+	  <li class="active"><a href="#"><strong>{{ page }}</a></strong></li>
+          {% endif %}
+          {% else %}
+	  <li><a href="#"><span class=ellipsis>…</span></a></li>
+          {% endif %}
+        {%- endfor %}
+        {% if pagination.has_next %}
+	<li><a href="{{ pagination.page_func(pagination.page + 1) }}">Next &raquo;</a></li>
+	{% else %}
+	<li class="disabled"><a href="#">Next &raquo;</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+{% endmacro %}
