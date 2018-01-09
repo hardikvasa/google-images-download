@@ -18,12 +18,6 @@ from sqlalchemy_utils.types import URLType, JSONType, ChoiceType
 import fake_useragent
 import requests
 import structlog
-try:
-    from selenium import webdriver
-    from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-    SELENIUM_INSTALLED = True
-except ImportError:
-    SELENIUM_INSTALLED = False
 
 from google_images_download import sha256
 
@@ -69,16 +63,16 @@ def get_user_agent(browser='firefox'):
         return getattr(user_agent, browser)
     except fake_useragent.errors.FakeUserAgentError as err:
         log.error("Can't get useragent, use default", err=err)
-        return 'Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1'
-
-
-def get_html_text_with_phantomjs(url):
-    """Get html text with phantomjs."""
-    caps = DesiredCapabilities.PHANTOMJS
-    caps["phantomjs.page.settings.userAgent"] = get_user_agent()
-    driver = webdriver.PhantomJS(desired_capabilities=caps)
-    driver.get(url)
-    return driver.text
+        user_agent_dict = {
+            'firefox': 'Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) '
+            'Gecko/20121011 Firefox/16.0.1',
+            'chrome': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 '
+            '(KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+        }
+        user_agent = \
+            user_agent_dict['browser'] \
+            if browser in user_agent_dict else user_agent_dict['firefox']
+        return user_agent
 
 
 class SearchQuery(db.Model):
@@ -379,19 +373,23 @@ class SearchFile(ImageFile):
             log.warning('Error getting search url', err=err)
         if res['search_url'] is not None:
             resp = requests.get(
-                res['search_url'], headers={'User-Agent': get_user_agent()}, timeout=10)
+                res['search_url'], headers={'User-Agent': get_user_agent('firefox')}, timeout=10)
             html_text = resp.text
             keyword_text = 'Our systems have detected unusual traffic from your computer network.'
             if keyword_text in resp.text:
-                if not SELENIUM_INSTALLED:
+                log.debug('get html with different user agent')
+                resp = requests.get(
+                    res['search_url'],
+                    headers={'User-Agent': get_user_agent('chrome')},
+                    timeout=10
+                )
+                if keyword_text in resp.text:
                     err_msg =  \
                         'Unusual traffic detected, response status code:{}'.format(
                             resp.status_code
                         )
                     log.error(err_msg)
                     raise ValueError(err_msg)
-                log.debug('Use phantomjs to get html text.')
-                html_text = get_html_text_with_phantomjs(resp['search_url'])
             search_page = BeautifulSoup(html_text, 'lxml')
             base_url = 'https://www.google.com'
             size_search_tag = search_page.select_one('._v6 .gl a')
