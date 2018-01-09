@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="google_images_download",
-    version="0.2.0",
+    version="0.3.0",
     url="https://github.com/rachmadaniHaryono/google-images-download",
 
     author="Hardik Vasa",
