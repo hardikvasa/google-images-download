@@ -37,11 +37,11 @@
 	</td></tr>
       <tr>
         <td>Image guess</td>
-	{%  if entry.search_file.image_guess %}
 	<td>
+	  {%  if entry.search_file.image_guess %}
 	  <a href="{{url_for('index', query=entry.search_file.image_guess)}}">{{entry.search_file.image_guess}}</a>
+          {% endif %}
 	</td></tr>
-        {% endif %}
     </table>
     {{show_match_results(entry.match_results)}}
     {% endif %}
