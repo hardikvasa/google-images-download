@@ -181,8 +181,11 @@ def run(host='127.0.0.1', port=5000, debug=False, reloader=False, threaded=False
     app_admin = Admin(app, name='google image download', template_mode='bootstrap3')
     app_admin.add_view(admin.SearchQueryView(models.SearchQuery, models.db.session))
     app_admin.add_view(admin.MatchResultView(models.MatchResult, models.db.session))
-    app_admin.add_view(ModelView(models.ImageURL, models.db.session))
-    app_admin.add_view(ModelView(models.Tag, models.db.session))
+    app_admin.add_view(admin.ImageURLView(models.ImageURL, models.db.session))
+    # app_admin.add_view(ModelView(models.Tag, models.db.session))  # not used yet
+    app_admin.add_view(admin.ImageFileView(models.ImageFile, models.db.session))
+    app_admin.add_view(admin.SearchFileView(models.SearchFile, models.db.session))
+    app_admin.add_view(admin.SearchModelView(models.SearchModel, models.db.session))
     Bootstrap(app)
 
     if debug:
