@@ -39,6 +39,7 @@ setuptools.setup(
             'Flask-SQLAlchemy>=2.3.1',
             'Flask-WTF>=0.14.2',
             'Flask>=0.12.2',
+            'humanize==0.5.1',
             'SQLAlchemy-Utils>=0.32.18',
         ],
     },
