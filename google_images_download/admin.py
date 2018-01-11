@@ -77,11 +77,13 @@ def filesize_formatter(_, __, model, name):
 
 class SearchQueryView(ModelView):
     """Custom view for SearchQuery model."""
+
     can_view_details = True
     column_display_pk = True
     column_formatters = {
         'query_url': url_formatter,
         'created_at': date_formatter,
+        'updated_at': date_formatter,
     }
     column_exclude_list = ('query_data', 'updated_at', 'query_url')
     column_searchable_list = ('page', 'query')
