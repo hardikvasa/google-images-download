@@ -189,7 +189,13 @@ def run(host='127.0.0.1', port=5000, debug=False, reloader=False, threaded=False
     Bootstrap(app)
 
     if debug:
-        app.config.from_object('google_images_download.server_debug_config')
+        app.config['DEBUG'] = True
+        app.config['LOGGER_HANDLER_POLICY'] = 'debug'
+        app.config['SECRET_KEY'] = os.getenv('DDG_SERVER_SECRET_KEY') or \
+            os.urandom(24)
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gid_debug.db'
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['WTF_CSRF_ENABLED'] = False
         models.db.init_app(app)
         app.app_context().push()
         models.db.create_all()
