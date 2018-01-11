@@ -9,12 +9,11 @@
 import time  # Importing the time library to check the time of code execution
 import sys  # Importing the System Library
 import os
-#import urllib2
 
 ########### Edit From Here ###########
 
 # This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
-search_keyword = ['Baloons','Bears','Santa']
+search_keyword = ['Baloons']
 
 # This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
 keywords = [' high resolution']
@@ -153,38 +152,40 @@ while i < len(search_keyword):
             req = Request(items[k], headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
             response = urlopen(req, None, 15)
-            output_file = open(search_keywords + "/" + str(k + 1) + ".jpg", 'wb')
+            image_name = items[k][(items[k].rfind('/'))+1:]
+            if '?' in image_name:
+                image_name = image_name[:image_name.find('?')]
 
+            output_file = open(search_keywords + "/" + str(k + 1) + ". " + image_name, 'wb')
             data = response.read()
             output_file.write(data)
-            response.close();
+            response.close()
 
-            print("completed ====> " + str(k + 1))
+            print("completed ====> " + str(k + 1) + ". " + image_name)
 
-            k = k + 1;
+            k = k + 1
 
         except IOError:  # If there is any IOError
 
             errorCount += 1
             print("IOError on image " + str(k + 1))
-            k = k + 1;
+            k = k + 1
 
         except HTTPError as e:  # If there is any HTTPError
 
             errorCount += 1
             print("HTTPError" + str(k))
-            k = k + 1;
+            k = k + 1
         except URLError as e:
 
             errorCount += 1
             print("URLError " + str(k))
-            k = k + 1;
+            k = k + 1
 
     i = i + 1
 
 print("\n")
 print("Everything downloaded!")
-print("\n" + str(errorCount) + " ----> total Errors")
 
 # ----End of the main program ----#
 
