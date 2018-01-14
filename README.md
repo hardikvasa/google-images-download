@@ -1,23 +1,34 @@
 # Google Images Download
-Python Script for 'searching' and 'downloading' hundreds of Google images/image links!
+Python Script for 'searching' and 'downloading' hundreds of Google images to the local hard disk!
 
 ## Summary
-This is a Python program to search keywords/key-phrases on Google Images and then also optionally download all Images. 
+This is a command line python program to search keywords/key-phrases on Google Images and then also optionally download all images to your computer. This is a small program which is ready-to-run, but still under development. Many more features will be added to it going forward.
 
 ## Compatability
-This program is now compatible with both the versions of python (2.x and 3.x). It is a download-and-run program with couple of changes like the ketwords for which you want to search and download images.
+This program is compatible with both the versions of python (2.x and 3.x). It is a download-and-run program with no changes to the file. You will just have to specify parameters through the command line.
 
-## Status
-This is a small program which is ready-to-run, but still under development. Many more features will be added to it shortly.
+## How to run the script?
+1. Download this repository on your local hard drive
+2. Open the terminal (for mac/linux OS) or command prompt (for windows OS) and browse to the location of the file 'google-images-download.py' on your local disk.
+3. Type in one of the following command mentioned below
 
 ## Usage
-`search_keyword = ['Taj Mahal', 'Pyramid of Giza']`
+If you have python 2.x version installed
 
-This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
+`python google-images-download.py -keywords "Polar bears, baloons, Beaches" -limit 20`
 
-`keywords = [' high resolution',' paintings',' at night',' from top']`
+If you have python 3.x version installed
 
-This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the first element of keywords is 'high resolution' as shown above, then it will search for 'Australia High Resolution' images.
+`python3 google-images-download.py -keywords "Polar bears, baloons, Beaches" -limit 20`
+
+To use the short hand command
+
+`python google-images-download.py -k "Polar bears, baloons, Beaches" -l 20`
+
+
+===> **Keywords** denotes the words that you would want to search for and **limit** donotes number of images that you would want to download.
+
+===> The images would be downloaded in their own directories in the same folder as the python file.
 
 ## SSL Errors
 If you do see SSL errors on Mac for Python 3 please go to Finder —> Applications —> Python 3 —> Click on the ‘Install Certificates.command’ and run the file.

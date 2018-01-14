@@ -1,27 +1,31 @@
-# coding: utf-8
-
 # In[ ]:
+#  coding: utf-8
 
-# Searching and Downloading Google Images/Image Links
+###### Searching and Downloading Google Images to the local disk ######
 
 # Import Libraries
-# coding: UTF-8
 import time  # Importing the time library to check the time of code execution
 import sys  # Importing the System Library
 import os
+import argparse
 
-########### Edit From Here ###########
 
-# This list is used to search keywords. You can edit this list to search for google images of your choice. You can simply add and remove elements of the list.
-search_keyword = ['Baloons']
+# Taking command line arguments from users
+parser = argparse.ArgumentParser()
+parser.add_argument('-k', '--keywords', help='delimited list input', type=str, required=True)
+parser.add_argument('-l', '--limit', help='delimited list input', type=str, required=False)
+args = parser.parse_args()
+search_keyword = [str(item) for item in args.keywords.split(',')]
+#setting limit on number of images to be downloaded
+if args.limit:
+    limit = int(args.limit)
+    if int(args.limit) >= 100:
+        limit = 100
+else:
+    limit = 100
 
 # This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
 keywords = [' high resolution']
-
-
-########### End of Editing ###########
-
-
 
 
 # Downloading entire Web Document (Raw Page Content)
@@ -91,7 +95,6 @@ version = (3,0)
 cur_version = sys.version_info
 if cur_version >= version:  # If the Current Version of Python is 3.0 or above
     # urllib library for Extracting web pages
-    #import urllib.request
     from urllib.request import Request, urlopen
     from urllib.request import URLError, HTTPError
 
@@ -101,18 +104,19 @@ else:  # If the Current Version of Python is 2.x
     from urllib2 import URLError, HTTPError
 
 # Download Image Links
+errorCount = 0
 i = 0
 while i < len(search_keyword):
     items = []
-    iteration = "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(search_keyword[i])
+    iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(search_keyword[i])
     print (iteration)
     print ("Evaluating...")
-    search_keywords = search_keyword[i]
-    search = search_keywords.replace(' ', '%20')
+    search_term = search_keyword[i]
+    search = search_term.replace(' ', '%20')
 
     # make a search keyword  directory
     try:
-        os.makedirs(search_keywords)
+        os.makedirs(search_term)
     except OSError as e:
         if e.errno != 17:
             raise
@@ -120,21 +124,15 @@ while i < len(search_keyword):
         pass
 
     j = 0
-    while j < len(keywords):
-        pure_keyword = keywords[j].replace(' ', '%20')
-        url = 'https://www.google.com/search?q=' + search + pure_keyword + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
-        raw_html = (download_page(url))
-        #raw_html = (urllib.request.urlopen(url))
-        time.sleep(0.1)
-        items = items + (_images_get_all_items(raw_html))
-        j = j + 1
-    # print ("Image Links = "+str(items))
+    url = 'https://www.google.com/search?q=' + search + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+    raw_html = (download_page(url))
+    time.sleep(0.1)
+    items = items + (_images_get_all_items(raw_html))
     print ("Total Image Links = " + str(len(items)))
-    print ("\n")
 
     # This allows you to write all the links into a test file. This text file will be created in the same directory as your code. You can comment out the below 3 lines to stop writing the output to the text file.
     info = open('output.txt', 'a')  # Open the text file called database.txt
-    info.write(str(i) + ': ' + str(search_keyword[i - 1]) + ": " + str(items) + "\n\n\n")  # Write the title of the page
+    info.write(str(i) + ': ' + str(search_keyword[i - 1]) + ": " + str(items))  # Write the title of the page
     info.close()  # Close the file
 
     t1 = time.time()  # stop the timer
@@ -144,19 +142,21 @@ while i < len(search_keyword):
 
     ## To save imges to the same directory
     # IN this saving process we are just skipping the URL if there is any error
-
     k = 0
-    errorCount = 0
-    while (k < len(items)):
+    while (k < limit):
         try:
             req = Request(items[k], headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
             response = urlopen(req, None, 15)
-            image_name = items[k][(items[k].rfind('/'))+1:]
+            image_name = str(items[k][(items[k].rfind('/'))+1:])
             if '?' in image_name:
                 image_name = image_name[:image_name.find('?')]
+            if ".jpg" in image_name or ".png" in image_name or ".jpeg" in image_name or ".svg" in image_name:
+                output_file = open(search_term + "/" + str(k + 1) + ". " + image_name, 'wb')
+            else:
+                output_file = open(search_term + "/" + str(k + 1) + ". " + image_name + ".jpg", 'wb')
+                image_name = image_name + ".jpg"
 
-            output_file = open(search_keywords + "/" + str(k + 1) + ". " + image_name, 'wb')
             data = response.read()
             output_file.write(data)
             response.close()
@@ -186,8 +186,7 @@ while i < len(search_keyword):
 
 print("\n")
 print("Everything downloaded!")
+print("Total Errors: "+ str(errorCount) + "\n")
 
 # ----End of the main program ----#
-
-
 # In[ ]:
