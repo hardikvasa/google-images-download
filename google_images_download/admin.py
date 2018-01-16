@@ -199,9 +199,16 @@ class TagView(ModelView):
 class ImageFileView(ModelView):
     """Custom view for ImageFile model."""
 
+    def _thumbnail_formatter(view, context, model, name):
+        if not model.thumbnail:
+            return
+        return Markup('<img src="{}">'.format(url_for(
+            'thumbnail', filename=model.thumbnail.checksum + '.jpg')))
+
     column_formatters = {
         'created_at': date_formatter,
         'size': filesize_formatter,
+        'thumbnail': _thumbnail_formatter,
     }
     can_view_details = True
 

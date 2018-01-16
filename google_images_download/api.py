@@ -386,8 +386,7 @@ def get_or_create_page_search_image(file_path=None, url=None, **kwargs):
 
 def get_or_create_image_file_with_thumbnail(file_path, disable_cache=False, thumb_folder=None):
     """Get or create image file with thumbnail."""
-    def_thumb_folder = os.path.join(user_data_dir('google_images_download', 'hardikvasa'), 'thumb')  # NOQA
-    thumb_folder = thumb_folder if thumb_folder else def_thumb_folder
+    thumb_folder = thumb_folder if thumb_folder else gid.models.DEFAULT_THUMB_FOLDER
     img_file, img_file_created = get_or_create_image_file(file_path, disable_cache=disable_cache)
     is_thumbnail_exist = False
     file_path_eq_thumb_path = False

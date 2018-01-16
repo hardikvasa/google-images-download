@@ -78,7 +78,7 @@ def index():
 @app.route('/t/<path:filename>')
 def thumbnail(filename):
     """Thumbnail url."""
-    return send_from_directory(models.THUMB_FOLDER, filename)
+    return send_from_directory(models.DEFAULT_THUMB_FOLDER, filename)
 
 
 def shell_context():
