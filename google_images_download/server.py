@@ -131,7 +131,6 @@ class FromFileSearchImageView(BaseView):
                     models.db.session.add(entry)
                     models.db.session.commit()
             except Exception as err:
-                raise err
                 msg = '{} raised:{}'.format(type(err), err)
                 flash(msg, 'danger')
                 app.logger.debug(msg)
