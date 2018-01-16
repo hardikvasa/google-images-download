@@ -140,6 +140,38 @@ Google image size search without cache
     tag-site-title: gid site title}
   _thumb_classname: thumb
 
+Google simlar image search from image url
+
+.. code:: yaml
+
+  !Booru
+  _advance_by_page_num: false
+  _image_data: '[link]'
+  _image_id: null
+  _name: gid_size_booru
+  _search_separator: +
+  _search_url: http://127.0.0.1:5001/f/?url=%tags%&search_type=1
+  _tag_classnames_to_namespaces: {tag-page-url: gid page url, tag-picture-subtitle: gid
+      subtitle, tag-picture-title: gid title, tag-query: gid query, tag-site: gid site,
+    tag-site-title: gid site title}
+  _thumb_classname: thumb
+
+Google image size search from image url
+
+.. code:: yaml
+
+  !Booru
+  _advance_by_page_num: false
+  _image_data: '[link]'
+  _image_id: null
+  _name: gid_size_booru
+  _search_separator: +
+  _search_url: http://127.0.0.1:5001/f/?url=%tags%&search_type=2
+  _tag_classnames_to_namespaces: {tag-page-url: gid page url, tag-picture-subtitle: gid
+      subtitle, tag-picture-title: gid title, tag-query: gid query, tag-site: gid site,
+    tag-site-title: gid site title}
+  _thumb_classname: thumb
+
 3. Search the image. For similar image search and size image search you need to input image path.
 
 
