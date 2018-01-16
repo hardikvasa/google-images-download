@@ -240,22 +240,8 @@ def get_or_create_search_image(file_path=None, url=None, disable_cache=False, th
     if not((file_path or url) and not (file_path and url)):
         raise ValueError('input url or file_path only')
     if file_path:
-        def_thumb_folder = os.path.join(user_data_dir('google_images_download', 'hardikvasa'), 'thumb')  # NOQA
-        thumb_folder = thumb_folder if thumb_folder else def_thumb_folder
-        img_file, _ = get_or_create_image_file(file_path)
-        is_thumbnail_exist = False
-        file_path_eq_thumb_path = False
-        if img_file.thumbnail:
-            thumbnail_path = os.path.join(thumb_folder, img_file.thumbnail.checksum + '.jpg')
-            is_thumbnail_exist = os.path.isfile(thumbnail_path)
-            file_path_eq_thumb_path = file_path == thumbnail_path
-        if not is_thumbnail_exist and file_path_eq_thumb_path:
-            img_file.thumbnail = img_file
-        elif not is_thumbnail_exist:
-            thumbnail_file = create_thumbnail(file_path, thumb_folder)
-            log.debug('thumbnail created', m=thumbnail_file, folder=thumb_folder)
-            thumbnail_file_model, _ = get_or_create_image_file(thumbnail_file)
-            img_file.thumbnail = thumbnail_file_model
+        img_file, _ = get_or_create_image_file_with_thumbnail(
+            file_path, disable_cache=disable_cache, thumb_folder=thumb_folder)
         model, created = gid.models.get_or_create(
             gid.models.db.session, gid.models.SearchImage, img_file=img_file)
     elif url:
@@ -396,6 +382,28 @@ def get_or_create_page_search_image(file_path=None, url=None, **kwargs):
             mr_models.append(mr_model)
         model.match_results.extend(mr_models)
     return model, created
+
+
+def get_or_create_image_file_with_thumbnail(file_path, disable_cache=False, thumb_folder=None):
+    """Get or create image file with thumbnail."""
+    def_thumb_folder = os.path.join(user_data_dir('google_images_download', 'hardikvasa'), 'thumb')  # NOQA
+    thumb_folder = thumb_folder if thumb_folder else def_thumb_folder
+    img_file, img_file_created = get_or_create_image_file(file_path, disable_cache=disable_cache)
+    is_thumbnail_exist = False
+    file_path_eq_thumb_path = False
+    if img_file.thumbnail:
+        thumbnail_path = os.path.join(thumb_folder, img_file.thumbnail.checksum + '.jpg')
+        is_thumbnail_exist = os.path.isfile(thumbnail_path)
+        file_path_eq_thumb_path = file_path == thumbnail_path
+    if not is_thumbnail_exist and file_path_eq_thumb_path:
+        img_file.thumbnail = img_file
+    elif not is_thumbnail_exist:
+        thumbnail_file = create_thumbnail(file_path, thumb_folder)
+        log.debug('thumbnail created', m=thumbnail_file, folder=thumb_folder)
+        thumbnail_file_model, _ = \
+            get_or_create_image_file(thumbnail_file, disable_cache=disable_cache)
+        img_file.thumbnail = thumbnail_file_model
+    return img_file, img_file_created
 
 
 def get_or_create_image_file(file_path, disable_cache=False):
