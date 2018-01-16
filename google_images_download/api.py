@@ -5,7 +5,6 @@ import json
 import tempfile
 import os
 
-from appdirs import user_data_dir
 from bs4 import BeautifulSoup
 from PIL import Image
 import requests
@@ -401,6 +400,7 @@ def get_or_create_image_file_with_thumbnail(file_path, disable_cache=False, thum
         log.debug('thumbnail created', m=thumbnail_file, folder=thumb_folder)
         thumbnail_file_model, _ = \
             get_or_create_image_file(thumbnail_file, disable_cache=disable_cache)
+        thumbnail_file_model.thumbnail = thumbnail_file_model
         img_file.thumbnail = thumbnail_file_model
     return img_file, img_file_created
 
@@ -436,4 +436,4 @@ def create_thumbnail(file_path, thumbnail_folder):
         thumbnail_path = os.path.join(thumbnail_folder, thumb_checksum + '.jpg')
         if not os.path.isfile(thumbnail_path):
             shutil.copyfile(temp.name, thumbnail_path)
-        return file_path
+        return thumbnail_path
