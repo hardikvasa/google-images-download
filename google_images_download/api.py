@@ -376,16 +376,19 @@ def get_or_create_page_search_image(file_path=None, url=None, **kwargs):
         gid.models.db.session, gid.models.SearchImagePage, **kwargs
     )
     if created or disable_cache:
+        gr_url = None
         if gid.models.SearchImagePage.TYPE_SIMILAR == search_type:
-            url = sm_model.similar_search_url
+            gr_url = sm_model.similar_search_url
         elif gid.models.SearchImagePage.TYPE_SIZE == search_type:
-            url = sm_model.size_search_url
+            gr_url = sm_model.size_search_url
         else:
-            raise ValueError('Unknown search type: {}'.format(search_type))
-        if not url:
+            log.error('Unknown search type: {}'.format(search_type))
+        if not gr_url:
+            gid.models.db.session.add(sm_model)
+            gid.models.db.session.commit()
             raise ValueError('No url found for search type: {}'.format(search_type))
         user_agent = 'Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1'  # NOQA
-        resp = requests.get(url, headers={'User-Agent': user_agent}, timeout=10)
+        resp = requests.get(gr_url, headers={'User-Agent': user_agent}, timeout=10)
         soup = BeautifulSoup(resp.text, 'html.parser')
         mr_models = []
         for html_tag in soup.select('.rg_bx'):
