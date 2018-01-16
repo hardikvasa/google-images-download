@@ -18,8 +18,8 @@ except ImportError:
 from fake_useragent import UserAgent
 from send2trash import send2trash
 
-from .sha256 import sha256_checksum
-from . import simple_gi as sgi
+from google_images_download.sha256 import sha256_checksum
+from google_images_download import simple_gi as sgi
 
 
 def download_page(url):

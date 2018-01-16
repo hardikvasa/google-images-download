@@ -1,0 +1,40 @@
+{% extends 'admin/base.html' %}
+{% block body %}
+<form method="GET" action="/">
+  <div class="form-group"> {{ form.query.label }} {{ form.query(size=100, class_="form-control") }} </div>
+  <div class="checkbox"> <label>{{form.disable_cache(type='checkbox')}}{{form.disable_cache.label}}</label></div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+{% if entry.search_results|length > 1 %}
+{{pagination_section(info=False)}}
+{% endif %}
+<br>
+{% if entry %}<p> {{entry.match_results|length}} Results</p> {% endif %}
+{{pagination_section(info=False)}}
+{% for search_result_row in entry.match_results|batch(4) %}
+  <div class="row">
+    {% for match_result in search_result_row %}
+      <figure class="col-sm-3">
+      <a class="thumb" href="{{url_for('u.index', u=match_result.img_url.url)}}">
+          <img style="max-height: 280px; max-width: 280px; " class="img-thumbnail img-responsive center-block" src="{{match_result.thumbnail_url.url}}">
+        </a>
+        <figcaption>
+	  <a href="{{match_result.img_url.url}}">[{{match_result.img_url.width}}x{{match_result.img_url.height}}]</a>
+         </figcaption>
+      </figure>
+    {% endfor %}
+  </div>
+{% endfor %}
+<br>
+{{pagination_section(info=False)}}
+{% endblock body %}
+
+{% macro pagination_section(info=True)%}
+  {% if info %} {{ pagination.info }} {% endif %}
+  {{ pagination.links }}
+  {% if query and not pagination.has_next and entry %}
+  <ul class="pagination">
+    <li class="next"><a href="{{url_for('admin.index', query=query, page=pagination.page+1)}}">load next page</a></li>
+  </ul>
+  {% endif %}
+{% endmacro %}

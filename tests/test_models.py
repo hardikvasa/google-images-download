@@ -3,7 +3,6 @@ from urllib.parse import urlparse, parse_qs
 import os
 
 from PIL import Image
-from flask import Flask
 import pytest
 import vcr
 
@@ -46,19 +45,6 @@ def tmp_pic(tmpdir):
             's8B_1ggosgLyAvgIKaArsyqIJ9conTehK4QjnjesNtMnGjDr2WYL3JwKke7gjGUtkou0VlOLR40JczbbhOx4-'
             'RDy03I_1kUV6WgCRiPqIUovom1AgBAwLEI6u_1ggaCgoICAESBM9Xj5QM&sa=X&'
             'ved=0ahUKEwi3o6zp3IrXAhUJahoKHfAKCekQ2A4IIygB'}
-
-
-@pytest.fixture()
-def tmp_db(tmpdir):
-    """Get tmp db."""
-    app = Flask(__name__)
-    tmp_db_path = tmpdir.join('temp.db')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + tmp_db_path.strpath
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    models.db.init_app(app)
-    app.app_context().push()
-    models.db.create_all()
-    return models.db
 
 
 def test_get_or_create_from_file(tmpdir, tmp_pic, tmp_db):

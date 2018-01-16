@@ -1,49 +1,34 @@
-{% extends "google_images_download/base.html" %}
-
-{% block content %}
-  <div class="container">
-    <form class="form" method="GET" action="{{ url_for('from_file_search_page') }}">
-      <div class="form-group">{{form.file_path.label}} {{form.file_path(class_="form-control")}}</div>
-      <div class="form-group">{{form.search_type.label}} {{form.search_type()}}</div>
-      <div class="form-group">{{form.disable_cache.label}} {{form.disable_cache()}}</div>
-      <div class="form-group">{{form.disable_image.label}} {{form.disable_image()}}</div>
-      <button type="submit" class="btn btn-default">Submit</button>
-    </form>
-    {{show_flash_message()}}
-    {% if entry %}
-    <h4>Result</h4>
-    <img src="{{url_for('thumbnail', filename=entry.search_file.thumbnail_basename)}}">
-    <table class="table table-condensed table-bordered">
-      <tr>
-        <td>Search url</td>
-	<td>
-          <a href="{{entry.search_file.search_url}}">{{entry.search_file.search_url|truncate(70) if entry.search_file.search_url}}</a>
-	</td>
-      </tr>
-      <tr>
-        <td>Similar search url</td>
-	<td>
-	  {% if entry.search_file.similar_search_url %}
-	  <a href="{{entry.search_file.similar_search_url}}">{{entry.search_file.similar_search_url|truncate(70) if entry.search_file.similar_search_url}}</a>
-	  {% endif %}
-	</td>
-      </tr>
-      <tr>
-        <td>Size search url</td>
-	<td>
-	  {% if entry.search_file.size_search_url %}
-	  <a href="{{entry.search_file.size_search_url}}">{{entry.search_file.size_search_url|truncate(70) if entry.search_file.size_search_url}}</a>
-	  {% endif %}
-	</td></tr>
-      <tr>
-        <td>Image guess</td>
-	<td>
-	  {%  if entry.search_file.image_guess %}
-	  <a href="{{url_for('index', query=entry.search_file.image_guess)}}">{{entry.search_file.image_guess}}</a>
-          {% endif %}
-	</td></tr>
-    </table>
-    {{show_match_results(entry.match_results)}}
-    {% endif %}
+{% extends 'admin/base.html' %}
+{% block body %}
+<form method="GET" action="{{url_for('f.index')}}">
+  <section>
+    <h2>Input</h2>
+    <div class="form-group"> {{ form.file_path.label }} {{ form.file_path(class_="form-control") }} </div>
+    <p>or</p>
+    <div class="form-group"> {{ form.url.label }} {{ form.url(class_="form-control") }} </div>
+  </section>
+  <section>
+    <h2>Option</h2>
+    <div class="checkbox"> <label>{{form.disable_cache(type='checkbox')}}{{form.disable_cache.label}}</label></div>
+    <div class="form-group"> {{ form.search_type.label }} {{ form.search_type(class_="form-control") }} </div>
+  </section>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+{% if entry %}
+<p> {{entry.match_results|length}} Results</p>
+{% for search_result_row in entry.match_results|batch(4) %}
+  <div class="row">
+    {% for match_result in search_result_row %}
+      <figure class="col-sm-3">
+        <a class="thumb" href="{{url_for('u.index', u=match_result.img_url.url)}}">
+          <img style="max-height: 280px; max-width: 280px; " class="img-thumbnail img-responsive center-block" src="{{match_result.thumbnail_url.url}}">
+        </a>
+        <figcaption>
+	  <a href="{{match_result.img_url.url}}">[{{match_result.img_url.width}}x{{match_result.img_url.height}}]</a>
+         </figcaption>
+      </figure>
+    {% endfor %}
   </div>
-{% endblock %}
+{% endfor %}
+{% endif %}
+{% endblock body %}

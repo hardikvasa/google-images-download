@@ -8,30 +8,29 @@ import tempfile
 
 from flask import Flask, render_template, request, url_for, flash, send_from_directory
 from flask_restless import APIManager  # pylint: disable=import-error
-from flask_admin import Admin
+from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_bootstrap import Bootstrap
 import click
 
-from google_images_download.forms import IndexForm, FileForm
-from google_images_download import models, pagination, admin
+from google_images_download.forms import IndexForm, FindImageForm
+from google_images_download import models, pagination, admin, api
 
 
 app = Flask(__name__)  # pylint: disable=invalid-name
 
 
-@app.route('/u/', methods=['GET', 'POST'], defaults={'page': 1})
-@app.route('/u/p/<int:page>')
-def image_url_view(page=1):
-    """View for image url."""
-    search_url = request.args.get('u', None)
-    entries = [  # pylint: disable=no-member
-        models.ImageURL.query.filter_by(url=search_url).one_or_none()]
-    return render_template(
-        'google_images_download/image_url.html', entries=entries, page=page, search_url=search_url)
+class ImageURLSingleView(BaseView):
+    @expose('/')
+    def index(self):
+        """View for single image url."""
+        search_url = request.args.get('u', None)
+        entry = models.ImageURL.query.filter_by(url=search_url).one_or_none()
+        return self.render(
+            'google_images_download/image_url_view.html', entry=entry, search_url=search_url)
 
 
-@app.route('/')
+# @app.route('/')
 def index():
     """Get Index page."""
     form = IndexForm(request.args)
@@ -79,39 +78,6 @@ def thumbnail(filename):
     return send_from_directory(models.THUMB_FOLDER, filename)
 
 
-@app.route('/f/')
-def from_file_search_page():
-    """Get search page using google url."""
-    form = FileForm(request.args)
-    file_path = form.file_path.data
-    search_type = form.search_type.data
-    disable_cache = form.disable_cache.data
-    render_template_kwargs = {'entry': None, 'form': form}
-    file_exist = os.path.isfile(file_path) if file_path is not None else False
-    empty_response = render_template(
-        'google_images_download/from_file_search_page.html', **render_template_kwargs)
-
-    if not file_path or not file_exist:
-        if not file_exist:
-            app.logger.debug('File not exist:%s', file_path)
-        return empty_response
-    with tempfile.NamedTemporaryFile() as temp:
-        shutil.copyfile(file_path, temp.name)
-        try:
-            entry, _ = models.SearchModel.get_or_create_from_file(
-                temp.name, search_type, use_cache=not disable_cache)
-            if not entry.search_file.thumbnail:
-                entry.search_file.create_thumbnail(temp.name)
-        except Exception as err:  # pylint: disable=broad-except
-            flash('{} raised:{}'.format(type(err), err), 'danger')
-            return empty_response
-    app.logger.debug('[%s],[%s],file:%s', search_type, len(entry.match_results), file_path)
-    app.logger.debug('URL:%s', request.url)
-    render_template_kwargs['entry'] = entry
-    return render_template(
-        'google_images_download/from_file_search_page.html', **render_template_kwargs)
-
-
 def shell_context():
     """Return shell context."""
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -142,6 +108,64 @@ def create_app(script_info=None):  # pylint: disable=unused-argument
     app_admin.add_view(ModelView(models.ImageURL, models.db.session))
     Bootstrap(app)
     return app
+
+
+class FromFileSearchImageView(BaseView):
+    @expose('/')
+    def index(self):
+        form = FindImageForm(request.args)
+        file_path = form.file_path.data
+        url = form.url.data
+        search_type = form.search_type.data
+        disable_cache = form.disable_cache.data
+        render_template_kwargs = {'entry': None, 'form': form}
+        file_exist = os.path.isfile(file_path) if file_path is not None else False
+        empty_response = self.render(
+            'google_images_download/from_file_search_page.html', **render_template_kwargs)
+
+        def get_entry(kwargs):
+            entry = None
+            try:
+                entry, created = api.get_or_create_page_search_image(**kwargs)
+                if created or disable_cache:
+                    models.db.session.add(entry)
+                    models.db.session.commit()
+            except Exception as err:
+                msg = '{} raised:{}'.format(type(err), err)
+                flash(msg, 'danger')
+                app.logger.debug(msg)
+            return entry
+
+        if not file_path and not url:
+            return empty_response
+        if url:
+            kwargs = {'url': url, 'search_type': search_type, 'disable_cache': disable_cache}
+            entry = get_entry(kwargs)
+            if not entry:
+                return empty_response
+        elif not file_path or not file_exist:
+            if not file_exist:
+                msg = 'File not exist: {}'.format(file_path)
+                app.logger.debug(msg)
+                flash(msg, 'danger')
+            return empty_response
+        else:
+            with tempfile.NamedTemporaryFile() as temp:
+                shutil.copyfile(file_path, temp.name)
+                kwargs = {
+                    'file_path': temp.name,
+                    'search_type': search_type,
+                    'disable_cache': disable_cache
+                }
+                entry = get_entry(kwargs)
+                if not entry:
+                    return empty_response
+        app.logger.debug('kwargs: %s', kwargs)
+        app.logger.debug('search type:%s match results:%s', search_type, len(entry.match_results))
+        app.logger.debug('URL:%s', request.url)
+        render_template_kwargs['entry'] = entry
+        return self.render(
+            'google_images_download/from_file_search_page.html', **render_template_kwargs)
 
 
 @click.group()
@@ -175,22 +199,43 @@ def run(host='127.0.0.1', port=5000, debug=False, reloader=False, threaded=False
         logging.Formatter('<%(asctime)s> <%(levelname)s> %(message)s'))
     app.logger.addHandler(file_handler)
 
-    api_manager = APIManager(app, flask_sqlalchemy_db=models.db)
-    api_manager.create_api(models.SearchQuery, methods=['GET'])
-    api_manager.create_api(models.MatchResult, methods=['GET'])
-    app_admin = Admin(app, name='google image download', template_mode='bootstrap3')
-    app_admin.add_view(admin.SearchQueryView(models.SearchQuery, models.db.session))
-    app_admin.add_view(admin.MatchResultView(models.MatchResult, models.db.session))
-    app_admin.add_view(ModelView(models.ImageURL, models.db.session))
-    app_admin.add_view(ModelView(models.Tag, models.db.session))
-    Bootstrap(app)
-
     if debug:
-        app.config.from_object('google_images_download.server_debug_config')
+        app.config['DEBUG'] = True
+        app.config['LOGGER_HANDLER_POLICY'] = 'debug'
+        app.config['SECRET_KEY'] = os.getenv('DDG_SERVER_SECRET_KEY') or \
+            os.urandom(24)
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gid_debug.db'
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['WTF_CSRF_ENABLED'] = False
         models.db.init_app(app)
         app.app_context().push()
         models.db.create_all()
         logging.basicConfig(level=logging.DEBUG)
+
+    api_manager = APIManager(app, flask_sqlalchemy_db=models.db)
+    api_manager.create_api(models.SearchQuery, methods=['GET'])
+    api_manager.create_api(models.MatchResult, methods=['GET'])
+
+    admin_templ = 'google_images_download/index.html'
+    app_admin = Admin(
+        app, name='Google images download', template_mode='bootstrap3',
+        index_view=admin.HomeView(name='Home', template=admin_templ, url='/'))
+    app_admin.add_view(FromFileSearchImageView(name='Image Search', endpoint='f'))
+    app_admin.add_view(ImageURLSingleView(name='Image Viewer', endpoint='u'))
+    app_admin.add_view(admin.SearchQueryView(models.SearchQuery, models.db.session))
+    app_admin.add_view(admin.MatchResultView(models.MatchResult, models.db.session))
+    app_admin.add_view(admin.JSONDataView(models.JSONData, models.db.session))
+    app_admin.add_view(admin.ImageURLView(models.ImageURL, models.db.session))
+    app_admin.add_view(admin.TagView(models.Tag, models.db.session))
+    app_admin.add_view(admin.ImageFileView(models.ImageFile, models.db.session))
+    app_admin.add_view(admin.SearchImageView(models.SearchImage, models.db.session))
+    app_admin.add_view(admin.SearchImagePageView(models.SearchImagePage, models.db.session))
+    app_admin.add_view(admin.TextMatchView(models.TextMatch, models.db.session))
+    app_admin.add_view(admin.MainSimilarResultView(models.MainSimilarResult, models.db.session))
+    model_list = []  # NOTE: may be used later
+    for model_item in model_list:
+        app_admin.add_view(ModelView(model_item, models.db.session))
+    Bootstrap(app)
 
     app.run(
         host=host, port=port,

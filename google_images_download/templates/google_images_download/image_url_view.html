@@ -1,0 +1,47 @@
+{% extends 'admin/base.html' %}
+{% block body %}
+{% if entry.match_results %}
+<div class="col-sm-12">
+  <figure class="col-sm-3">
+    <a class="thumb" href="{{entry.url}}">
+      <img style="max-height: 280px; max-width: 280px; " class="img-thumbnail img-responsive center-block" src="{{entry.match_results[0].thumbnail_url.url}}">
+    </a>
+    <figcaption>
+      <a href="{{entry.url}}">[{{entry.width}}x{{entry.height}}]</a>
+      <a href="{{entry.url}}">[link]</a>
+    </figcaption>
+  </figure>
+</div>
+
+<div>
+  <h3>Tags</h3>
+  <table class="table table-condensed table-bordered">
+  {% for tag in entry.tags %}
+    {% if tag.namespace == 'image page url'%}
+    <tr><th>{{tag.namespace}}</th><td> <a href="#">class="tag-page-url">{{tag.name}}</a></td></tr>
+    {% else %}
+    <tr><th>{{tag.namespace}}</th><td> <a href ="#" class="{{'tag-' + tag.namespace|replace(' ', '-')}}">{{tag.name}}</a></td></tr>
+    {% endif %}
+  {% endfor %}
+  </table>
+</div>
+<h3>Match results</h3>
+
+{% for match_result in entry.match_results %}
+  <table class="table table-condensed table-bordered">
+    <tr><th>ID</th><td>{{match_result.id}}</td></tr>
+    {% for key, value in match_result.__dict__.items() %}
+      {% if key == 'imgref_url' and value %}
+      <tr><th>{{key|replace('_', ' ')}}</th><td><a class="tag-page-url" href="{{href}}">{{value}}</a></td></tr>
+      {% elif key == 'search_query' and value %}
+      <tr><th>{{key|replace('_', ' ')}}</th><td><a class="tag-query" href="{{href}}">{{value.search_query}}</a>, page:{{value.page}}</td></tr>
+      {% elif key not in ['_sa_instance_state', 'imgres_url', 'id', 'thumbnail_url_id', 'search_query_id', 'json_data_id', 'img_url_id', 'imgref_url', 'search_query', ] %}
+      <tr><th>{{key|replace('_', ' ')}}</th><td>{{value}}</td></tr>
+      {% endif %}
+    {% endfor %}
+  </table>
+{% endfor %}
+
+{% endif %}
+{% endblock %}
+
