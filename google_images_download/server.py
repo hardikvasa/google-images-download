@@ -194,7 +194,8 @@ def check_thumbnails():
         new_basename = checksum + '.jpg'
         new_path = os.path.join(thumb_folder, new_basename)
         if checksum != old_checksum:
-            # move checksum
+            # move thumbnail
+            shutil.move(item['path'], new_path)
             log.info('Move thumbnail', src=old_checksum, dst=checksum)
         filtered_ff.append(
             {'basename': new_basename, 'path': new_path, 'checksum': checksum})
