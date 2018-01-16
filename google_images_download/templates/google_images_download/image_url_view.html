@@ -18,7 +18,7 @@
   <table class="table table-condensed table-bordered">
   {% for tag in entry.tags %}
     {% if tag.namespace == 'image page url'%}
-    <tr><th>{{tag.namespace}}</th><td> <a href="#">class="tag-page-url">{{tag.name}}</a></td></tr>
+    <tr><th>{{tag.namespace}}</th><td> <a href="#" class="tag-page-url">{{tag.name}}</a></td></tr>
     {% else %}
     <tr><th>{{tag.namespace}}</th><td> <a href ="#" class="{{'tag-' + tag.namespace|replace(' ', '-')}}">{{tag.name}}</a></td></tr>
     {% endif %}
