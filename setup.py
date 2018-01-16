@@ -35,11 +35,12 @@ setuptools.setup(
         'server': [
             'Flask-Admin>=1.5.0',
             'Flask-Bootstrap>=3.3.7.1',
+            'flask-paginate==0.5.1',
             'Flask-Restless>=0.17.0',
             'Flask-SQLAlchemy>=2.3.1',
             'Flask-WTF>=0.14.2',
             'Flask>=0.12.2',
-            'humanize==0.5.1',
+            'humanize>=0.5.1',
             'SQLAlchemy-Utils>=0.32.18',
         ],
     },
