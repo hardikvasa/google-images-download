@@ -211,6 +211,7 @@ class ImageFileView(ModelView):
         'thumbnail': _thumbnail_formatter,
     }
     can_view_details = True
+    page_size = 100
 
 
 class SearchImageView(ModelView):
@@ -224,8 +225,8 @@ class SearchImageView(ModelView):
             res += ', <a href="{}">similar</a>'.format(model.similar_search_url)
         return Markup(res)
 
-    def _searched_img_url_formatter(view, context, model, name):
-        url = model.searched_img_url
+    @staticmethod
+    def _format_searched_img_url(url):
         url_text = url
         if not url:
             return
@@ -233,17 +234,38 @@ class SearchImageView(ModelView):
             url_text = url.replace('https://', '', 1)
         elif url.startswith('http://'):
             url_text = url.replace('http://', '', 1)
-        return Markup('<a href="{}">{}</a>'.format(url, url_text))
+        return '<a href="{}">{}</a>'.format(url, url_text)
+
+    def _input_search_formatter(view, context, model, name):
+        res = ''
+        if model.img_file:
+            res += '<p>Image File</p>'
+            if model.img_file.thumbnail:
+                res += '<figure><img src="{}"><figcaption>{}</figcaption><figure>'.format(
+                    url_for('thumbnail', filename=model.img_file.thumbnail.checksum + '.jpg'),
+                    Markup.escape(model.img_file)
+                )
+            else:
+                res += '<p>{}</p>'.format(model.img_file)
+        if model.searched_img_url:
+            res += '<p>Searched Url</p>'
+            res += SearchImageView._format_searched_img_url(model.searched_img_url)
+        return Markup(res)
 
     column_formatters = {
         'created_at': date_formatter,
         'Result': _result_formatter,
-        'searched_img_url': _searched_img_url_formatter,
+        'Input': _input_search_formatter,
+        'searched_img_url': lambda v, c, m, p: Markup(
+            SearchImageView._format_searched_img_url(m.searched_img_url)
+            if m.searched_img_url else ''
+        ),
     }
-    column_exclude_list = ('search_url', 'similar_search_url', 'size_search_url', )
+    column_exclude_list = (
+        'search_url', 'similar_search_url', 'size_search_url', 'searched_img_url', 'img_file', )
     can_view_details = True
     column_searchable_list = ('searched_img_url', )
-    column_list = ('img_file', 'created_at', 'searched_img_url', 'img_guess', 'Result', )
+    column_list = ('img_file', 'created_at', 'searched_img_url', 'img_guess', 'Result', 'Input')
 
 
 class SearchImagePageView(ModelView):
