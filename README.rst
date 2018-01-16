@@ -102,7 +102,7 @@ Google simlar image search
   _image_id: null
   _name: gid_similar_booru
   _search_separator: +
-  _search_url: http://127.0.0.1:5001/f/?file_path=%tags%&search_type=similar
+  _search_url: http://127.0.0.1:5001/f/?file_path=%tags%&search_type=1
   _tag_classnames_to_namespaces: {tag-page-url: gid page url, tag-picture-subtitle: gid
       subtitle, tag-picture-title: gid title, tag-query: gid query, tag-site: gid site,
     tag-site-title: gid site title}
@@ -118,7 +118,7 @@ Google image size search
   _image_id: null
   _name: gid_size_booru
   _search_separator: +
-  _search_url: http://127.0.0.1:5001/f/?file_path=%tags%&search_type=size
+  _search_url: http://127.0.0.1:5001/f/?file_path=%tags%&search_type=2
   _tag_classnames_to_namespaces: {tag-page-url: gid page url, tag-picture-subtitle: gid
       subtitle, tag-picture-title: gid title, tag-query: gid query, tag-site: gid site,
     tag-site-title: gid site title}
@@ -134,7 +134,7 @@ Google image size search without cache
   _image_id: null
   _name: gid_size(dc)_booru
   _search_separator: +
-  _search_url: http://127.0.0.1:5001/f/?file_path=%tags%&search_type=size&disable_cache=y
+  _search_url: http://127.0.0.1:5001/f/?file_path=%tags%&search_type=2&disable_cache=y
   _tag_classnames_to_namespaces: {tag-page-url: gid page url, tag-picture-subtitle: gid
       subtitle, tag-picture-title: gid title, tag-query: gid query, tag-site: gid site,
     tag-site-title: gid site title}

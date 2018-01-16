@@ -1,11 +1,15 @@
 """Admin module."""
 from urllib.parse import parse_qs, urlparse
 
+from flask import request, url_for
+from flask_admin import AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
+from flask_paginate import get_page_parameter, Pagination
 from jinja2 import Markup
 import humanize
 import structlog
-from flask import url_for
+
+from google_images_download import forms, models, api
 
 
 log = structlog.getLogger(__name__)
@@ -75,18 +79,35 @@ def filesize_formatter(_, __, model, name):
     return Markup('')
 
 
+class HomeView(AdminIndexView):
+    @expose('/')
+    def index(self):
+        form = forms.IndexForm(request.args)
+        page = request.args.get(get_page_parameter(), type=int, default=1)
+        query = form.query.data
+        disable_cache = form.disable_cache.data
+        template_kwargs = {'entry': None, 'query': query, 'form': form, }
+        pagination_kwargs = {'page': page, 'show_single_page': False, 'bs_version': 3, }
+        if query:
+            pagination_kwargs['per_page'] = 1
+            model, created = api.get_or_create_search_query(
+                query, page, disable_cache=disable_cache)
+            if created or disable_cache:
+                models.db.session.add(model)
+                models.db.session.commit()
+            pagination_kwargs['total'] = \
+                models.SearchQuery.query.filter(models.SearchQuery.search_query == query).count()
+            template_kwargs['entry'] = model
+        template_kwargs['pagination'] = Pagination(**pagination_kwargs)
+        return self.render('google_images_download/index.html', **template_kwargs)
+
+
 class SearchQueryView(ModelView):
     """Custom view for SearchQuery model."""
-
     can_view_details = True
-    column_display_pk = True
-    column_formatters = {
-        'query_url': url_formatter,
-        'created_at': date_formatter,
-        'updated_at': date_formatter,
-    }
-    column_exclude_list = ('query_data', 'updated_at', 'query_url')
-    column_searchable_list = ('page', 'query')
+    column_formatters = {'created_at': date_formatter, }
+    column_searchable_list = ('page', 'search_query')
+    column_filters = ('page', 'search_query')
 
 
 class MatchResultView(ModelView):
@@ -105,178 +126,164 @@ class MatchResultView(ModelView):
         return Markup(template.format(model.thumb_url, model.img_url, desc_table))
 
     def _thumbnail_formatter(view, context, model, name):
-        return Markup('<a href="{1}"><img src="{0}"></a>'.format(model.thumb_url, model.img_url))
+        templ = '<a href="{1}"><img src="{0}"></a>'
+        return Markup(templ.format(model.thumbnail_url.url, model.img_url.url))
 
-    column_formatters = {
-        'created_at': date_formatter,
-        'image': _image_formatter,
-        'imgres_url': url_formatter,
-        'json_data': json_formatter,
-        'thumbnail': _thumbnail_formatter,
-        'updated_at': date_formatter,
-    }
-    column_exclude_list = (
-        'image_page_url',
-        'imgref_url',
-        'imgres_url',
-        'json_data',
-        'json_data_id',
-        'json_search_url',
-        'picture_subtitle',
-        'thumbnail',
-        'updated_at',
-        'site_title',
-        'picture_title',
-        'site',
-    )
+    column_formatters = {'created_at': date_formatter, 'thumbnail_url': _thumbnail_formatter, }
+    column_exclude_list = ('imgres_url', 'img_url',)
     can_view_details = True
-    column_searchable_list = ('picture_subtitle', 'picture_title', 'site_title', 'site')
+    page_size = 100
+
+
+class JSONDataView(ModelView):
+    """Custom view for json data model"""
+    def _value_formatter(view, context, model, name):
+        res = ''
+        for key, value in model.value.items():
+            res += '<tr><th>{0}</th><td>{1}</td></tr>'.format(key, value)
+        res = '<table class="table table-bordered table-condensed">{}</table>'.format(res)
+        return Markup(res)
+    can_view_details = True
+    column_formatters = {'created_at': date_formatter, 'value': _value_formatter, }
 
 
 class ImageURLView(ModelView):
     """Custom view for ImageURL model."""
 
-    def _img_url_formatter(view, context, model, name):
-        first_match_result = next(iter(model.match_results or []), None)
+    def _url_formatter(view, context, model, name):
+        match_results = model.match_results
 
-        def formatted_caption_url(input_url):
-            """format url caption.
+        def split_every_n_chars(line, n=80):
+            if len(line) < n:
+                return [line]
+            res = [line[i:i + n] for i in range(0, len(line), n)]
+            return res
+        templ = """
+        <figure>
+        <a href="{3}"><img src="{1}"></a>
+        <figcaption><a href="{0}">{2}</figcaption>
+        <figure>"""
+        img_view_url = url_for('u.index', u=model.url)
+        if match_results:
+            first_match_result = next(iter(match_results or []), None)
+            shorted_url = '<br>'.join(split_every_n_chars(model.url))
+            return Markup(
+                templ.format(
+                    model.url,
+                    first_match_result.thumbnail_url.url,
+                    shorted_url,
+                    img_view_url
+                )
+            )
+        shorted_url = '<br>'.join(split_every_n_chars(model.url))
+        return Markup(templ.format(model.url, model.url, shorted_url, img_view_url))
 
-            split the urls into 3 parts:
-
-            - domain
-            - path
-            - others
-
-            path should be rebuild so the longest part of the path should be on on its own line.
-            """
-            parsed_url = urlparse(input_url)
-            domain = '{}://{}'.format(parsed_url[0], parsed_url[1])
-            path_parts = parsed_url.path.split('/')
-            path_max = max([len(x) for x in path_parts]) + 1  # include slash character
-            if len(domain) > path_max:
-                path_max = len(domain)
-            formatted_path = ''
-            temp_path = ''
-            last_temp_path = ''
-            for item in path_parts[1:]:
-                temp_path += '/{}'.format(item)
-                if len(temp_path) > path_max:
-                    formatted_path += last_temp_path + '<br>'
-                    temp_path = '/{}'.format(item)
-                last_temp_path = temp_path
-            if temp_path:
-                formatted_path += temp_path
-            domain_and_path_part = '{}://{}{}'.format(
-                parsed_url.scheme, parsed_url.netloc, parsed_url.path)
-            non_domain_and_path_part = input_url.split(domain_and_path_part, 1)[1]
-            return "{}<br>{}<br>{}".format(
-                domain, formatted_path, non_domain_and_path_part)
-
-        template = """
-        <figure style="display: table;">
-          <a href="{1}"><img src="{0}"></a>
-          <figcaption style="display: table-caption; caption-side:bottom;">
-            <a style="overflow-wrap: break-word; word-wrap: break-word;" href="{2}">{1}</a>
-          </figcaption>
-        </figure>"""
-        if first_match_result:
-            return Markup(template.format(
-                first_match_result.thumb_url, formatted_caption_url(model.url), model.url))
-        return Markup(template.format(
-            model.url, formatted_caption_url(model.url), model.url))
-
-    column_exclude_list = ('updated_at',)
-    column_display_pk = True
-    column_formatters = {
-        'url': _img_url_formatter,
-        'created_at': date_formatter,
-        'updated_at': date_formatter,
-    }
-    column_searchable_list = ('url', 'width', 'height')
     can_view_details = True
+    column_searchable_list = ('url', 'width', 'height')
+    column_filters = ('width', 'height')
+    column_formatters = {'created_at': date_formatter, 'url': _url_formatter, }
+    page_size = 100
+    column_default_sort = ('created_at', True)
+
+
+class TagView(ModelView):
+    """Custom view for Tag model."""
+
+    column_searchable_list = ('namespace', 'name')
+    column_filters = ('namespace', 'name')
+    column_formatters = {'created_at': date_formatter, }
+    column_default_sort = ('created_at', True)
+    page_size = 100
 
 
 class ImageFileView(ModelView):
     """Custom view for ImageFile model."""
 
-    def _checksum_formatter(view, context, model, name):
-        data = getattr(model, name)
-        shorten_data = (data[:7] + '...') if len(data) > 7 else data
-        first_thumb_search_files = next(iter(model.thumb_search_files or []), None)
-        if first_thumb_search_files:
-            img_src = url_for('thumbnail', filename=model.checksum + '.jpg')
-            return Markup(
-                """<figure>
-                <img src="{0}">
-                <figcaption><span data-toogle="tooltip" title="{2}">{1}</span></figcaption>
-                </figure>""".format(img_src, shorten_data, data))
-        return Markup(
-            '<span data-toogle="tooltip" title="{0}">{1}</span>'.format(data, shorten_data))
-
-    column_display_pk = True
     column_formatters = {
         'created_at': date_formatter,
-        'updated_at': date_formatter,
         'size': filesize_formatter,
-        'checksum': _checksum_formatter,
     }
-    column_exclude_list = ('updated_at',)
     can_view_details = True
 
 
-class SearchFileView(ModelView):
-    """Custom view for SearchFile model."""
+class SearchImageView(ModelView):
+    """Custom view for SearchImage model."""
 
-    def _thumbnail_formatter(view, context, model, name):
-        if hasattr(model, 'thumbnail_basename') and model.thumbnail_basename:
-            img_src = url_for('thumbnail', filename=model.thumbnail_basename)
-            return Markup('<img src="{}">'.format(img_src))
-        if not model.thumb_search_files:
-            return Markup('')
-        img_src = url_for('thumbnail', filename=model.thumb_search_files[0].thumbnail_basename)
-        return Markup('<img src="{}">'.format(img_src))
+    def _result_formatter(view, context, model, name):
+        res = '<a href="{}">main</a>'.format(model.search_url)
+        if model.size_search_url:
+            res += ', <a href="{}">size</a>'.format(model.size_search_url)
+        if model.similar_search_url:
+            res += ', <a href="{}">similar</a>'.format(model.similar_search_url)
+        return Markup(res)
 
-    def _checksum_formatter(view, context, model, name):
-        data = getattr(model, name)
-        shorten_data = (data[:7] + '...') if len(data) > 7 else data
-        return Markup(
-            '<span data-toogle="tooltip" title="{0}">{1}</span>'.format(data, shorten_data))
+    def _searched_img_url_formatter(view, context, model, name):
+        url = model.searched_img_url
+        url_text = url
+        if not url:
+            return
+        if url.startswith('https://'):
+            url_text = url.replace('https://', '', 1)
+        elif url.startswith('http://'):
+            url_text = url.replace('http://', '', 1)
+        return Markup('<a href="{}">{}</a>'.format(url, url_text))
 
-    column_display_pk = True
-    can_view_details = True
-    column_exclude_list = ('updated_at', 'search_url', 'similar_search_url', 'size_search_url',)
     column_formatters = {
         'created_at': date_formatter,
-        'updated_at': date_formatter,
-        'size': filesize_formatter,
-        'checksum': _checksum_formatter,
-        'thumbnail': _thumbnail_formatter,
+        'Result': _result_formatter,
+        'searched_img_url': _searched_img_url_formatter,
     }
+    column_exclude_list = ('search_url', 'similar_search_url', 'size_search_url', )
+    can_view_details = True
+    column_searchable_list = ('searched_img_url', )
+    column_list = ('img_file', 'created_at', 'searched_img_url', 'img_guess', 'Result', )
 
 
-class SearchModelView(ModelView):
-    """Custom view for SearchModel model."""
+class SearchImagePageView(ModelView):
+    """Custom view for SearchImagePage model."""
 
-    def _search_file_formatter(view, context, model, name):
-        data = getattr(model, name)
-        shorten_checksum = (data.checksum[:7] + '...') if len(data.checksum) > 7 else data.checksum
-        img_src = url_for('thumbnail', filename=data.thumbnail_basename)
-        return Markup(
-            """<figure>
-            <img src="{2}" class="img-responsive center-block">
-            <figcaption><span data-toogle="tooltip" title="{0}">{1}</span></figcaption>
-            </figure>""".format(data.checksum, shorten_checksum, img_src)
-        )
+    column_formatters = dict(
+        created_at=date_formatter,
+        search_type=lambda v, c, m, p: m.search_type.value
+    )
+    column_exclude_list = ('search_url', 'similar_search_url', 'size_search_url', )
+    can_view_details = True
 
-    def _search_type_formatter(view, context, model, name):
-        return Markup(getattr(model, name).value)
+
+class TextMatchView(ModelView):
+    """Custom view for TextMatch model."""
 
     can_view_details = True
     column_formatters = {
         'created_at': date_formatter,
-        'updated_at': date_formatter,
-        'search_type': _search_type_formatter,
-        'search_file': _search_file_formatter,
+        'content': lambda v, c, m, p: Markup(
+            '<h4>{0}</h4><p>{1}</p><a href="{2}">{2}</a><p>{3}</p>'.format(
+                m.title, m.text, m.url, m.url_text
+            )
+        ),
     }
-    column_exclude_list = ('query_url', 'page', 'updated_at')
+    column_searchable_list = ('url', 'url_text', 'text', 'title')
+    column_filters = ('url_text', 'text', 'title')
+    column_exclude_list = ('imgres_url', 'imgref_url', )
+    column_list = (
+        'search_image_model',
+        'img_url',
+        'thumbnail_url',
+        'created_at',
+        'content',
+    )
+    page_size = 50
+    column_default_sort = ('created_at', True)
+
+
+class MainSimilarResultView(ModelView):
+    """Custom view for SearchImagePage model."""
+
+    column_formatters = dict(
+        created_at=date_formatter,
+        img_title=lambda v, c, m, p: Markup('<a href="{0}">{0}</a>'.format(m.img_title))
+    )
+    column_exclude_list = ('search_url', 'img_src', )
+    can_view_details = True
+    column_searchable_list = ('img_title', 'img_width', 'img_height')
+    column_filters = ('img_title', 'img_width', 'img_height')
