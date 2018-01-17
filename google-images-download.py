@@ -114,10 +114,11 @@ while i < len(search_keyword):
     print ("Evaluating...")
     search_term = search_keyword[i]
     search = search_term.replace(' ', '%20')
+    dir_name = search_term + ('-' + args.color if args.color else '')
 
     # make a search keyword  directory
     try:
-        os.makedirs(search_term)
+        os.makedirs(dir_name)
     except OSError as e:
         if e.errno != 17:
             raise
@@ -154,9 +155,9 @@ while i < len(search_keyword):
             if '?' in image_name:
                 image_name = image_name[:image_name.find('?')]
             if ".jpg" in image_name or ".png" in image_name or ".jpeg" in image_name or ".svg" in image_name:
-                output_file = open(search_term + "/" + str(k + 1) + ". " + image_name, 'wb')
+                output_file = open(dir_name + "/" + str(k + 1) + ". " + image_name, 'wb')
             else:
-                output_file = open(search_term + "/" + str(k + 1) + ". " + image_name + ".jpg", 'wb')
+                output_file = open(dir_name + "/" + str(k + 1) + ". " + image_name + ".jpg", 'wb')
                 image_name = image_name + ".jpg"
 
             data = response.read()
