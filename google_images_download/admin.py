@@ -155,12 +155,6 @@ class ImageURLView(ModelView):
 
     def _url_formatter(view, context, model, name):
         match_results = model.match_results
-
-        def split_every_n_chars(line, n=80):
-            if len(line) < n:
-                return [line]
-            res = [line[i:i + n] for i in range(0, len(line), n)]
-            return res
         templ = """
         <figure>
         <a href="{3}"><img src="{1}"></a>
@@ -169,7 +163,7 @@ class ImageURLView(ModelView):
         img_view_url = url_for('u.index', u=model.url)
         if match_results:
             first_match_result = next(iter(match_results or []), None)
-            shorted_url = '<br>'.join(split_every_n_chars(model.url))
+            shorted_url = '<br>'.join(textwrap.wrap(model.url))
             return Markup(
                 templ.format(
                     model.url,
@@ -178,7 +172,7 @@ class ImageURLView(ModelView):
                     img_view_url
                 )
             )
-        shorted_url = '<br>'.join(split_every_n_chars(model.url))
+        shorted_url = '<br>'.join(textwrap.wrap(model.url))
         return Markup(templ.format(model.url, model.url, shorted_url, img_view_url))
 
     can_view_details = True
