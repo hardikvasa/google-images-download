@@ -1,5 +1,6 @@
 """Admin module."""
 from urllib.parse import parse_qs, urlparse
+import textwrap
 
 from flask import request, url_for
 from flask_admin import AdminIndexView, expose
@@ -127,7 +128,9 @@ class MatchResultView(ModelView):
 
     def _thumbnail_formatter(view, context, model, name):
         templ = '<a href="{1}"><img src="{0}"></a>'
-        return Markup(templ.format(model.thumbnail_url.url, model.img_url.url))
+        if model.img_url:
+            return Markup(templ.format(model.thumbnail_url.url, model.img_url.url))
+        return Markup(templ.format(model.thumbnail_url.url, model.thumbnail_url.url))
 
     column_formatters = {'created_at': date_formatter, 'thumbnail_url': _thumbnail_formatter, }
     column_exclude_list = ('imgres_url', 'img_url',)
@@ -152,12 +155,6 @@ class ImageURLView(ModelView):
 
     def _url_formatter(view, context, model, name):
         match_results = model.match_results
-
-        def split_every_n_chars(line, n=80):
-            if len(line) < n:
-                return [line]
-            res = [line[i:i + n] for i in range(0, len(line), n)]
-            return res
         templ = """
         <figure>
         <a href="{3}"><img src="{1}"></a>
@@ -166,7 +163,7 @@ class ImageURLView(ModelView):
         img_view_url = url_for('u.index', u=model.url)
         if match_results:
             first_match_result = next(iter(match_results or []), None)
-            shorted_url = '<br>'.join(split_every_n_chars(model.url))
+            shorted_url = '<br>'.join(textwrap.wrap(model.url))
             return Markup(
                 templ.format(
                     model.url,
@@ -175,7 +172,7 @@ class ImageURLView(ModelView):
                     img_view_url
                 )
             )
-        shorted_url = '<br>'.join(split_every_n_chars(model.url))
+        shorted_url = '<br>'.join(textwrap.wrap(model.url))
         return Markup(templ.format(model.url, model.url, shorted_url, img_view_url))
 
     can_view_details = True
@@ -199,11 +196,19 @@ class TagView(ModelView):
 class ImageFileView(ModelView):
     """Custom view for ImageFile model."""
 
+    def _thumbnail_formatter(view, context, model, name):
+        if not model.thumbnail:
+            return
+        return Markup('<img src="{}">'.format(url_for(
+            'thumbnail', filename=model.thumbnail.checksum + '.jpg')))
+
     column_formatters = {
         'created_at': date_formatter,
         'size': filesize_formatter,
+        'thumbnail': _thumbnail_formatter,
     }
     can_view_details = True
+    page_size = 100
 
 
 class SearchImageView(ModelView):
@@ -217,8 +222,8 @@ class SearchImageView(ModelView):
             res += ', <a href="{}">similar</a>'.format(model.similar_search_url)
         return Markup(res)
 
-    def _searched_img_url_formatter(view, context, model, name):
-        url = model.searched_img_url
+    @staticmethod
+    def _format_searched_img_url(url):
         url_text = url
         if not url:
             return
@@ -226,17 +231,38 @@ class SearchImageView(ModelView):
             url_text = url.replace('https://', '', 1)
         elif url.startswith('http://'):
             url_text = url.replace('http://', '', 1)
-        return Markup('<a href="{}">{}</a>'.format(url, url_text))
+        return '<a href="{}">{}</a>'.format(url, url_text)
+
+    def _input_search_formatter(view, context, model, name):
+        res = ''
+        if model.img_file:
+            res += '<p>Image File</p>'
+            if model.img_file.thumbnail:
+                res += '<figure><img src="{}"><figcaption>{}</figcaption><figure>'.format(
+                    url_for('thumbnail', filename=model.img_file.thumbnail.checksum + '.jpg'),
+                    Markup.escape(model.img_file)
+                )
+            else:
+                res += '<p>{}</p>'.format(model.img_file)
+        if model.searched_img_url:
+            res += '<p>Searched Url</p>'
+            res += SearchImageView._format_searched_img_url(model.searched_img_url)
+        return Markup(res)
 
     column_formatters = {
         'created_at': date_formatter,
         'Result': _result_formatter,
-        'searched_img_url': _searched_img_url_formatter,
+        'Input': _input_search_formatter,
+        'searched_img_url': lambda v, c, m, p: Markup(
+            SearchImageView._format_searched_img_url(m.searched_img_url)
+            if m.searched_img_url else ''
+        ),
     }
-    column_exclude_list = ('search_url', 'similar_search_url', 'size_search_url', )
+    column_exclude_list = (
+        'search_url', 'similar_search_url', 'size_search_url', 'searched_img_url', 'img_file', )
     can_view_details = True
     column_searchable_list = ('searched_img_url', )
-    column_list = ('img_file', 'created_at', 'searched_img_url', 'img_guess', 'Result', )
+    column_list = ('img_file', 'created_at', 'searched_img_url', 'img_guess', 'Result', 'Input')
 
 
 class SearchImagePageView(ModelView):
@@ -257,8 +283,12 @@ class TextMatchView(ModelView):
     column_formatters = {
         'created_at': date_formatter,
         'content': lambda v, c, m, p: Markup(
-            '<h4>{0}</h4><p>{1}</p><a href="{2}">{2}</a><p>{3}</p>'.format(
-                m.title, m.text, m.url, m.url_text
+            '<h4>{0}</h4><p>{1}</p><a href="{2}">{4}</a><p>{3}</p>'.format(
+                m.title,
+                '<br>'.join(textwrap.wrap(m.text)),
+                m.url,
+                m.url_text,
+                '<br>'.join(textwrap.wrap(m.url)),
             )
         ),
     }

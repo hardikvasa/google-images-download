@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Model module."""
 from datetime import datetime
+import os
 
+from appdirs import user_data_dir
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TIMESTAMP
@@ -9,6 +11,7 @@ from sqlalchemy_utils.types import URLType, JSONType, ChoiceType
 import structlog
 
 
+DEFAULT_THUMB_FOLDER = os.path.join(user_data_dir('google_images_download', 'hardikvasa'), 'thumb')  # NOQA
 log = structlog.getLogger(__name__)
 db = SQLAlchemy()
 

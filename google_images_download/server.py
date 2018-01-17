@@ -6,18 +6,21 @@ import os
 import shutil
 import tempfile
 
+from appdirs import user_data_dir
 from flask import Flask, render_template, request, url_for, flash, send_from_directory
-from flask_restless import APIManager  # pylint: disable=import-error
 from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_bootstrap import Bootstrap
+from flask_restless import APIManager  # pylint: disable=import-error
 import click
+import structlog
 
 from google_images_download.forms import IndexForm, FindImageForm
-from google_images_download import models, pagination, admin, api
+from google_images_download import models, pagination, admin, api, sha256
 
 
-app = Flask(__name__)  # pylint: disable=invalid-name
+app = Flask(__name__)
+log = structlog.getLogger(__name__)
 
 
 class ImageURLSingleView(BaseView):
@@ -75,7 +78,7 @@ def index():
 @app.route('/t/<path:filename>')
 def thumbnail(filename):
     """Thumbnail url."""
-    return send_from_directory(models.THUMB_FOLDER, filename)
+    return send_from_directory(models.DEFAULT_THUMB_FOLDER, filename)
 
 
 def shell_context():
@@ -172,6 +175,45 @@ class FromFileSearchImageView(BaseView):
 def cli():
     """CLI command."""
     pass
+
+
+@cli.command()
+def check_thumbnails():
+    # get all thumbnail files and checksum
+    def_thumb_folder = os.path.join(user_data_dir('google_images_download', 'hardikvasa'), 'thumb')  # NOQA
+    thumb_folder = def_thumb_folder
+    listdir_res = [
+        {'basename': x, 'path': os.path.join(thumb_folder, x)}
+        for x in os.listdir(def_thumb_folder)
+        if os.path.isfile(os.path.join(thumb_folder, x))
+    ]
+    filtered_ff = []
+    for item in listdir_res:
+        old_checksum = os.path.splitext(item['basename'])[0]
+        checksum = sha256.sha256_checksum(os.path.join(thumb_folder, item['basename']))
+        new_basename = checksum + '.jpg'
+        new_path = os.path.join(thumb_folder, new_basename)
+        if checksum != old_checksum:
+            # move thumbnail
+            shutil.move(item['path'], new_path)
+            log.info('Move thumbnail', src=old_checksum, dst=checksum)
+        filtered_ff.append(
+            {'basename': new_basename, 'path': new_path, 'checksum': checksum})
+
+    app.config['DEBUG'] = True
+    app.config['LOGGER_HANDLER_POLICY'] = 'debug'
+    app.config['SECRET_KEY'] = os.getenv('DDG_SERVER_SECRET_KEY') or \
+        os.urandom(24)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gid_debug.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['WTF_CSRF_ENABLED'] = False
+    models.db.init_app(app)
+    app.app_context().push()
+    models.db.create_all()
+    new_model_sets = [
+        api.get_or_create_image_file_with_thumbnail(x['path']) for x in filtered_ff]
+    models.db.session.add_all([x[0] for x in new_model_sets])
+    models.db.session.commit()
 
 
 @cli.command()
