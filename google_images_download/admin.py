@@ -1,5 +1,6 @@
 """Admin module."""
 from urllib.parse import parse_qs, urlparse
+import textwrap
 
 from flask import request, url_for
 from flask_admin import AdminIndexView, expose
@@ -288,8 +289,12 @@ class TextMatchView(ModelView):
     column_formatters = {
         'created_at': date_formatter,
         'content': lambda v, c, m, p: Markup(
-            '<h4>{0}</h4><p>{1}</p><a href="{2}">{2}</a><p>{3}</p>'.format(
-                m.title, m.text, m.url, m.url_text
+            '<h4>{0}</h4><p>{1}</p><a href="{2}">{4}</a><p>{3}</p>'.format(
+                m.title,
+                '<br>'.join(textwrap.wrap(m.text)),
+                m.url,
+                m.url_text,
+                '<br>'.join(textwrap.wrap(m.url)),
             )
         ),
     }
