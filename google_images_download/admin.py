@@ -127,7 +127,9 @@ class MatchResultView(ModelView):
 
     def _thumbnail_formatter(view, context, model, name):
         templ = '<a href="{1}"><img src="{0}"></a>'
-        return Markup(templ.format(model.thumbnail_url.url, model.img_url.url))
+        if model.img_url:
+            return Markup(templ.format(model.thumbnail_url.url, model.img_url.url))
+        return Markup(templ.format(model.thumbnail_url.url, model.thumbnail_url.url))
 
     column_formatters = {'created_at': date_formatter, 'thumbnail_url': _thumbnail_formatter, }
     column_exclude_list = ('imgres_url', 'img_url',)
