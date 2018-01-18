@@ -25,8 +25,11 @@ To use the short hand command
 
 `python google-images-download.py -k "Polar bears, baloons, Beaches" -l 20`
 
+To use color filters for the images
 
-===> **Keywords** denotes the words that you would want to search for and **limit** donotes number of images that you would want to download.
+`python google-images-download.py -k "playground" -l 20 -c red`
+
+===> **Keywords** denotes the words that you would want to search for, **limit** donotes number of images that you would want to download and **color** denotes the color filter that you would want to apply to the images. Only the keywords field is mandatory.
 
 ===> The images would be downloaded in their own directories in the same folder as the python file.
 
