@@ -50,8 +50,7 @@ def download_page(url):
         import urllib2
         try:
             headers = {}
-            headers[
-                'User-Agent'] = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"
+            headers['User-Agent'] = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"
             req = urllib2.Request(url, headers=headers)
             try:
                 response = urllib2.urlopen(req)
