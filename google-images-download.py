@@ -8,7 +8,6 @@ import time  # Importing the time library to check the time of code execution
 import sys  # Importing the System Library
 import os
 import argparse
-import urllib2
 import ssl
 
 # Taking command line arguments from users
