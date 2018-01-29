@@ -187,6 +187,11 @@ while i < len(search_keyword):
             errorCount += 1
             print("URLError " + str(k))
             k = k + 1
+        except ssl.CertificateError as e:
+
+            errorCount += 1
+            print("CertificateError " + str(k))
+            k = k + 1
 
     i = i + 1
 
