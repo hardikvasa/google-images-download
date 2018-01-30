@@ -15,11 +15,11 @@ This program is compatible with both the versions of python (2.x and 3.x). It is
 ## Usage
 If you have python 2.x version installed
 
-`python google-images-download.py -keywords "Polar bears, baloons, Beaches" -limit 20`
+`python google-images-download.py --keywords "Polar bears, baloons, Beaches" --limit 20`
 
 If you have python 3.x version installed
 
-`python3 google-images-download.py -keywords "Polar bears, baloons, Beaches" -limit 20`
+`python3 google-images-download.py --keywords "Polar bears, baloons, Beaches" --limit 20`
 
 To use the short hand command
 
