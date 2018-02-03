@@ -35,12 +35,12 @@ To use color filters for the images
 
 | Argument  | Short hand | Explanation |
 | --- | :---: | --- |
-|**Keywords**| k | denotes the words that you would want to search for and the directory file name |
-|**limit** | l |donotes number of images that you would want to download  |
-|**color** | c |denotes the color filter that you would want to apply to the images.|
-|**url** | u |adds a specific google url to download from it .|
+|**keywords**| k | Denotes the words that you would want to search for and the directory file name. |
+|**limit** | l |Denotes number of images that you would want to download.  |
+|**color** | c |Denotes the color filter that you would want to apply to the images.|
+|**url** | u |Adds a specific google url to download from it .|
 
-**note** Only the keywords field is mandatory.
+**Note: ** Only the keywords field is mandatory.
 
 
 ## SSL Errors
