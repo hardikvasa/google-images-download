@@ -40,7 +40,7 @@ To use color filters for the images
 |**color** | c |Denotes the color filter that you would want to apply to the images.|
 |**url** | u |Adds a specific google url to download from it .|
 
-**Note: ** Only the keywords field is mandatory.
+**Note:** Only the keywords field is mandatory.
 
 
 ## SSL Errors
