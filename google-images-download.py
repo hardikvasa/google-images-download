@@ -101,6 +101,7 @@ if cur_version >= version:  # If the Current Version of Python is 3.0 or above
     # urllib library for Extracting web pages
     from urllib.request import Request, urlopen
     from urllib.request import URLError, HTTPError
+    from urllib.parse import quote
 
 else:  # If the Current Version of Python is 2.x
     # urllib library for Extracting web pages
@@ -130,7 +131,7 @@ while i < len(search_keyword):
 
     j = 0
     color_param = ('&tbs=ic:specific,isc:' + args.color) if args.color else ''
-    url = 'https://www.google.com/search?q=' + search + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+    url = 'https://www.google.com/search?q=' + quote(search) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
     raw_html = (download_page(url))
     time.sleep(0.1)
     items = items + (_images_get_all_items(raw_html))
@@ -176,7 +177,6 @@ while i < len(search_keyword):
             errorCount += 1
             print("IOError on image " + str(k + 1))
             k = k + 1
-
         except HTTPError as e:  # If there is any HTTPError
 
             errorCount += 1
