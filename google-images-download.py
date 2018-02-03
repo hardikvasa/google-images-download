@@ -13,6 +13,7 @@ import ssl
 # Taking command line arguments from users
 parser = argparse.ArgumentParser()
 parser.add_argument('-k', '--keywords', help='delimited list input', type=str, required=True)
+parser.add_argument('-u', '--url', help='adding specific URL to download google pix from it', type=str, required=False)
 parser.add_argument('-l', '--limit', help='delimited list input', type=str, required=False)
 parser.add_argument('-c', '--color', help='filter on color', type=str, required=False, choices=['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'pink', 'white', 'gray', 'black', 'brown'])
 args = parser.parse_args()
@@ -130,7 +131,12 @@ while i < len(search_keyword):
 
     j = 0
     color_param = ('&tbs=ic:specific,isc:' + args.color) if args.color else ''
-    url = 'https://www.google.com/search?q=' + search + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+    #check the args and choose the URL
+    if args.url:
+        url = args.url;      
+    else :
+        url = 'https://www.google.com/search?q=' + search + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+    
     raw_html = (download_page(url))
     time.sleep(0.1)
     items = items + (_images_get_all_items(raw_html))

@@ -29,9 +29,19 @@ To use color filters for the images
 
 `python google-images-download.py -k "playground" -l 20 -c red`
 
-===> **Keywords** denotes the words that you would want to search for, **limit** donotes number of images that you would want to download and **color** denotes the color filter that you would want to apply to the images. Only the keywords field is mandatory.
-
 ===> The images would be downloaded in their own directories in the same folder as the python file.
+
+## Arguments 
+
+| Argument  | Short hand | Explanation |
+| --- | :---: | --- |
+|**keywords**| k | Denotes the words that you would want to search for and the directory file name. |
+|**limit** | l |Denotes number of images that you would want to download.  |
+|**color** | c |Denotes the color filter that you would want to apply to the images.|
+|**url** | u |Adds a specific google url to download from it .|
+
+**Note:** Only the keywords field is mandatory.
+
 
 ## SSL Errors
 If you do see SSL errors on Mac for Python 3 please go to Finder —> Applications —> Python 3 —> Click on the ‘Install Certificates.command’ and run the file.
