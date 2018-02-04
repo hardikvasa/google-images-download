@@ -7,10 +7,13 @@ install selenium
 `pip install selenium`
 
 install geckodriver driver 
-
+download driver
 `wget https://github.com/mozilla/geckodriver/releases/download/v0.18.0/geckodriver-v0.18.0-linux64.tar.gz`
+unpack driver
 `tar -xvzf geckodriver*`
+executable
 `chmod +x geckodriver`
+set path
 `export PATH=$PATH:/path-to-extracted-file/geckodriver`
 
 
