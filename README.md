@@ -1,10 +1,18 @@
 ## Endless searching and downloading Repo 
 
-The main process(collector) has to look for links and collect them, then the workers(download_worker) take care of the pool for the download. We need selenium to "scroll down" and get the hidden nodes. The process will run until keyboard interruption or if the items len in output folder rich the max value. IOError, 
+The main process(collector) has to look for links and collect them, then the workers(download_worker) take care of the pool for the download. We need selenium to "scroll down" and get the hidden nodes. The process will run until keyboard interruption or if the items len in output folder rich the max value.
 
 install selenium
 
 `pip install selenium`
+
+install geckodriver driver 
+
+`wget https://github.com/mozilla/geckodriver/releases/download/v0.18.0/geckodriver-v0.18.0-linux64.tar.gz`
+`tar -xvzf geckodriver*`
+`chmod +x geckodriver`
+`export PATH=$PATH:/path-to-extracted-file/geckodriver`
+
 
 use scroll flag to define the scrolling range by pixel and the download-pool range
 
@@ -67,4 +75,3 @@ theard  Thread 1 completed ====>  /home/flyn/git/data/raw_downloaded_image/ eins
 failed IOError on image  HTTP Error 404: Not Found
 download_workers end
 ```
-mission, except in "fair use" cases, or you could risk running into lawyer's warnings, cease-and-desist letters, and copyright suits. Please be very careful before its usage!
