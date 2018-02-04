@@ -107,6 +107,7 @@ else:  # If the Current Version of Python is 2.x
     # urllib library for Extracting web pages
     from urllib2 import Request, urlopen
     from urllib2 import URLError, HTTPError
+    from urllib import quote
 
 # Download Image Links
 errorCount = 0
