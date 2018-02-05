@@ -104,11 +104,13 @@ if cur_version >= version:  # If the Current Version of Python is 3.0 or above
     # urllib library for Extracting web pages
     from urllib.request import Request, urlopen
     from urllib.request import URLError, HTTPError
+    from urllib.parse import quote
 
 else:  # If the Current Version of Python is 2.x
     # urllib library for Extracting web pages
     from urllib2 import Request, urlopen
     from urllib2 import URLError, HTTPError
+    from urllib import quote
 
 
 #Download Single Image using a URL arg
@@ -164,7 +166,7 @@ else:
         j = 0
         color_param = ('&tbs=ic:specific,isc:' + args.color) if args.color else ''
         # check the args and choose the URL
-        url = 'https://www.google.com/search?q=' + search + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+        url = 'https://www.google.com/search?q=' + quote(search) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
 
         raw_html = (download_page(url))
         time.sleep(0.1)
