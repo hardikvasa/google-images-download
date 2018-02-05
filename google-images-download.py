@@ -28,9 +28,6 @@ if args.limit:
 else:
     limit = 100
 
-# This list is used to further add suffix to your search term. Each element of the list will help you download 100 images. First element is blank which denotes that no suffix is added to the search keyword of the above list. You can edit the list by adding/deleting elements from it.So if the first element of the search_keyword is 'Australia' and the second element of keywords is 'high resolution', then it will search for 'Australia High Resolution'
-keywords = [' high resolution']
-
 
 # Downloading entire Web Document (Raw Page Content)
 def download_page(url):
@@ -151,7 +148,6 @@ else:
         print(iteration)
         print("Evaluating...")
         search_term = search_keyword[i]
-        search = search_term.replace(' ', '%20')
         dir_name = search_term + ('-' + args.color if args.color else '')
 
         # make a search keyword  directory
@@ -160,13 +156,12 @@ else:
         except OSError as e:
             if e.errno != 17:
                 raise
-                # time.sleep might help here
             pass
 
         j = 0
         color_param = ('&tbs=ic:specific,isc:' + args.color) if args.color else ''
         # check the args and choose the URL
-        url = 'https://www.google.com/search?q=' + quote(search) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+        url = 'https://www.google.com/search?q=' + quote(search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
 
         raw_html = (download_page(url))
         time.sleep(0.1)

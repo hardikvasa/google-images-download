@@ -28,21 +28,29 @@ ___
 **Note:** Only the keywords field is mandatory.
 
 ## Examples
-If you have python 2.x version installed
+* If you have python 2.x version installed
 
 `python google-images-download.py --keywords "Polar bears, baloons, Beaches" --limit 20`
 
-If you have python 3.x version installed
+* If you have python 3.x version installed
 
 `python3 google-images-download.py --keywords "Polar bears, baloons, Beaches" --limit 20`
 
-To use the short hand command
+* To use the short hand command
 
 `python google-images-download.py -k "Polar bears, baloons, Beaches" -l 20`
 
-To use color filters for the images
+* To use color filters for the images
 
 `python google-images-download.py -k "playground" -l 20 -c red`
+
+* To use non-English keywords for image search
+
+`python google-images-download.py -k "北极熊" -l 5`
+
+* To download one single image with the image URL
+
+`python google-images-download.py -k "sample" -u <URL of the image>`
 
 ===> The images would be downloaded in their own directories in the same folder as the python file.
 
