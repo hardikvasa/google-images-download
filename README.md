@@ -19,7 +19,7 @@ set path
 
 use scroll flag to define the scrolling range by pixel and the download-pool range
 
-`python google-images-download.py --keywords "New york, einstein" --max 20 --scroll 1000 --thread 6`
+`python google-images-download.py --keywords "Neil Armstrong, nasa astronaut neil armstrong, apollo neil armstrong" --max 500 --scroll 200 --thread 6 --proxy ip:port --type face`
 
 ```
 flyn@tron:~/git/google-images-download$ python3.5 google-images-download.py --keywords "new york, einstein" -m 20
