@@ -14,18 +14,21 @@ ___
 3. Type in one of the following command mentioned below
 
 ## Usage
-`python3 google-images-download.py [Arguments...]`
+`python3 google-images-download.py [Arguments...]` or `python google-images-download.py [Arguments...]`
 
 ### Arguments 
 
 | Argument  | Short hand | Explanation |
 | --- | :---: | --- |
-|**keywords**| k | Denotes the words that you would want to search for and the directory file name. |
-|**limit** | l |Denotes number of images that you would want to download.  |
+|**keywords**| k | Denotes the words that you want to search for and the directory file name. |
+|**limit** | l |Denotes number of images that you want to download.  |
 |**color** | c |Denotes the color filter that you would want to apply to the images.|
-|**url** | u |Allows you to download one image given the URL|
+|**url** | u |Allows you search by image. It downloads images from the google images link provided|
+|**single_image** | s |Allows you to download one image if the complete URL of the image is provided|
+|**output_directory** | o |Allows you specify the main directory name. If not specified, it will default to 'downloads'|
+|**delay** | d |Time to wait between downloading two images|
 
-**Note:** Only the keywords field is mandatory.
+**Note:** If `single_image` or `url` parameter is not present, then keywords is a mandatory parameter
 
 ## Examples
 * If you have python 2.x version installed
@@ -48,11 +51,19 @@ ___
 
 `python google-images-download.py -k "北极熊" -l 5`
 
+* To download images from the google images link
+
+`python google-images-download.py -k "sample" -u <google images page URL>`
+
+* To save images in specific main directory (instead of in 'downloads')
+
+`python google-images-download.py -k "boat" -o "boat_new"`
+
 * To download one single image with the image URL
 
-`python google-images-download.py -k "sample" -u <URL of the image>`
+`python google-images-download.py --keywords "baloons" --single_image <URL of the images>`
 
-===> The images would be downloaded in their own directories in the same folder as the python file.
+===> The images would be downloaded in their own sub-directories inside the main directory (either the one you provided or in 'downloads') in the same folder as the python file that you run.
 
 ___
 

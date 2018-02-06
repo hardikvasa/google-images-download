@@ -4,22 +4,43 @@
 ###### Searching and Downloading Google Images to the local disk ######
 
 # Import Libraries
-import time  # Importing the time library to check the time of code execution
 import sys  # Importing the System Library
+version = (3, 0)
+cur_version = sys.version_info
+print(cur_version)
+if cur_version >= version:  # If the Current Version of Python is 3.0 or above
+    # urllib library for Extracting web pages
+    import urllib.request
+    from urllib.request import Request, urlopen
+    from urllib.request import URLError, HTTPError
+    from urllib.parse import quote
+else:  # If the Current Version of Python is 2.x
+    # urllib library for Extracting web pages
+    import urllib2
+    from urllib2 import Request, urlopen
+    from urllib2 import URLError, HTTPError
+    from urllib import quote
+import time  # Importing the time library to check the time of code execution
 import os
 import argparse
 import ssl
+import datetime
 
 # Taking command line arguments from users
 parser = argparse.ArgumentParser()
-parser.add_argument('-k', '--keywords', help='delimited list input', type=str, required=True)
-parser.add_argument('-u', '--url', help='adding specific URL to download google pix from it', type=str, required=False)
+parser.add_argument('-k', '--keywords', help='delimited list input', type=str, required=False)
+parser.add_argument('-u', '--url', help='search with google image URL', type=str, required=False)
 parser.add_argument('-l', '--limit', help='delimited list input', type=str, required=False)
 parser.add_argument('-c', '--color', help='filter on color', type=str, required=False,
                     choices=['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'pink', 'white', 'gray',
                              'black', 'brown'])
+parser.add_argument('-s', '--single_image', help='downloading a single image from URL', type=str, required=False)
+parser.add_argument('-o', '--output_directory', help='download images in a specific directory', type=str, required=False)
+parser.add_argument('-d', '--delay', help='delay in seconds to wait between downloading two images', type=str, required=False)
 args = parser.parse_args()
-search_keyword = [str(item) for item in args.keywords.split(',')]
+
+if args.keywords:
+    search_keyword = [str(item) for item in args.keywords.split(',')]
 # setting limit on number of images to be downloaded
 if args.limit:
     limit = int(args.limit)
@@ -28,13 +49,26 @@ if args.limit:
 else:
     limit = 100
 
+#if single_image or url argument not present then keywords is mandatory argument
+if args.single_image is None and args.url is None and args.keywords is None:
+            parser.error('Keywords is a required argument!')
+
+if args.output_directory:
+    main_directory = args.output_directory
+else:
+    main_directory = "downloads"
+
+if args.delay:
+    try:
+        val = int(args.delay)
+    except ValueError:
+        parser.error('Delay parameter should be an integer!')
 
 # Downloading entire Web Document (Raw Page Content)
 def download_page(url):
     version = (3, 0)
     cur_version = sys.version_info
     if cur_version >= version:  # If the Current Version of Python is 3.0 or above
-        import urllib.request  # urllib library for Extracting web pages
         try:
             headers = {}
             headers[
@@ -46,7 +80,6 @@ def download_page(url):
         except Exception as e:
             print(str(e))
     else:  # If the Current Version of Python is 2.x
-        import urllib2
         try:
             headers = {}
             headers[
@@ -95,26 +128,11 @@ def _images_get_all_items(page):
 ############## Main Program ############
 t0 = time.time()  # start the timer
 
-version = (3, 0)
-cur_version = sys.version_info
-if cur_version >= version:  # If the Current Version of Python is 3.0 or above
-    # urllib library for Extracting web pages
-    from urllib.request import Request, urlopen
-    from urllib.request import URLError, HTTPError
-    from urllib.parse import quote
-
-else:  # If the Current Version of Python is 2.x
-    # urllib library for Extracting web pages
-    from urllib2 import Request, urlopen
-    from urllib2 import URLError, HTTPError
-    from urllib import quote
-
-
 #Download Single Image using a URL arg
-if args.url:
-    url = args.url
+if args.single_image:
+    url = args.single_image
     try:
-        os.makedirs('downloads')
+        os.makedirs(main_directory)
     except OSError as e:
         if e.errno != 17:
             raise
@@ -127,9 +145,10 @@ if args.url:
     if '?' in image_name:
         image_name = image_name[:image_name.find('?')]
     if ".jpg" in image_name or ".png" in image_name or ".jpeg" in image_name or ".svg" in image_name:
-        output_file = open('downloads' + "/" + image_name, 'wb')
+        output_file = open(main_directory + "/" + image_name, 'wb')
     else:
-        output_file = open('downloads' + "/" + image_name + ".jpg", 'wb')
+        output_file = open(main_directory + "/" + image_name + ".jpg", 'wb')
+        output_file = open(main_directory + "/" + image_name + ".jpg", 'wb')
         image_name = image_name + ".jpg"
 
     data = response.read()
@@ -142,6 +161,9 @@ else:
     # Download Image Links
     errorCount = 0
     i = 0
+    if args.url:
+        search_keyword = [str(datetime.datetime.now()).split('.')[0]]
+    #print(search_keyword)
     while i < len(search_keyword):
         items = []
         iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(search_keyword[i])
@@ -152,24 +174,39 @@ else:
 
         # make a search keyword  directory
         try:
-            os.makedirs(dir_name)
+            if not os.path.exists(main_directory):
+                os.makedirs(main_directory)
+                time.sleep(0.2)
+                path = str(dir_name)
+                sub_directory = os.path.join(main_directory, path)
+                if not os.path.exists(sub_directory):
+                    os.makedirs(sub_directory)
+            else:
+                path = str(dir_name)
+                sub_directory = os.path.join(main_directory, path)
+                if not os.path.exists(sub_directory):
+                    os.makedirs(sub_directory)
         except OSError as e:
             if e.errno != 17:
                 raise
+                # time.sleep might help here
             pass
 
         j = 0
         color_param = ('&tbs=ic:specific,isc:' + args.color) if args.color else ''
         # check the args and choose the URL
-        url = 'https://www.google.com/search?q=' + quote(search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
-
+        if args.url:
+            url = args.url
+        else:
+            url = 'https://www.google.com/search?q=' + quote(search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+        #print(url)
         raw_html = (download_page(url))
         time.sleep(0.1)
         items = items + (_images_get_all_items(raw_html))
         print("Total Image Links = " + str(len(items)))
 
         # This allows you to write all the links into a test file. This text file will be created in the same directory as your code. You can comment out the below 3 lines to stop writing the output to the text file.
-        info = open('output.txt', 'a')  # Open the text file called database.txt
+        info = open('logs', 'a')  # Open the text file called database.txt
         info.write(str(i) + ': ' + str(search_keyword[i - 1]) + ": " + str(items))  # Write the title of the page
         info.close()  # Close the file
 
@@ -190,9 +227,9 @@ else:
                 if '?' in image_name:
                     image_name = image_name[:image_name.find('?')]
                 if ".jpg" in image_name or ".png" in image_name or ".jpeg" in image_name or ".svg" in image_name:
-                    output_file = open(dir_name + "/" + str(k + 1) + ". " + image_name, 'wb')
+                    output_file = open(main_directory + "/" + dir_name + "/" + str(k + 1) + ". " + image_name, 'wb')
                 else:
-                    output_file = open(dir_name + "/" + str(k + 1) + ". " + image_name + ".jpg", 'wb')
+                    output_file = open(main_directory + "/" + dir_name + "/" + str(k + 1) + ". " + image_name + ".jpg", 'wb')
                     image_name = image_name + ".jpg"
 
                 data = response.read()
@@ -222,6 +259,9 @@ else:
                 errorCount += 1
                 print("CertificateError " + str(k))
                 k = k + 1
+
+            if args.delay:
+                time.sleep(int(args.delay))
 
         i = i + 1
 
