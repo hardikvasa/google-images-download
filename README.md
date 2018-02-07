@@ -14,7 +14,7 @@ ___
 3. Type in one of the following command mentioned below
 
 ## Usage
-`python3 google-images-download.py [Arguments...]` or `python google-images-download.py [Arguments...]`
+`python3 google-images-download.py [Arguments...]` **OR** `python google-images-download.py [Arguments...]`
 
 ### Arguments 
 
@@ -22,13 +22,17 @@ ___
 | --- | :---: | --- |
 |**keywords**| k | Denotes the words that you want to search for and the directory file name. |
 |**limit** | l |Denotes number of images that you want to download.  |
-|**color** | c |Denotes the color filter that you would want to apply to the images.|
 |**url** | u |Allows you search by image. It downloads images from the google images link provided|
-|**single_image** | s |Allows you to download one image if the complete URL of the image is provided|
+|**single_image** | x |Allows you to download one image if the complete URL of the image is provided|
 |**output_directory** | o |Allows you specify the main directory name. If not specified, it will default to 'downloads'|
 |**delay** | d |Time to wait between downloading two images|
+|**color** | c |Denotes the color filter that you would want to apply to the images. <br> Possible values: red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown|
+|**usage_rights** | r |Denotes the usage rights/licence under which the image is classified. <br> Possible values: labled-for-reuse-with-modifications, labled-for-reuse, labled-for-noncommercial-reuse-with-modification, labled-for-nocommercial-reuse|
+|**size** | s |Denotes the relative size of the image to be downloaded. <br> Possible values: large, medium, icon|
+|**type** | t |Denotes the type of image to be downloaded. <br> Possible values: face,photo,clip-art,line-drawing,animated|
+|**time** | w |Denotes the time the image was uploaded/indexed. <br> Possible values: past-24-hours, past-7-days|
 
-**Note:** If `single_image` or `url` parameter is not present, then keywords is a mandatory parameter
+**Note:** If `single_image` or `url` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
 
 ## Examples
 * If you have python 2.x version installed

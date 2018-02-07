@@ -7,7 +7,6 @@
 import sys  # Importing the System Library
 version = (3, 0)
 cur_version = sys.version_info
-print(cur_version)
 if cur_version >= version:  # If the Current Version of Python is 3.0 or above
     # urllib library for Extracting web pages
     import urllib.request
@@ -31,12 +30,20 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-k', '--keywords', help='delimited list input', type=str, required=False)
 parser.add_argument('-u', '--url', help='search with google image URL', type=str, required=False)
 parser.add_argument('-l', '--limit', help='delimited list input', type=str, required=False)
-parser.add_argument('-c', '--color', help='filter on color', type=str, required=False,
-                    choices=['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'pink', 'white', 'gray',
-                             'black', 'brown'])
-parser.add_argument('-s', '--single_image', help='downloading a single image from URL', type=str, required=False)
+parser.add_argument('-x', '--single_image', help='downloading a single image from URL', type=str, required=False)
 parser.add_argument('-o', '--output_directory', help='download images in a specific directory', type=str, required=False)
 parser.add_argument('-d', '--delay', help='delay in seconds to wait between downloading two images', type=str, required=False)
+parser.add_argument('-c', '--color', help='filter on color', type=str, required=False,
+                    choices=['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'pink', 'white', 'gray', 'black', 'brown'])
+parser.add_argument('-r', '--usage_rights', help='usage rights', type=str, required=False,
+                    choices=['labled-for-reuse-with-modifications','labled-for-reuse','labled-for-noncommercial-reuse-with-modification','labled-for-nocommercial-reuse'])
+parser.add_argument('-s', '--size', help='image size', type=str, required=False,
+                    choices=['large','medium','icon'])
+parser.add_argument('-t', '--type', help='image type', type=str, required=False,
+                    choices=['face','photo','clip-art','line-drawing','animated'])
+parser.add_argument('-w', '--time', help='image age', type=str, required=False,
+                    choices=['past-24-hours','past-7-days'])
+
 args = parser.parse_args()
 
 if args.keywords:
@@ -125,9 +132,31 @@ def _images_get_all_items(page):
     return items
 
 
+#Building URL parameters
+def build_url_parameters():
+    built_url = "&tbs="
+    counter = 0
+    params = {'color':[args.color,{'red':'ic:specific,isc:red', 'orange':'ic:specific,isc:orange', 'yellow':'ic:specific,isc:yellow', 'green':'ic:specific,isc:green', 'teal':'ic:specific,isc:teel', 'blue':'ic:specific,isc:blue', 'purple':'ic:specific,isc:purple', 'pink':'ic:specific,isc:pink', 'white':'ic:specific,isc:white', 'gray':'ic:specific,isc:gray', 'black':'ic:specific,isc:black', 'brown':'ic:specific,isc:brown'}],
+              'usage_rights':[args.usage_rights,{'labled-for-reuse-with-modifications':'sur:fmc','labled-for-reuse':'sur:fc','labled-for-noncommercial-reuse-with-modification':'sur:fm','labled-for-nocommercial-reuse':'sur:f'}],
+              'size':[args.size,{'large':'isz:l','medium':'isz:m','icon':'isz:i'}],
+              'type':[args.type,{'face':'itp:face','photo':'itp:photo','clip-art':'itp:clip-art','line-drawing':'itp:lineart','animated':'itp:animated'}],
+              'time':[args.time,{'past-24-hours':'qdr:d','past-7-days':'qdr:w'}]}
+    for key, value in params.items():
+        if value[0] is not None:
+            ext_param = value[1][value[0]]
+            #print(value[1][value[0]])
+            # counter will tell if it is first param added or not
+            if counter == 0:
+                # add it to the built url
+                built_url = built_url + ext_param
+                counter += 1
+            else:
+                built_url = built_url + ',' + ext_param
+                counter += 1
+    return built_url
+
 ############## Main Program ############
 t0 = time.time()  # start the timer
-
 #Download Single Image using a URL arg
 if args.single_image:
     url = args.single_image
@@ -193,13 +222,14 @@ else:
             pass
 
         j = 0
-        color_param = ('&tbs=ic:specific,isc:' + args.color) if args.color else ''
+
+        params = build_url_parameters()
+        #color_param = ('&tbs=ic:specific,isc:' + args.color) if args.color else ''
         # check the args and choose the URL
         if args.url:
             url = args.url
         else:
-            url = 'https://www.google.com/search?q=' + quote(search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + color_param + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
-        #print(url)
+            url = 'https://www.google.com/search?q=' + quote(search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
         raw_html = (download_page(url))
         time.sleep(0.1)
         items = items + (_images_get_all_items(raw_html))
