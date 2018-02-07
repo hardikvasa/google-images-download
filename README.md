@@ -16,7 +16,7 @@ ___
 ## Usage
 **Python3:** `python3 google-images-download.py [Arguments...]`  **OR**
 
-**Python2: ** `python google-images-download.py [Arguments...]`
+**Python2:** `python google-images-download.py [Arguments...]`
 
 ### Arguments 
 
