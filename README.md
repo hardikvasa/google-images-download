@@ -14,7 +14,7 @@ ___
 3. Type in one of the following command mentioned below
 
 ## Usage
-**Python3:** `python3 google-images-download.py [Arguments...]`  **OR**
+**Python3:** `python3 google-images-download.py [Arguments...]`
 
 **Python2:** `python google-images-download.py [Arguments...]`
 
