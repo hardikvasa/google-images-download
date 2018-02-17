@@ -22,17 +22,23 @@ ___
 
 | Argument  | Short hand | Explanation |
 | --- | :---: | --- |
-|**keywords**| k | Denotes the words that you want to search for and the directory file name. |
+|**keywords**| k | Denotes the keywords/key phrases you want to search for and the directory file name. <br> Tips: <br> * If you simply type the keyword, Google will best try to match it <br> * If you want to search for exact phrase, you can wrap the keywords in double quotes ("") <br> * If you want to search to contain either of the words provided, use **OR** between the words. <br> * If you want to explicitly not want a specific word use a minus sign before the word (-)|
 |**limit** | l |Denotes number of images that you want to download.  |
 |**url** | u |Allows you search by image. It downloads images from the google images link provided|
 |**single_image** | x |Allows you to download one image if the complete URL of the image is provided|
 |**output_directory** | o |Allows you specify the main directory name. If not specified, it will default to 'downloads'|
 |**delay** | d |Time to wait between downloading two images|
-|**color** | c |Denotes the color filter that you would want to apply to the images. <br> `Possible values: red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`|
+|**color** | c |Denotes the color filter that you want to apply to the images. <br> `Possible values: red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`|
+|**color_type** | ct |Denotes the color type you want to apply to the images. <br> `Possible values: full-color, black-and-white, transparent`|
 |**usage_rights** | r |Denotes the usage rights/licence under which the image is classified. <br> `Possible values: labled-for-reuse-with-modifications, labled-for-reuse, labled-for-noncommercial-reuse-with-modification, labled-for-nocommercial-reuse`|
 |**size** | s |Denotes the relative size of the image to be downloaded. <br> `Possible values: large, medium, icon`|
 |**type** | t |Denotes the type of image to be downloaded. <br> `Possible values: face,photo,clip-art,line-drawing,animated`|
 |**time** | w |Denotes the time the image was uploaded/indexed. <br> `Possible values: past-24-hours, past-7-days`|
+|**format** | f |Denotes the format/extension that you want to download. <br> `Possible values: jpg, gif, png, bmp, svg, webp, ico`|
+|**aspect_ratio** | a |Denotes the aspect ration of images to download. <br> `Possible values: tall, square, wide, panoramic`|
+|**similar_images** | si |Reverse Image Search. Searches and downloads images that are similar to the image link/url you provide.|
+|**specific_site** | ss |Allows you to download images with keywords only from a specific website/domain name you mention as indexed in Google Images.|
+
 
 **Note:** If `single_image` or `url` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
 
@@ -77,7 +83,28 @@ ___
 
 `python google-images-download.py --keywords "universe" --usage_rights labled-for-reuse`
 
+* To download images with specific color type
+
+`python google-images-download.py --keywords "flowers" --color_type black-and-white`
+
+* To download images with specific image extension/format
+
+`python google-images-download.py --keywords "logo" --format svg`
+
+* To download images with specific aspect ratio
+
+`python google-images-download.py --keywords "universe" --aspect_ratio panoramic`
+
+* To download images which are similar to the image in the image URL that you provided (Reverse Image search).
+
+`python3 pr.py -si <image url> -l 10`
+
+* To download images from specific website or domain name for a given keyword
+
+`python google-images-download.py --keywords "universe" --specific_site example.com`
+
 ===> The images would be downloaded in their own sub-directories inside the main directory (either the one you provided or in 'downloads') in the same folder as the python file that you run.
+
 
 ___
 
