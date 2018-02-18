@@ -4,17 +4,15 @@
 ###### Searching and Downloading Google Images to the local disk ######
 
 # Import Libraries
-import sys  # Importing the System Library
+import sys
 version = (3, 0)
 cur_version = sys.version_info
 if cur_version >= version:  # If the Current Version of Python is 3.0 or above
-    # urllib library for Extracting web pages
     import urllib.request
     from urllib.request import Request, urlopen
     from urllib.request import URLError, HTTPError
     from urllib.parse import quote
 else:  # If the Current Version of Python is 2.x
-    # urllib library for Extracting web pages
     import urllib2
     from urllib2 import Request, urlopen
     from urllib2 import URLError, HTTPError
@@ -24,12 +22,16 @@ import os
 import argparse
 import ssl
 import datetime
+import threading
 
 # Taking command line arguments from users
 parser = argparse.ArgumentParser()
 parser.add_argument('-k', '--keywords', help='delimited list input', type=str, required=False)
-parser.add_argument('-u', '--url', help='search with google image URL', type=str, required=False)
+parser.add_argument('-sk', '--suffix_keywords', help='comma separated additional words added to main keyword', type=str, required=False)
 parser.add_argument('-l', '--limit', help='delimited list input', type=str, required=False)
+parser.add_argument('-f', '--format', help='download images with specific format', type=str, required=False,
+                    choices=['jpg', 'gif', 'png', 'bmp', 'svg', 'webp', 'ico'])
+parser.add_argument('-u', '--url', help='search with google image URL', type=str, required=False)
 parser.add_argument('-x', '--single_image', help='downloading a single image from URL', type=str, required=False)
 parser.add_argument('-o', '--output_directory', help='download images in a specific directory', type=str, required=False)
 parser.add_argument('-d', '--delay', help='delay in seconds to wait between downloading two images', type=str, required=False)
@@ -45,19 +47,24 @@ parser.add_argument('-t', '--type', help='image type', type=str, required=False,
                     choices=['face','photo','clip-art','line-drawing','animated'])
 parser.add_argument('-w', '--time', help='image age', type=str, required=False,
                     choices=['past-24-hours','past-7-days'])
-parser.add_argument('-f', '--format', help='download images with specific format', type=str, required=False,
-                    choices=['jpg', 'gif', 'png', 'bmp', 'svg', 'webp', 'ico'])
 parser.add_argument('-a', '--aspect_ratio', help='comma separated additional words added to keywords', type=str, required=False,
                     choices=['tall', 'square', 'wide', 'panoramic'])
 parser.add_argument('-si', '--similar_images', help='downloads images very similar to the image URL you provide', type=str, required=False)
 parser.add_argument('-ss', '--specific_site', help='downloads images that are indexed from a specific website', type=str, required=False)
 
-
 args = parser.parse_args()
 
+#Initialization and Validation of user arguments
 if args.keywords:
     search_keyword = [str(item) for item in args.keywords.split(',')]
-# setting limit on number of images to be downloaded
+
+#Additional words added to keywords
+if args.suffix_keywords:
+    suffix_keywords = [str(sk) for sk in args.suffix_keywords.split(',')]
+else:
+    suffix_keywords = []
+
+# Setting limit on number of images to be downloaded
 if args.limit:
     limit = int(args.limit)
     if int(args.limit) >= 100:
@@ -65,20 +72,25 @@ if args.limit:
 else:
     limit = 100
 
-#if single_image or url argument not present then keywords is mandatory argument
+# If single_image or url argument not present then keywords is mandatory argument
 if args.single_image is None and args.url is None and args.similar_images is None and args.keywords is None:
             parser.error('Keywords is a required argument!')
 
+# If this argument is present, set the custom output directory
 if args.output_directory:
     main_directory = args.output_directory
 else:
     main_directory = "downloads"
 
+# Set the delay parameter if this argument is present
 if args.delay:
     try:
-        val = int(args.delay)
+        delay_time = int(args.delay)
     except ValueError:
         parser.error('Delay parameter should be an integer!')
+else:
+    delay_time = 0
+#------ Initialization Complete ------#
 
 # Downloading entire Web Document (Raw Page Content)
 def download_page(url):
@@ -87,8 +99,7 @@ def download_page(url):
     if cur_version >= version:  # If the Current Version of Python is 3.0 or above
         try:
             headers = {}
-            headers[
-                'User-Agent'] = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
+            headers['User-Agent'] = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
             req = urllib.request.Request(url, headers=headers)
             resp = urllib.request.urlopen(req)
             respData = str(resp.read())
@@ -206,7 +217,6 @@ def build_url_parameters():
     for key, value in params.items():
         if value[0] is not None:
             ext_param = value[1][value[0]]
-            #print(value[1][value[0]])
             # counter will tell if it is first param added or not
             if counter == 0:
                 # add it to the built url
@@ -217,10 +227,8 @@ def build_url_parameters():
                 counter += 1
     return built_url
 
-############## Main Program ############
-t0 = time.time()  # start the timer
-#Download Single Image using a URL arg
-if args.single_image:
+#function to download single image
+def single_image():
     url = args.single_image
     try:
         os.makedirs(main_directory)
@@ -230,8 +238,8 @@ if args.single_image:
             # time.sleep might help here
         pass
     req = Request(url, headers={
-                "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
-    response = urlopen(req, None, 15)
+        "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
+    response = urlopen(req, None, 10)
     image_name = str(url[(url.rfind('/')) + 1:])
     if '?' in image_name:
         image_name = image_name[:image_name.find('?')]
@@ -244,131 +252,152 @@ if args.single_image:
     data = response.read()
     output_file.write(data)
     response.close()
-
     print("completed ====> " + image_name)
-# or download multiple images based on keywords
-else:
-    # Download Image Links
+    return
+
+
+def bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time):
     errorCount = 0
-    i = 0
     if args.url:
         search_keyword = [str(datetime.datetime.now()).split('.')[0]]
     if args.similar_images:
         search_keyword = [str(datetime.datetime.now()).split('.')[0]]
-    while i < len(search_keyword):
-        items = []
-        iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(search_keyword[i])
-        print(iteration)
-        print("Evaluating...")
-        search_term = search_keyword[i]
-        dir_name = search_term + ('-' + args.color if args.color else '')
 
-        # make a search keyword  directory
-        try:
-            if not os.path.exists(main_directory):
-                os.makedirs(main_directory)
-                time.sleep(0.2)
-                path = str(dir_name)
-                sub_directory = os.path.join(main_directory, path)
-                if not os.path.exists(sub_directory):
-                    os.makedirs(sub_directory)
-            else:
-                path = str(dir_name)
-                sub_directory = os.path.join(main_directory, path)
-                if not os.path.exists(sub_directory):
-                    os.makedirs(sub_directory)
-        except OSError as e:
-            if e.errno != 17:
-                raise
-                # time.sleep might help here
-            pass
+    # appending a dummy value to Suffix Keywords array if it is blank
+    if len(suffix_keywords) == 0:
+        suffix_keywords.append('')
 
-        j = 0
+    for sky in suffix_keywords:
+        i = 0
+        while i < len(search_keyword):
+            items = []
+            iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(search_keyword[i] + " " + str(sky))
+            print(iteration)
+            print("Evaluating...")
+            search_term = search_keyword[i] + " " + sky
+            dir_name = search_term + ('-' + args.color if args.color else '')
 
-        params = build_url_parameters()
-        #color_param = ('&tbs=ic:specific,isc:' + args.color) if args.color else ''
-        # check the args and choose the URL
-        if args.url:
-            url = args.url
-        elif args.similar_images:
-            keywordem = similar_images()
-            url = 'https://www.google.com/search?q=' + keywordem + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
-        elif args.specific_site:
-            url = 'https://www.google.com/search?q=' + quote(search_term) + 'site:' + args.specific_site + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
-        else:
-            url = 'https://www.google.com/search?q=' + quote(search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
-        raw_html = (download_page(url))
-        time.sleep(0.1)
-        items = items + (_images_get_all_items(raw_html))
-        print("Total Image Links = " + str(len(items)))
-
-        # This allows you to write all the links into a test file. This text file will be created in the same directory as your code. You can comment out the below 3 lines to stop writing the output to the text file.
-        info = open('logs', 'a')  # Open the text file called database.txt
-        info.write(str(i) + ': ' + str(search_keyword[i - 1]) + ": " + str(items))  # Write the title of the page
-        info.close()  # Close the file
-
-        t1 = time.time()  # stop the timer
-        total_time = t1 - t0  # Calculating the total time required to crawl, find and download all the links of 60,000 images
-        print("Total time taken: " + str(total_time) + " Seconds")
-        print("Starting Download...")
-
-        ## To save imges to the same directory
-        # IN this saving process we are just skipping the URL if there is any error
-        k = 0
-        while (k < limit):
+            # make a search keyword  directory
             try:
-                req = Request(items[k], headers={
-                    "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
-                response = urlopen(req, None, 15)
-                image_name = str(items[k][(items[k].rfind('/')) + 1:])
-                if '?' in image_name:
-                    image_name = image_name[:image_name.find('?')]
-                if ".jpg" in image_name or ".JPG" in image_name or ".gif" in image_name or ".png" in image_name or ".bmp" in image_name or ".svg" in image_name or ".webp" in image_name or ".ico" in image_name:
-                    output_file = open(main_directory + "/" + dir_name + "/" + str(k + 1) + ". " + image_name, 'wb')
+                if not os.path.exists(main_directory):
+                    os.makedirs(main_directory)
+                    time.sleep(0.2)
+                    path = str(dir_name)
+                    sub_directory = os.path.join(main_directory, path)
+                    if not os.path.exists(sub_directory):
+                        os.makedirs(sub_directory)
                 else:
-                    if args.format:
-                        output_file = open(main_directory + "/" + dir_name + "/" + str(k + 1) + ". " + image_name + "." + args.format, 'wb')
-                        image_name = image_name + "." + args.format
+                    path = str(dir_name)
+                    sub_directory = os.path.join(main_directory, path)
+                    if not os.path.exists(sub_directory):
+                        os.makedirs(sub_directory)
+            except OSError as e:
+                if e.errno != 17:
+                    raise
+                    # time.sleep might help here
+                pass
+
+            params = build_url_parameters()
+            # color_param = ('&tbs=ic:specific,isc:' + args.color) if args.color else ''
+            # check the args and choose the URL
+            if args.url:
+                url = args.url
+            elif args.similar_images:
+                keywordem = similar_images()
+                url = 'https://www.google.com/search?q=' + keywordem + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+            elif args.specific_site:
+                url = 'https://www.google.com/search?q=' + quote(
+                    search_term) + 'site:' + args.specific_site + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+            else:
+                url = 'https://www.google.com/search?q=' + quote(
+                    search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+            raw_html = (download_page(url))
+            time.sleep(0.1)
+            items = items + (_images_get_all_items(raw_html))
+            print("Total Image Links = " + str(len(items)))
+
+            #If search does not return anything, do not try to force download
+            if len(items) <= 1:
+                print('***** This search result did not return any results...please try a different search filter *****')
+                break
+
+            print("Starting Download...")
+
+            k = 0
+            success_count = 0
+            while (k < len(items)):
+                try:
+                    image_url = items[k]
+                    #print("\n" + str(image_url))
+                    req = Request(image_url, headers={
+                        "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
+                    response = urlopen(req, None, 15)
+                    image_name = str(items[k][(items[k].rfind('/')) + 1:])
+                    if '?' in image_name:
+                        image_name = image_name[:image_name.find('?')]
+                    if ".jpg" in image_name or ".JPG" in image_name or ".gif" in image_name or ".png" in image_name or ".bmp" in image_name or ".svg" in image_name or ".webp" in image_name or ".ico" in image_name:
+                        output_file = open(main_directory + "/" + dir_name + "/" + str(success_count + 1) + ". " + image_name, 'wb')
                     else:
-                        output_file = open(main_directory + "/" + dir_name + "/" + str(k + 1) + ". " + image_name + ".jpg", 'wb')
-                        image_name = image_name + ".jpg"
+                        if args.format:
+                            output_file = open(
+                                main_directory + "/" + dir_name + "/" + str(success_count + 1) + ". " + image_name + "." + args.format,
+                                'wb')
+                            image_name = image_name + "." + args.format
+                        else:
+                            output_file = open(
+                                main_directory + "/" + dir_name + "/" + str(success_count + 1) + ". " + image_name + ".jpg", 'wb')
+                            image_name = image_name + ".jpg"
 
-                data = response.read()
-                output_file.write(data)
-                response.close()
+                    data = response.read()
+                    output_file.write(data)
+                    response.close()
 
-                print("completed ====> " + str(k + 1) + ". " + image_name)
+                    print("Completed ====> " + str(success_count + 1) + ". " + image_name)
+                    k = k + 1
+                    success_count += 1
+                    if success_count == limit:
+                        break
 
-                k = k + 1
+                except HTTPError as e:  # If there is any HTTPError
+                    errorCount += 1
+                    print("HTTPError on an image...trying next one..." + " Error: " + str(e))
+                    k = k + 1
 
-            except IOError:  # If there is any IOError
-                errorCount += 1
-                print("IOError on image " + str(k + 1))
-                k = k + 1
+                except URLError as e:
+                    errorCount += 1
+                    print("URLError on an image...trying next one..." + " Error: " + str(e))
+                    k = k + 1
 
-            except HTTPError as e:  # If there is any HTTPError
-                errorCount += 1
-                print("HTTPError" + str(k))
-                k = k + 1
+                except ssl.CertificateError as e:
+                    errorCount += 1
+                    print("CertificateError on an image...trying next one..." + " Error: " + str(e))
+                    k = k + 1
 
-            except URLError as e:
-                errorCount += 1
-                print("URLError " + str(k))
-                k = k + 1
+                except IOError as e:  # If there is any IOError
+                    errorCount += 1
+                    print("IOError on an image...trying next one..." + " Error: " + str(e))
+                    k = k + 1
 
-            except ssl.CertificateError as e:
-                errorCount += 1
-                print("CertificateError " + str(k))
-                k = k + 1
+                if args.delay:
+                    time.sleep(int(delay_time))
 
-            if args.delay:
-                time.sleep(int(args.delay))
+            if success_count < limit:
+                print("\n\nUnfortunately all " + str(limit) + " could not be downloaded because some images were not downloadable. " + str(success_count) + " is all we got for this search filter!")
+            i = i + 1
+    return errorCount
 
-        i = i + 1
+#------------- Main Program -------------#
+if args.single_image:       #Download Single Image using a URL
+    single_image()
+else:                       # or download multiple images based on keywords/keyphrase search
+    t0 = time.time()  # start the timer
+    errorCount = bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time)
 
-    print("\n")
-    print("Everything downloaded!")
+    print("\nEverything downloaded!")
     print("Total Errors: " + str(errorCount) + "\n")
+    t1 = time.time()  # stop the timer
+    total_time = t1 - t0  # Calculating the total time required to crawl, find and download all the links of 60,000 images
+    print("Total time taken: " + str(total_time) + " Seconds")
+#--------End of the main program --------#
 
-# ----End of the main program ----#
 # In[ ]:
