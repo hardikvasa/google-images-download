@@ -22,7 +22,6 @@ import os
 import argparse
 import ssl
 import datetime
-import threading
 
 # Taking command line arguments from users
 parser = argparse.ArgumentParser()
@@ -60,7 +59,7 @@ if args.keywords:
 
 #Additional words added to keywords
 if args.suffix_keywords:
-    suffix_keywords = [str(sk) for sk in args.suffix_keywords.split(',')]
+    suffix_keywords = [" " + str(sk) for sk in args.suffix_keywords.split(',')]
 else:
     suffix_keywords = []
 
@@ -271,10 +270,10 @@ def bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time
         i = 0
         while i < len(search_keyword):
             items = []
-            iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(search_keyword[i] + " " + str(sky))
+            iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(search_keyword[i] + str(sky))
             print(iteration)
             print("Evaluating...")
-            search_term = search_keyword[i] + " " + sky
+            search_term = search_keyword[i] + sky
             dir_name = search_term + ('-' + args.color if args.color else '')
 
             # make a search keyword  directory
