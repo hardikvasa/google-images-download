@@ -20,7 +20,7 @@ dependency_links = [x.strip().replace('git+', '') for x in all_reqs if x.startsw
 setup(
     name='google-images-download',
     version=__version__,
-    description='Python Script to download hundreds of images from 'Google Images'. It is a ready-to-run code! ',
+    description="Python Script to download hundreds of images from 'Google Images'. It is a ready-to-run code! ",
     long_description=long_description,
     url='https://github.com/hardikvasa/google-images-download',
     download_url='https://github.com/hardikvasa/google-images-download/tarball/' + __version__,
