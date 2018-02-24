@@ -36,5 +36,10 @@ setup(
     author='Hardik Vasa',
     install_requires=install_requires,
     dependency_links=dependency_links,
-    author_email='hnvasa@gmail.com'
+    author_email='hnvasa@gmail.com',
+    entry_points={
+        'console_scripts': [
+            'google-images-download = google-images-download.google-images-download'
+        ]},
+
 )
