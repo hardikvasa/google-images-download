@@ -36,7 +36,7 @@ setup(
     author='Hardik Vasa',
     install_requires=install_requires,
     dependency_links=dependency_links,
-    author_email='hnvasa@gmail.com',
+    author_email='spoudel347@gmail.com',
     entry_points={
         'console_scripts': [
             'googleimagesdownload = google_images_download.__init__:main'
