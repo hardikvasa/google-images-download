@@ -330,32 +330,37 @@ def bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time
                     #print("\n" + str(image_url))
                     req = Request(image_url, headers={
                         "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
-                    response = urlopen(req, None, 15)
-                    image_name = str(items[k][(items[k].rfind('/')) + 1:])
-                    if '?' in image_name:
-                        image_name = image_name[:image_name.find('?')]
-                    if ".jpg" in image_name or ".JPG" in image_name or ".gif" in image_name or ".png" in image_name or ".bmp" in image_name or ".svg" in image_name or ".webp" in image_name or ".ico" in image_name:
-                        output_file = open(main_directory + "/" + dir_name + "/" + str(success_count + 1) + ". " + image_name, 'wb')
-                    else:
-                        if args.format:
-                            output_file = open(
-                                main_directory + "/" + dir_name + "/" + str(success_count + 1) + ". " + image_name + "." + args.format,
-                                'wb')
-                            image_name = image_name + "." + args.format
+                    try:
+                        response = urlopen(req, None, 15)
+                        image_name = str(items[k][(items[k].rfind('/')) + 1:])
+                        if '?' in image_name:
+                            image_name = image_name[:image_name.find('?')]
+                        if ".jpg" in image_name or ".JPG" in image_name or ".gif" in image_name or ".png" in image_name or ".bmp" in image_name or ".svg" in image_name or ".webp" in image_name or ".ico" in image_name:
+                            output_file = open(main_directory + "/" + dir_name + "/" + str(success_count + 1) + ". " + image_name, 'wb')
                         else:
-                            output_file = open(
-                                main_directory + "/" + dir_name + "/" + str(success_count + 1) + ". " + image_name + ".jpg", 'wb')
-                            image_name = image_name + ".jpg"
+                            if args.format:
+                                output_file = open(
+                                    main_directory + "/" + dir_name + "/" + str(success_count + 1) + ". " + image_name + "." + args.format,
+                                    'wb')
+                                image_name = image_name + "." + args.format
+                            else:
+                                output_file = open(
+                                    main_directory + "/" + dir_name + "/" + str(success_count + 1) + ". " + image_name + ".jpg", 'wb')
+                                image_name = image_name + ".jpg"
 
-                    data = response.read()
-                    output_file.write(data)
-                    response.close()
+                        data = response.read()
+                        output_file.write(data)
+                        response.close()
 
-                    print("Completed ====> " + str(success_count + 1) + ". " + image_name)
-                    k = k + 1
-                    success_count += 1
-                    if success_count == limit:
-                        break
+                        print("Completed ====> " + str(success_count + 1) + ". " + image_name)
+                        k = k + 1
+                        success_count += 1
+                        if success_count == limit:
+                            break
+                    except UnicodeEncodeError as e:
+                        errorCount +=1
+                        print ("UnicodeEncodeError on an image...trying next one..." + " Error: " + str(e))
+                        k = k + 1
 
                 except HTTPError as e:  # If there is any HTTPError
                     errorCount += 1
