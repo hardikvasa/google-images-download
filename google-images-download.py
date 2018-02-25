@@ -386,7 +386,7 @@ def bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time
                     time.sleep(int(delay_time))
 
             if success_count < limit:
-                print("\n\nUnfortunately all " + str(limit) + " could not be downloaded because some images were not downloadable. " + str(success_count) + " is all we got for this search filter!")
+                print("\n\nUnfortunately not all " + str(limit) + " images could be downloaded because some images were not downloadable. " + str(success_count) + " is all we got for this search filter!")
             i = i + 1
     return errorCount
 
