@@ -175,7 +175,7 @@ def similar_images():
             urll2 = content[l3 + 19:l4]
             return urll2
         except:
-            return "Cloud not connect to Google Imagees endpoint"
+            return "Cloud not connect to Google Images endpoint"
     else:  # If the Current Version of Python is 2.x
         try:
             searchUrl = 'https://www.google.com/searchbyimage?site=search&sa=X&image_url=' + args.similar_images
@@ -199,7 +199,7 @@ def similar_images():
             urll2 = content[l3 + 19:l4]
             return(urll2)
         except:
-            return "Cloud not connect to Google Imagees endpoint"
+            return "Cloud not connect to Google Images endpoint"
 
 #Building URL parameters
 def build_url_parameters():
