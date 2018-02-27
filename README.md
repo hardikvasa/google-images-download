@@ -1,4 +1,4 @@
-# :sunrise: Google Images Download
+# Google Images Download
 Python Script for 'searching' and 'downloading' hundreds of Google images to the local hard disk!
 
 ## Summary
@@ -23,6 +23,7 @@ $ cd google-images-download && sudo python setup.py install
 ## Usage
 Go to the directory of the python file and type in the command:
 **Python3** python3 google_images_download.py [Arguments...]
+
 **Python2** python google_images_download.py [Arguments...]
 
 
@@ -47,7 +48,7 @@ Go to the directory of the python file and type in the command:
 |**output_directory** | o |Allows you specify the main directory name. If not specified, it will default to 'downloads'|
 |**similar_images** | si |Reverse Image Search. Searches and downloads images that are similar to the image link/url you provide.|
 |**specific_site** | ss |Allows you to download images with keywords only from a specific website/domain name you mention as indexed in Google Images.|
-|**print_urls** | p |Print the URLs of the images|
+|**print_urls** | p |Print the URLs of the images on the console. These image URLs can be used for debugging purposes|
 |**help** | h |show the help message regarding the usage of the above arguments|
 
 **Note:** If `single_image` or `url` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
@@ -117,7 +118,7 @@ Go to the directory of the python file and type in the command:
 
 `python google-images-download.py --keywords "universe" --specific_site example.com`
 
-===> The images would be downloaded in their own sub-directories inside the main directory (either the one you provided or in 'downloads') in the same folder as the python file that you run.
+===> The images would be downloaded in their own sub-directories inside the main directory (either the one you provided or in 'downloads') in the same folder as the `google_images_download.py` file.
 
 
 ___
@@ -128,7 +129,7 @@ If you do see SSL errors on Mac for Python 3 please go to Finder —> Applicatio
 ## Contribute
 Anyone is welcomed to contribute to this script. If you would like to make a change, open a pull request. For issues and discussion visit the [Issue Tracker](https://github.com/hardikvasa/google-images-download/issues)
 
-## :exclamation::exclamation: Disclaimer
+## Disclaimer
 This program lets you download tons of images from Google. Please do not download any image without violating its copyright terms. Google Images is a search engine that merely indexes images and allows you to find them.  It does NOT produce its own images and, as such, it doesn't own copyright on any of them.  The original creators of the images own the copyrights.  
 
 Images published in the United States are automatically copyrighted by their owners, even if they do not explicitly carry a copyright warning.  You may not reproduce copyright images without their owner's permission, except in "fair use" cases, or you could risk running into lawyer's warnings, cease-and-desist letters, and copyright suits. Please be very careful before its usage!
