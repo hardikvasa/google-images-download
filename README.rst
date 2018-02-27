@@ -48,45 +48,59 @@ Arguments
 | Argument         | Short hand  | Description                                                                                                                   |
 +==================+=============+===============================================================================================================================+
 | keywords         | k           | Denotes the keywords/key phrases you want to search for and the directory file name.                                          |
+|                  |             |                                                                                                                               |
 |                  |             | Tips:                                                                                                                         |
+|                  |             |                                                                                                                               |
 |                  |             | * If you simply type the keyword, Google will best try to match it                                                            |
 |                  |             | * If you want to search for exact phrase, you can wrap the keywords in double quotes ("")                                     |
 |                  |             | * If you want to search to contain either of the words provided, use **OR** between the words.                                |
 |                  |             | * If you want to explicitly not want a specific word use a minus sign before the word (-)                                     |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | suffix_keywords  | sk          | Denotes additional words added after main keyword while making the search query.                                              |
+|                  |             |                                                                                                                               |
 |                  |             | Useful when you have multiple suffix keywords for one keyword.                                                                |
+|                  |             |                                                                                                                               |
 |                  |             | The final search query would be: <keyword> <suffix keyword>                                                                   |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | limit            | l           | Denotes number of images that you want to download.                                                                           |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | format           | f           | Denotes the format/extension that you want to download.                                                                       |
+|                  |             |                                                                                                                               |
 |                  |             | `Possible values: jpg, gif, png, bmp, svg, webp, ico`                                                                         |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | color            | c           | Denotes the color filter that you want to apply to the images.                                                                |
-|                  |             | `Possible values:                                                                                                             |
-|                  |             | red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`                                              |
+|                  |             |                                                                                                                               |
+|                  |             | `Possible values`:                                                                                                            |
+|                  |             |                                                                                                                               |
+|                  |             | `red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`                                             |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | color_type       | ct          | Denotes the color type you want to apply to the images.                                                                       |
+|                  |             |                                                                                                                               |
 |                  |             | `Possible values: full-color, black-and-white, transparent`                                                                   |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | usage_rights     | r           | Denotes the usage rights/licence under which the image is classified.                                                         |
-|                  |             | `Possible values:                                                                                                             |
-|                  |             | * labled-for-reuse-with-modifications,                                                                                        |
-|                  |             | * labled-for-reuse,                                                                                                           |
-|                  |             | * labled-for-noncommercial-reuse-with-modification,                                                                           |
-|                  |             | * labled-for-nocommercial-reuse`                                                                                              |
+|                  |             |                                                                                                                               |
+|                  |             | `Possible values:`                                                                                                            |
+|                  |             |                                                                                                                               |
+|                  |             | * `labled-for-reuse-with-modifications`,                                                                                      |
+|                  |             | * `labled-for-reuse`,                                                                                                         |
+|                  |             | * `labled-for-noncommercial-reuse-with-modification`,                                                                         |
+|                  |             | * `labled-for-nocommercial-reuse`                                                                                             |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | size             | s           | Denotes the relative size of the image to be downloaded.                                                                      |
+|                  |             |                                                                                                                               |
 |                  |             | `Possible values: large, medium, icon`                                                                                        |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | aspect_ratio     | a           | Denotes the aspect ration of images to download.                                                                              |
+|                  |             |                                                                                                                               |
 |                  |             | `Possible values: tall, square, wide, panoramic`                                                                              |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | type             | t           | Denotes the type of image to be downloaded.                                                                                   |
+|                  |             |                                                                                                                               |
 |                  |             | `Possible values: face,photo,clip-art,line-drawing,animated`                                                                  |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | time             | w           | Denotes the time the image was uploaded/indexed.                                                                              |
+|                  |             |                                                                                                                               |
 |                  |             | `Possible values: past-24-hours, past-7-days`                                                                                 |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | delay            | d           | Time to wait between downloading two images                                                                                   |
@@ -98,6 +112,7 @@ Arguments
 | output_directory | o           | Allows you specify the main directory name. If not specified, it will default to 'downloads'                                  |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | similar_images   | si          | Reverse Image Search.                                                                                                         |
+|                  |             |                                                                                                                               |
 |                  |             | Searches and downloads images that are similar to the image link/url you provide.                                             |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | specific_site    | ss          | Allows you to download images with keywords only from a specific website/domain name you mention as indexed in Google Images. |
@@ -193,7 +208,9 @@ Contribute
 Anyone is welcomed to contribute to this script.
 If you would like to make a change, open a pull request.
 For issues and discussion visit the
-`Issue Tracker <https://github.com/hardikvasa/google-images-download/issues>`__
+`Issue Tracker <https://github.com/hardikvasa/google-images-download/issues>`__.
+
+The aim of this repo is to keep it simple, stand-alone, backward compatible and 3rd party dependency proof.
 
 Disclaimer
 ----------
