@@ -1,36 +1,48 @@
-# Google Images Download
+Google Images Download
+======================
+
 Python Script for 'searching' and 'downloading' hundreds of Google images to the local hard disk!
 
-## Summary
-This is a command line python program to search keywords/key-phrases on Google Images and then also optionally download one or more images to your computer. This is a small program which is ready-to-run, but still under development. Many more features will be added to it going forward.
+Summary
+-------
 
-## Compatability
-This program is compatible with both the versions of python (2.x and 3.x). It is a download-and-run program with no changes to the file. You will just have to specify parameters through the command line.
-___
+This is a command line python program to search keywords/key-phrases on Google Images
+and then also optionally download one or more images to your computer.
+This is a small program which is ready-to-run, but still under development.
+Many more features will be added to it going forward.
 
-## Installation
+Compatability
+-------------
+
+This program is compatible with both the versions of python (2.x and 3.x).
+It is a download-and-run program with no changes to the file.
+You will just have to specify parameters through the command line.
+
+Installation
+------------
+
 **Using pip:**
-```
-$ pip install google_images_download
-```
+
+::
+
+    $ pip install google_images_download
 
 **Manually:**
-```
-$ git clone https://github.com/hardikvasa/google-images-download.git
-$ cd google-images-download && sudo python setup.py install
-```
 
-## Usage
-Go to the directory where you have the `google_images_download.py` file and type in the command:
+::
 
-**Python3:** python3 google_images_download.py [Arguments...]
+    $ git clone https://github.com/hardikvasa/google-images-download.git
+    $ cd google-images-download && sudo python setup.py install
 
-**OR**
+Usage
+-----
 
-**Python2:** python google_images_download.py [Arguments...]
+::
 
+    $ googleimagesdownload [Arguments...]
 
-### Arguments 
+Arguments
+~~~~~~~~~
 
 | Argument  | Short hand | Description |
 | --- | :---: | --- |
@@ -54,87 +66,110 @@ Go to the directory where you have the `google_images_download.py` file and type
 |**print_urls** | p |Print the URLs of the images on the console. These image URLs can be used for debugging purposes|
 |**help** | h |show the help message regarding the usage of the above arguments|
 
-**Note:** If `single_image` or `url` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
+**Note:** If ``single_image`` or ``url`` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
 
-## Examples
-* If you have python 2.x version installed
+Examples
+--------
 
-`python google-images-download.py --keywords "Polar bears, baloons, Beaches" --limit 20`
+-  If you have python 2.x version installed
 
-* If you have python 3.x version installed
+``python google-images-download.py --keywords "Polar bears, baloons, Beaches" --limit 20``
 
-`python3 google-images-download.py --keywords "Polar bears, baloons, Beaches" --limit 20`
+-  If you have python 3.x version installed
 
-* Using Suffix Keywords allows you to specify words after the main keywords. For example if the `keyword = car` and `suffix keyword = 'red,blue'` then it will first search for `car red` and then `car blue`
+``python3 google-images-download.py --keywords "Polar bears, baloons, Beaches" --limit 20``
 
-`python3 google-images-download.py --k "car" -sk 'red,blue,white' -l 10`
+-  Using Suffix Keywords allows you to specify words after the main
+   keywords. For example if the ``keyword = car`` and
+   ``suffix keyword = 'red,blue'`` then it will first search for
+   ``car red`` and then ``car blue``
 
-* To use the short hand command
+``python3 google-images-download.py --k "car" -sk 'red,blue,white' -l 10``
 
-`python google-images-download.py -k "Polar bears, baloons, Beaches" -l 20`
+-  To use the short hand command
 
-* To download images with specific image extension/format
+``python google-images-download.py -k "Polar bears, baloons, Beaches" -l 20``
 
-`python google-images-download.py --keywords "logo" --format svg`
+-  To download images with specific image extension/format
 
-* To use color filters for the images
+``python google-images-download.py --keywords "logo" --format svg``
 
-`python google-images-download.py -k "playground" -l 20 -c red`
+-  To use color filters for the images
 
-* To use non-English keywords for image search
+``python google-images-download.py -k "playground" -l 20 -c red``
 
-`python google-images-download.py -k "北极熊" -l 5`
+-  To use non-English keywords for image search
 
-* To download images from the google images link
+``python google-images-download.py -k "北极熊" -l 5``
 
-`python google-images-download.py -k "sample" -u <google images page URL>`
+-  To download images from the google images link
 
-* To save images in specific main directory (instead of in 'downloads')
+``python google-images-download.py -k "sample" -u <google images page URL>``
 
-`python google-images-download.py -k "boat" -o "boat_new"`
+-  To save images in specific main directory (instead of in 'downloads')
 
-* To download one single image with the image URL
+``python google-images-download.py -k "boat" -o "boat_new"``
 
-`python google-images-download.py --keywords "baloons" --single_image <URL of the images>`
+-  To download one single image with the image URL
 
-* To download images with size and type constrains
+``python google-images-download.py --keywords "baloons" --single_image <URL of the images>``
 
-`python google-images-download.py --keywords "baloons" --size medium --type animated`
+-  To download images with size and type constrains
 
-* To download images with specific usage rights
+``python google-images-download.py --keywords "baloons" --size medium --type animated``
 
-`python google-images-download.py --keywords "universe" --usage_rights labled-for-reuse`
+-  To download images with specific usage rights
 
-* To download images with specific color type
+``python google-images-download.py --keywords "universe" --usage_rights labled-for-reuse``
 
-`python google-images-download.py --keywords "flowers" --color_type black-and-white`
+-  To download images with specific color type
 
-* To download images with specific aspect ratio
+``python google-images-download.py --keywords "flowers" --color_type black-and-white``
 
-`python google-images-download.py --keywords "universe" --aspect_ratio panoramic`
+-  To download images with specific aspect ratio
 
-* To download images which are similar to the image in the image URL that you provided (Reverse Image search).
+``python google-images-download.py --keywords "universe" --aspect_ratio panoramic``
 
-`python3 pr.py -si <image url> -l 10`
+-  To download images which are similar to the image in the image URL that you provided (Reverse Image search).
 
-* To download images from specific website or domain name for a given keyword
+``python3 pr.py -si <image url> -l 10``
 
-`python google-images-download.py --keywords "universe" --specific_site example.com`
+-  To download images from specific website or domain name for a given keyword
 
-===> The images would be downloaded in their own sub-directories inside the main directory (either the one you provided or in 'downloads') in the same folder as the `google_images_download.py` file.
+``python google-images-download.py --keywords "universe" --specific_site example.com``
 
+===> The images would be downloaded in their own sub-directories inside the main directory
+(either the one you provided or in 'downloads') in the same folder you are in.
 
-___
+--------------
 
-## SSL Errors
-If you do see SSL errors on Mac for Python 3 please go to Finder —> Applications —> Python 3 —> Click on the ‘Install Certificates.command’ and run the file.
+SSL Errors
+----------
 
-## Contribute
-Anyone is welcomed to contribute to this script. If you would like to make a change, open a pull request. For issues and discussion visit the [Issue Tracker](https://github.com/hardikvasa/google-images-download/issues).
+If you do see SSL errors on Mac for Python 3,
+please go to Finder —> Applications —> Python 3 —> Click on the ‘Install Certificates.command’
+and run the file.
 
-The aim of this repo is to keep it simple, stand-alone, backward compatible and 3rd party dependency proof.
+Contribute
+----------
 
-## Disclaimer
-This program lets you download tons of images from Google. Please do not download any image without violating its copyright terms. Google Images is a search engine that merely indexes images and allows you to find them.  It does NOT produce its own images and, as such, it doesn't own copyright on any of them.  The original creators of the images own the copyrights.  
+Anyone is welcomed to contribute to this script.
+If you would like to make a change, open a pull request.
+For issues and discussion visit the
+`Issue Tracker <https://github.com/hardikvasa/google-images-download/issues>`__
 
-Images published in the United States are automatically copyrighted by their owners, even if they do not explicitly carry a copyright warning.  You may not reproduce copyright images without their owner's permission, except in "fair use" cases, or you could risk running into lawyer's warnings, cease-and-desist letters, and copyright suits. Please be very careful before its usage!
+Disclaimer
+----------
+
+This program lets you download tons of images from Google.
+Please do not download any image without violating its copyright terms.
+Google Images is a search engine that merely indexes images and allows you to find them.
+It does NOT produce its own images and, as such, it doesn't own copyright on any of them.
+The original creators of the images own the copyrights.
+
+Images published in the United States are automatically copyrighted by their owners,
+even if they do not explicitly carry a copyright warning.
+You may not reproduce copyright images without their owner's permission,
+except in "fair use" cases,
+or you could risk running into lawyer's warnings, cease-and-desist letters, and copyright suits.
+Please be very careful before its usage!
