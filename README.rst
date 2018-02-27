@@ -108,11 +108,7 @@ Arguments
 Examples
 --------
 
--  If you have python 2.x version installed
-
-``googleimagesdownload --keywords "Polar bears, baloons, Beaches" --limit 20``
-
--  If you have python 3.x version installed
+- Simple examples
 
 ``googleimagesdownload --keywords "Polar bears, baloons, Beaches" --limit 20``
 
