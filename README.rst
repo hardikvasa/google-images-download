@@ -193,7 +193,9 @@ Contribute
 Anyone is welcomed to contribute to this script.
 If you would like to make a change, open a pull request.
 For issues and discussion visit the
-`Issue Tracker <https://github.com/hardikvasa/google-images-download/issues>`__
+`Issue Tracker <https://github.com/hardikvasa/google-images-download/issues>`__.
+
+The aim of this repo is to keep it simple, stand-alone, backward compatible and 3rd party dependency proof.
 
 Disclaimer
 ----------
