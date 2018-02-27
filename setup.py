@@ -7,23 +7,8 @@ __version__ = '1.0.2'
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-try:
-    import pypandoc
-    if path.isfile('README.rst'):
-        print("README.rst already exist.")
-        print("NOT REFRESHING README.rst")
-    else:
-        long_description = pypandoc.convert_file('README.md', 'rst')
-        with open("README.rst", "w") as f:
-            f.write(long_description)
-
-    with open('README.rst', encoding='utf-8') as f:
-        long_description = f.read()
-except Exception as e:
-    print("Error:{}:{}".format(type(e), e))
-    print("NOT REFRESHING README.rst")
-    with open('README.md', encoding='utf-8') as f:
-        long_description = f.read()
+with open('README.rst', encoding='utf-8') as f:
+    long_description = f.read()
 
 # get the dependencies and installs
 with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
@@ -41,13 +26,14 @@ setup(
     download_url='https://github.com/hardikvasa/google-images-download/tarball/' + __version__,
     license='MIT',
     classifiers=[
-      'Development Status :: 3 - Alpha',
-      'Intended Audience :: Developers',
-      'Programming Language :: Python :: 2.7',
-      'Programming Language :: Python :: 3.3',
-      'Programming Language :: Python :: 3.4',
-      'Programming Language :: Python :: 3.5',
-      'Programming Language :: Python :: 3.6'
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
     keywords='',
     packages=find_packages(exclude=['docs', 'tests*']),
