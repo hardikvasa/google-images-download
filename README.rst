@@ -45,7 +45,7 @@ Arguments
 ~~~~~~~~~
 
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Argument         | Short hand  | Explanation                                                                                                                   |
+| Argument         | Short hand  | Description                                                                                                                   |
 +==================+=============+===============================================================================================================================+
 | keywords         | k           | Denotes the keywords/key phrases you want to search for and the directory file name.                                          |
 |                  |             | Tips:                                                                                                                         |
@@ -101,6 +101,10 @@ Arguments
 |                  |             | Searches and downloads images that are similar to the image link/url you provide.                                             |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | specific_site    | ss          | Allows you to download images with keywords only from a specific website/domain name you mention as indexed in Google Images. |
++------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| print_urls       | p           | Print the URLs of the images                                                                                                  |
++------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| help             | h           | show the help message regarding the usage of the above arguments                                                              |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 
 **Note:** If ``single_image`` or ``url`` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
