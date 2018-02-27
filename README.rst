@@ -102,7 +102,7 @@ Arguments
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | specific_site    | ss          | Allows you to download images with keywords only from a specific website/domain name you mention as indexed in Google Images. |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| print_urls       | p           | Print the URLs of the images                                                                                                  |
+| print_urls       | p           | Print the URLs of the imageson the console. These image URLs can be used for debugging purposes                               |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help             | h           | show the help message regarding the usage of the above arguments                                                              |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
