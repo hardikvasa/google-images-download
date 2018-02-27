@@ -8,15 +8,24 @@ This is a command line python program to search keywords/key-phrases on Google I
 This program is compatible with both the versions of python (2.x and 3.x). It is a download-and-run program with no changes to the file. You will just have to specify parameters through the command line.
 ___
 
-## How to run the script?
-1. Download this repository on your local hard drive
-2. Open the terminal (for mac/linux OS) or command prompt (for windows OS) and browse to the location of downloaded file 'google-images-download.py'
-3. Type in one of the following command mentioned below
+## Installation
+**Using pip:**
+```
+	$ pip install google_images_download
+```
+**Manually:**
+```
+$ git clone https://github.com/hardikvasa/google-images-download.git
+$ cd google-images-download && sudo python setup.py install
+```
+
+
 
 ## Usage
-**Python3:** `python3 google-images-download.py [Arguments...]`
+```
+	$ googleimagesdownload [Arguments...]
+```
 
-**Python2:** `python google-images-download.py [Arguments...]`
 
 ### Arguments 
 
