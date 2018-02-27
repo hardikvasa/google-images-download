@@ -70,9 +70,9 @@ Arguments
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | color            | c           | Denotes the color filter that you want to apply to the images.                                                                |
 |                  |             |                                                                                                                               |
-|                  |             | `Possible values:                                                                                                             |
+|                  |             | `Possible values`:                                                                                                            |
 |                  |             |                                                                                                                               |
-|                  |             | red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`                                              |
+|                  |             | `red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`                                             |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | color_type       | ct          | Denotes the color type you want to apply to the images.                                                                       |
 |                  |             |                                                                                                                               |
@@ -80,12 +80,12 @@ Arguments
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | usage_rights     | r           | Denotes the usage rights/licence under which the image is classified.                                                         |
 |                  |             |                                                                                                                               |
-|                  |             | `Possible values`:                                                                                                            |
+|                  |             | `Possible values:`                                                                                                            |
 |                  |             |                                                                                                                               |
-|                  |             | * labled-for-reuse-with-modifications,                                                                                        |
-|                  |             | * labled-for-reuse,                                                                                                           |
-|                  |             | * labled-for-noncommercial-reuse-with-modification,                                                                           |
-|                  |             | * labled-for-nocommercial-reuse                                                                                               |
+|                  |             | * `labled-for-reuse-with-modifications`,                                                                                      |
+|                  |             | * `labled-for-reuse`,                                                                                                         |
+|                  |             | * `labled-for-noncommercial-reuse-with-modification`,                                                                         |
+|                  |             | * `labled-for-nocommercial-reuse`                                                                                             |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | size             | s           | Denotes the relative size of the image to be downloaded.                                                                      |
 |                  |             |                                                                                                                               |
