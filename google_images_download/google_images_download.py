@@ -50,6 +50,7 @@ parser.add_argument('-a', '--aspect_ratio', help='comma separated additional wor
                     choices=['tall', 'square', 'wide', 'panoramic'])
 parser.add_argument('-si', '--similar_images', help='downloads images very similar to the image URL you provide', type=str, required=False)
 parser.add_argument('-ss', '--specific_site', help='downloads images that are indexed from a specific website', type=str, required=False)
+parser.add_argument('-p', '--print_urls', default=False, help="Print the URLs of the images", action="store_true")
 
 args = parser.parse_args()
 
@@ -89,6 +90,11 @@ if args.delay:
         parser.error('Delay parameter should be an integer!')
 else:
     delay_time = 0
+
+if args.print_urls:
+    print_url = 'yes'
+else:
+    print_url = 'no'
 #------ Initialization Complete ------#
 
 # Downloading entire Web Document (Raw Page Content)
@@ -255,7 +261,7 @@ def single_image():
     return
 
 
-def bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time):
+def bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time,print_url):
     errorCount = 0
     if args.url:
         search_keyword = [str(datetime.datetime.now()).split('.')[0]]
@@ -324,10 +330,13 @@ def bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time
 
             k = 0
             success_count = 0
-            while (k < len(items)):
+            while (k < len(items)):  # items ==> URLs
                 try:
                     image_url = items[k]
-                    #print("\n" + str(image_url))
+
+                    if print_url == 'yes':
+                        print("\n" + str(image_url))
+
                     req = Request(image_url, headers={
                         "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
                     try:
@@ -357,6 +366,7 @@ def bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time
                         success_count += 1
                         if success_count == limit:
                             break
+
                     except UnicodeEncodeError as e:
                         errorCount +=1
                         print ("UnicodeEncodeError on an image...trying next one..." + " Error: " + str(e))
@@ -395,7 +405,7 @@ if args.single_image:       #Download Single Image using a URL
     single_image()
 else:                       # or download multiple images based on keywords/keyphrase search
     t0 = time.time()  # start the timer
-    errorCount = bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time)
+    errorCount = bulk_download(search_keyword,suffix_keywords,limit,main_directory,delay_time,print_url)
 
     print("\nEverything downloaded!")
     print("Total Errors: " + str(errorCount) + "\n")
