@@ -1,212 +1,140 @@
-Google Images Download
-======================
-
+# Google Images Download
 Python Script for 'searching' and 'downloading' hundreds of Google images to the local hard disk!
 
-Summary
--------
+## Summary
+This is a command line python program to search keywords/key-phrases on Google Images and then also optionally download one or more images to your computer. This is a small program which is ready-to-run, but still under development. Many more features will be added to it going forward.
 
-This is a command line python program to search keywords/key-phrases on Google Images
-and then also optionally download one or more images to your computer.
-This is a small program which is ready-to-run, but still under development.
-Many more features will be added to it going forward.
+## Compatability
+This program is compatible with both the versions of python (2.x and 3.x). It is a download-and-run program with no changes to the file. You will just have to specify parameters through the command line.
+___
 
-Compatability
--------------
-
-This program is compatible with both the versions of python (2.x and 3.x).
-It is a download-and-run program with no changes to the file.
-You will just have to specify parameters through the command line.
-
-Installation
-------------
-
+## Installation
 **Using pip:**
-
-::
-
-    $ pip install google_images_download
+```
+$ pip install google_images_download
+```
 
 **Manually:**
+```
+$ git clone https://github.com/hardikvasa/google-images-download.git
+$ cd google-images-download && sudo python setup.py install
+```
 
-::
+## Usage
+Go to the directory where you have the `google_images_download.py` file and type in the command:
 
-    $ git clone https://github.com/hardikvasa/google-images-download.git
-    $ cd google-images-download && sudo python setup.py install
+**Python3:** python3 google_images_download.py [Arguments...]
 
-Usage
------
+**OR**
 
-::
+**Python2:** python google_images_download.py [Arguments...]
 
-    $ googleimagesdownload [Arguments...]
 
-Arguments
-~~~~~~~~~
+### Arguments 
 
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Argument         | Short hand  | Description                                                                                                                   |
-+==================+=============+===============================================================================================================================+
-| keywords         | k           | Denotes the keywords/key phrases you want to search for and the directory file name.                                          |
-|                  |             | Tips:                                                                                                                         |
-|                  |             | * If you simply type the keyword, Google will best try to match it                                                            |
-|                  |             | * If you want to search for exact phrase, you can wrap the keywords in double quotes ("")                                     |
-|                  |             | * If you want to search to contain either of the words provided, use **OR** between the words.                                |
-|                  |             | * If you want to explicitly not want a specific word use a minus sign before the word (-)                                     |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| suffix_keywords  | sk          | Denotes additional words added after main keyword while making the search query.                                              |
-|                  |             | Useful when you have multiple suffix keywords for one keyword.                                                                |
-|                  |             | The final search query would be: <keyword> <suffix keyword>                                                                   |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| limit            | l           | Denotes number of images that you want to download.                                                                           |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| format           | f           | Denotes the format/extension that you want to download.                                                                       |
-|                  |             | `Possible values: jpg, gif, png, bmp, svg, webp, ico`                                                                         |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| color            | c           | Denotes the color filter that you want to apply to the images.                                                                |
-|                  |             | `Possible values:                                                                                                             |
-|                  |             | red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`                                              |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| color_type       | ct          | Denotes the color type you want to apply to the images.                                                                       |
-|                  |             | `Possible values: full-color, black-and-white, transparent`                                                                   |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| usage_rights     | r           | Denotes the usage rights/licence under which the image is classified.                                                         |
-|                  |             | `Possible values:                                                                                                             |
-|                  |             | * labled-for-reuse-with-modifications,                                                                                        |
-|                  |             | * labled-for-reuse,                                                                                                           |
-|                  |             | * labled-for-noncommercial-reuse-with-modification,                                                                           |
-|                  |             | * labled-for-nocommercial-reuse`                                                                                              |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| size             | s           | Denotes the relative size of the image to be downloaded.                                                                      |
-|                  |             | `Possible values: large, medium, icon`                                                                                        |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| aspect_ratio     | a           | Denotes the aspect ration of images to download.                                                                              |
-|                  |             | `Possible values: tall, square, wide, panoramic`                                                                              |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| type             | t           | Denotes the type of image to be downloaded.                                                                                   |
-|                  |             | `Possible values: face,photo,clip-art,line-drawing,animated`                                                                  |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| time             | w           | Denotes the time the image was uploaded/indexed.                                                                              |
-|                  |             | `Possible values: past-24-hours, past-7-days`                                                                                 |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| delay            | d           | Time to wait between downloading two images                                                                                   |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| url              | u           | Allows you search by image. It downloads images from the google images link provided                                          |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| single_image     | x           | Allows you to download one image if the complete URL of the image is provided                                                 |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| output_directory | o           | Allows you specify the main directory name. If not specified, it will default to 'downloads'                                  |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| similar_images   | si          | Reverse Image Search.                                                                                                         |
-|                  |             | Searches and downloads images that are similar to the image link/url you provide.                                             |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| specific_site    | ss          | Allows you to download images with keywords only from a specific website/domain name you mention as indexed in Google Images. |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| print_urls       | p           | Print the URLs of the imageson the console. These image URLs can be used for debugging purposes                               |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| help             | h           | show the help message regarding the usage of the above arguments                                                              |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Argument  | Short hand | Description |
+| --- | :---: | --- |
+|**keywords**| k | Denotes the keywords/key phrases you want to search for and the directory file name. <br> Tips: <br> * If you simply type the keyword, Google will best try to match it <br> * If you want to search for exact phrase, you can wrap the keywords in double quotes ("") <br> * If you want to search to contain either of the words provided, use **OR** between the words. <br> * If you want to explicitly not want a specific word use a minus sign before the word (-)|
+|**suffix_keywords**| sk | Denotes additional words added after main keyword while making the search query. Useful when you have multiple suffix keywords for one keyword <br> The final search query would be: <keyword> <suffix keyword>|
+|**limit** | l |Denotes number of images that you want to download.  |
+|**format** | f |Denotes the format/extension that you want to download. <br> `Possible values: jpg, gif, png, bmp, svg, webp, ico`|
+|**color** | c |Denotes the color filter that you want to apply to the images. <br> `Possible values: red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`|
+|**color_type** | ct |Denotes the color type you want to apply to the images. <br> `Possible values: full-color, black-and-white, transparent`|
+|**usage_rights** | r |Denotes the usage rights/licence under which the image is classified. <br> `Possible values: labled-for-reuse-with-modifications, labled-for-reuse, labled-for-noncommercial-reuse-with-modification, labled-for-nocommercial-reuse`|
+|**size** | s |Denotes the relative size of the image to be downloaded. <br> `Possible values: large, medium, icon`|
+|**aspect_ratio** | a |Denotes the aspect ration of images to download. <br> `Possible values: tall, square, wide, panoramic`|
+|**type** | t |Denotes the type of image to be downloaded. <br> `Possible values: face,photo,clip-art,line-drawing,animated`|
+|**time** | w |Denotes the time the image was uploaded/indexed. <br> `Possible values: past-24-hours, past-7-days`|
+|**delay** | d |Time to wait between downloading two images|
+|**url** | u |Allows you search by image. It downloads images from the google images link provided|
+|**single_image** | x |Allows you to download one image if the complete URL of the image is provided|
+|**output_directory** | o |Allows you specify the main directory name. If not specified, it will default to 'downloads'|
+|**similar_images** | si |Reverse Image Search. Searches and downloads images that are similar to the image link/url you provide.|
+|**specific_site** | ss |Allows you to download images with keywords only from a specific website/domain name you mention as indexed in Google Images.|
+|**print_urls** | p |Print the URLs of the images on the console. These image URLs can be used for debugging purposes|
+|**help** | h |show the help message regarding the usage of the above arguments|
 
-**Note:** If ``single_image`` or ``url`` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
+**Note:** If `single_image` or `url` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
 
-Examples
---------
+## Examples
+* If you have python 2.x version installed
 
-- Simple examples
+`python google-images-download.py --keywords "Polar bears, baloons, Beaches" --limit 20`
 
-``googleimagesdownload --keywords "Polar bears, baloons, Beaches" --limit 20``
+* If you have python 3.x version installed
 
--  Using Suffix Keywords allows you to specify words after the main
-   keywords. For example if the ``keyword = car`` and
-   ``suffix keyword = 'red,blue'`` then it will first search for
-   ``car red`` and then ``car blue``
+`python3 google-images-download.py --keywords "Polar bears, baloons, Beaches" --limit 20`
 
-``googleimagesdownload --k "car" -sk 'red,blue,white' -l 10``
+* Using Suffix Keywords allows you to specify words after the main keywords. For example if the `keyword = car` and `suffix keyword = 'red,blue'` then it will first search for `car red` and then `car blue`
 
--  To use the short hand command
+`python3 google-images-download.py --k "car" -sk 'red,blue,white' -l 10`
 
-``googleimagesdownload -k "Polar bears, baloons, Beaches" -l 20``
+* To use the short hand command
 
--  To download images with specific image extension/format
+`python google-images-download.py -k "Polar bears, baloons, Beaches" -l 20`
 
-``googleimagesdownload --keywords "logo" --format svg``
+* To download images with specific image extension/format
 
--  To use color filters for the images
+`python google-images-download.py --keywords "logo" --format svg`
 
-``googleimagesdownload -k "playground" -l 20 -c red``
+* To use color filters for the images
 
--  To use non-English keywords for image search
+`python google-images-download.py -k "playground" -l 20 -c red`
 
-``googleimagesdownload -k "北极熊" -l 5``
+* To use non-English keywords for image search
 
--  To download images from the google images link
+`python google-images-download.py -k "北极熊" -l 5`
 
-``googleimagesdownload -k "sample" -u <google images page URL>``
+* To download images from the google images link
 
--  To save images in specific main directory (instead of in 'downloads')
+`python google-images-download.py -k "sample" -u <google images page URL>`
 
-``googleimagesdownload -k "boat" -o "boat_new"``
+* To save images in specific main directory (instead of in 'downloads')
 
--  To download one single image with the image URL
+`python google-images-download.py -k "boat" -o "boat_new"`
 
-``googleimagesdownload --keywords "baloons" --single_image <URL of the images>``
+* To download one single image with the image URL
 
--  To download images with size and type constrains
+`python google-images-download.py --keywords "baloons" --single_image <URL of the images>`
 
-``googleimagesdownload --keywords "baloons" --size medium --type animated``
+* To download images with size and type constrains
 
--  To download images with specific usage rights
+`python google-images-download.py --keywords "baloons" --size medium --type animated`
 
-``googleimagesdownload --keywords "universe" --usage_rights labled-for-reuse``
+* To download images with specific usage rights
 
--  To download images with specific color type
+`python google-images-download.py --keywords "universe" --usage_rights labled-for-reuse`
 
-``googleimagesdownload --keywords "flowers" --color_type black-and-white``
+* To download images with specific color type
 
--  To download images with specific aspect ratio
+`python google-images-download.py --keywords "flowers" --color_type black-and-white`
 
-``googleimagesdownload --keywords "universe" --aspect_ratio panoramic``
+* To download images with specific aspect ratio
 
--  To download images which are similar to the image in the image URL that you provided (Reverse Image search).
+`python google-images-download.py --keywords "universe" --aspect_ratio panoramic`
 
-``python3 pr.py -si <image url> -l 10``
+* To download images which are similar to the image in the image URL that you provided (Reverse Image search).
 
--  To download images from specific website or domain name for a given keyword
+`python3 pr.py -si <image url> -l 10`
 
-``googleimagesdownload --keywords "universe" --specific_site example.com``
+* To download images from specific website or domain name for a given keyword
 
-===> The images would be downloaded in their own sub-directories inside the main directory
-(either the one you provided or in 'downloads') in the same folder you are in.
+`python google-images-download.py --keywords "universe" --specific_site example.com`
 
---------------
+===> The images would be downloaded in their own sub-directories inside the main directory (either the one you provided or in 'downloads') in the same folder as the `google_images_download.py` file.
 
-SSL Errors
-----------
 
-If you do see SSL errors on Mac for Python 3,
-please go to Finder —> Applications —> Python 3 —> Click on the ‘Install Certificates.command’
-and run the file.
+___
 
-Contribute
-----------
+## SSL Errors
+If you do see SSL errors on Mac for Python 3 please go to Finder —> Applications —> Python 3 —> Click on the ‘Install Certificates.command’ and run the file.
 
-Anyone is welcomed to contribute to this script.
-If you would like to make a change, open a pull request.
-For issues and discussion visit the
-`Issue Tracker <https://github.com/hardikvasa/google-images-download/issues>`__
+## Contribute
+Anyone is welcomed to contribute to this script. If you would like to make a change, open a pull request. For issues and discussion visit the [Issue Tracker](https://github.com/hardikvasa/google-images-download/issues).
 
-Disclaimer
-----------
+The aim of this repo is to keep it simple, stand-alone, backward compatible and 3rd party dependency proof.
 
-This program lets you download tons of images from Google.
-Please do not download any image without violating its copyright terms.
-Google Images is a search engine that merely indexes images and allows you to find them.
-It does NOT produce its own images and, as such, it doesn't own copyright on any of them.
-The original creators of the images own the copyrights.
+## Disclaimer
+This program lets you download tons of images from Google. Please do not download any image without violating its copyright terms. Google Images is a search engine that merely indexes images and allows you to find them.  It does NOT produce its own images and, as such, it doesn't own copyright on any of them.  The original creators of the images own the copyrights.  
 
-Images published in the United States are automatically copyrighted by their owners,
-even if they do not explicitly carry a copyright warning.
-You may not reproduce copyright images without their owner's permission,
-except in "fair use" cases,
-or you could risk running into lawyer's warnings, cease-and-desist letters, and copyright suits.
-Please be very careful before its usage!
+Images published in the United States are automatically copyrighted by their owners, even if they do not explicitly carry a copyright warning.  You may not reproduce copyright images without their owner's permission, except in "fair use" cases, or you could risk running into lawyer's warnings, cease-and-desist letters, and copyright suits. Please be very careful before its usage!
