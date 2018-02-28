@@ -72,6 +72,9 @@ if args.limit:
 else:
     limit = 100
 
+if args.similar_images:
+    search_keyword = []
+
 # If single_image or url argument not present then keywords is mandatory argument
 if args.single_image is None and args.url is None and args.similar_images is None and args.keywords is None:
             parser.error('Keywords is a required argument!')
