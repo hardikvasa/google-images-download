@@ -27,19 +27,33 @@ Installation
 
     $ pip install google_images_download
 
-**Manually:**
+**Manually using CLI:**
 
 ::
 
     $ git clone https://github.com/hardikvasa/google-images-download.git
     $ cd google-images-download && sudo python setup.py install
 
+**Manually using UI:**
+
+Go to the `repo on github <https://github.com/hardikvasa/google-images-download>`__ ==> Click on 'Clone or Download' ==> Click on 'Download ZIP' and save it on your local disk.
+    
 Usage
 -----
+
+If installed via pip or using CLI, use the following command:
 
 ::
 
     $ googleimagesdownload [Arguments...]
+
+If downloaded via the UI, unzip the file downloaded, go to the 'google_images_download' directory and use one of the below commands:
+
+::
+    
+    $ python3 google_images_download.py [Arguments...]
+    OR
+    $ python google_images_download.py [Arguments...]
 
 Arguments
 ~~~~~~~~~
@@ -184,7 +198,7 @@ Examples
 
 -  To download images which are similar to the image in the image URL that you provided (Reverse Image search).
 
-``python3 pr.py -si <image url> -l 10``
+``googleimagesdownload -si <image url> -l 10``
 
 -  To download images from specific website or domain name for a given keyword
 
@@ -195,12 +209,45 @@ Examples
 
 --------------
 
-SSL Errors
+Troubleshooting
 ----------
+
+**## SSL Errors**
 
 If you do see SSL errors on Mac for Python 3,
 please go to Finder —> Applications —> Python 3 —> Click on the ‘Install Certificates.command’
 and run the file.
+
+**## googleimagesdownload: command not found**
+
+While using the above commands, if you get ``Error: -bash: googleimagesdownload: command not found`` then you have to set the correct path variable.
+
+To get the details of the repo, run the following command:
+::
+	$ pip show -f google_images_download 
+
+you will get the result like this:
+::
+	Location: /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
+	Files:
+	  ../../../bin/googleimagesdownload
+
+together they make: ``/Library/Frameworks/Python.framework/Versions/2.7/bin`` which you need add it to the path:
+::
+	$ export PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin
+
+
+**## [Errno 13] Permission denied creating directory 'downloads'**
+
+When you run the command, it downloads the images in the current directory (the directory from where you are running the command). If you get permission denied error for creating the `downloads directory`, then move to a directory in which you have the write permission and then run the command again.
+
+
+**## Permission denied while installing the library**
+
+On MAC and Linux, when you get permission denied when installing the library using pip, try using shifting to sudo user and run the command.
+::
+	$ sudo pip install google_images_download
+
 
 Contribute
 ----------
