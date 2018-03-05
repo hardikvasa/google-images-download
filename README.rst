@@ -14,12 +14,14 @@ Many more features will be added to it going forward.
 Compatability
 -------------
 
-This program is compatible with both the versions of python (2.x and 3.x).
+This program is compatible with both the versions of python - 2.x and 3.x (recommended).
 It is a download-and-run program with no changes to the file.
 You will just have to specify parameters through the command line.
 
 Installation
 ------------
+
+You can use **one of the below methods** to download and use this repository.
 
 **Using pip:**
 
@@ -133,6 +135,15 @@ Arguments
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | print_urls       | p           | Print the URLs of the imageson the console. These image URLs can be used for debugging purposes                               |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| print_size       | ps          | Prints the size of the image on the console                                                                                   |
++------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| metadata         | m           | Prints the metada of the image. This includes image size, origin, image attributes, description, image URL, etc.              |
++------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| extract_metadata | e           | Metadata of all the downloaded images is stored in a text file. This file can be found in the ``logs/`` directory             |
++------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| socket_timeout   | st          | Allows you to specify the time to wait for socket connection.                                                                 |
+|                  |             | You could specy a higher timeout time for slow internet connection. The default value is 15 seconds.                          |
++------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help             | h           | show the help message regarding the usage of the above arguments                                                              |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 
@@ -244,10 +255,19 @@ When you run the command, it downloads the images in the current directory (the 
 
 **## Permission denied while installing the library**
 
-On MAC and Linux, when you get permission denied when installing the library using pip, try using shifting to sudo user and run the command.
+On MAC and Linux, when you get permission denied when installing the library using pip, try doing a user install.
 ::
-	$ sudo pip install google_images_download
+	$ pip install google_images_download --user
 
+You can also run pip install as a superuser with ``sudo pip install google_images_download`` but it is not generally a good idea because it can cause issues with your system-level packages.
+
+Structure
+---------
+
+Below diagram represents the code logic.
+
+.. figure:: images/flow-chart.png
+   :alt:
 
 Contribute
 ----------
