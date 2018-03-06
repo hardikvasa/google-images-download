@@ -1,47 +1,55 @@
 Google Images Download
-======================
+######################
 
 Python Script for 'searching' and 'downloading' hundreds of Google images to the local hard disk!
 
+Contents
+
+.. contents:: :local:
+
 Summary
--------
+=======
 
 This is a command line python program to search keywords/key-phrases on Google Images
 and then also optionally download one or more images to your computer.
 This is a small program which is ready-to-run, but still under development.
 Many more features will be added to it going forward.
 
+
 Compatability
--------------
+=============
 
 This program is compatible with both the versions of python - 2.x and 3.x (recommended).
 It is a download-and-run program with no changes to the file.
 You will just have to specify parameters through the command line.
 
 Installation
-------------
+============
 
 You can use **one of the below methods** to download and use this repository.
 
-**Using pip:**
+Using pip
+---------
 
 .. code-block:: bash
 
     $ pip install google_images_download
 
-**Manually using CLI:**
+Manually using CLI
+------------------
 
 .. code-block:: bash
 
     $ git clone https://github.com/hardikvasa/google-images-download.git
     $ cd google-images-download && sudo python setup.py install
 
-**Manually using UI:**
+Manually using UI
+-----------------
 
 Go to the `repo on github <https://github.com/hardikvasa/google-images-download>`__ ==> Click on 'Clone or Download' ==> Click on 'Download ZIP' and save it on your local disk.
     
 Usage
------
+=====
 
 If installed via pip or using CLI, use the following command:
 
@@ -58,7 +66,7 @@ If downloaded via the UI, unzip the file downloaded, go to the 'google_images_do
     $ python google_images_download.py [Arguments...]
 
 Arguments
----------
+=========
 
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | Argument         | Short hand  | Description                                                                                                                   |
@@ -156,7 +164,7 @@ Arguments
 **Note:** If ``single_image`` or ``url`` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
 
 Examples
---------
+========
 
 - Simple examples
 
@@ -257,7 +265,7 @@ Examples
 --------------
 
 Troubleshooting
----------------
+===============
 
 **## SSL Errors**
 
@@ -306,7 +314,7 @@ On MAC and Linux, when you get permission denied when installing the library usi
 You can also run pip install as a superuser with ``sudo pip install google_images_download`` but it is not generally a good idea because it can cause issues with your system-level packages.
 
 Structure
----------
+=========
 
 Below diagram represents the code logic.
 
@@ -314,7 +322,7 @@ Below diagram represents the code logic.
    :alt:
 
 Contribute
-----------
+==========
 
 Anyone is welcomed to contribute to this script.
 If you would like to make a change, open a pull request.
@@ -324,7 +332,7 @@ For issues and discussion visit the
 The aim of this repo is to keep it simple, stand-alone, backward compatible and 3rd party dependency proof.
 
 Disclaimer
-----------
+==========
 
 This program lets you download tons of images from Google.
 Please do not download any image without violating its copyright terms.
