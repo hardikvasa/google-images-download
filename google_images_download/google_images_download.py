@@ -58,6 +58,10 @@ parser.add_argument('-ps', '--print_size', default=False, help="Print the size o
 parser.add_argument('-m', '--metadata', default=False, help="Print the metadata of the image", action="store_true")
 parser.add_argument('-e', '--extract_metadata', default=False, help="Dumps all the logs into a text file", action="store_true")
 parser.add_argument('-st', '--socket_timeout', default=False, help="Connection timeout waiting for the image to download", type=float)
+parser.add_argument('-th', '--thumbnail', default=False, help="Downloads image thumbnail along with the actual image", action="store_true")
+parser.add_argument('-la', '--language', default=False, help="Defines the language filter. The search results are authomatically returned in that language", type=str, required=False,
+                    choices=['Arabic','Chinese (Simplified)','Chinese (Traditional)','Czech','Danish','Dutch','English','Estonian','Finnish','French','German','Greek','Hebrew','Hungarian','Icelandic','Italian','Japanese','Korean','Latvian','Lithuanian','Norwegian','Portuguese','Polish','Romanian','Russian','Spanish','Swedish','Turkish'])
+parser.add_argument('-pr', '--prefix', default=False, help="A word that you would want to prefix in front of each image name", type=str, required=False)
 
 args = parser.parse_args()
 
@@ -85,7 +89,7 @@ if args.url:
 
 if args.similar_images:
     current_time = str(datetime.datetime.now()).split('.')[0]
-    search_keyword = [current_time.replace(":", "-")]
+    search_keyword = [current_time.replace(":", "_")]
 
 # If single_image or url argument not present then keywords is mandatory argument
 if args.single_image is None and args.url is None and args.similar_images is None and args.keywords is None:
@@ -169,29 +173,6 @@ def format_object(object):
     formatted_object['image_thumbnail_url'] = object['tu']
     return formatted_object
 
-#make directories
-def create_directories(main_directory,dir_name):
-    # make a search keyword  directory
-    try:
-        if not os.path.exists(main_directory):
-            os.makedirs(main_directory)
-            time.sleep(0.2)
-            path = str(dir_name)
-            sub_directory = os.path.join(main_directory, path)
-            if not os.path.exists(sub_directory):
-                os.makedirs(sub_directory)
-        else:
-            path = str(dir_name)
-            sub_directory = os.path.join(main_directory, path)
-            if not os.path.exists(sub_directory):
-                os.makedirs(sub_directory)
-    except OSError as e:
-        if e.errno != 17:
-            raise
-            # time.sleep might help here
-        pass
-    return
-
 #function to download single image
 def single_image():
     url = args.single_image
@@ -272,6 +253,13 @@ def similar_images():
 
 #Building URL parameters
 def build_url_parameters():
+    if args.language:
+        lang = "&lr="
+        lang_param = {"Arabic":"lang_ar","Chinese (Simplified)":"lang_zh-CN","Chinese (Traditional)":"lang_zh-TW","Czech":"lang_cs","Danish":"lang_da","Dutch":"lang_nl","English":"lang_en","Estonian":"lang_et","Finnish":"lang_fi","French":"lang_fr","German":"lang_de","Greek":"lang_el","Hebrew":"lang_iw ","Hungarian":"lang_hu","Icelandic":"lang_is","Italian":"lang_it","Japanese":"lang_ja","Korean":"lang_ko","Latvian":"lang_lv","Lithuanian":"lang_lt","Norwegian":"lang_no","Portuguese":"lang_pt","Polish":"lang_pl","Romanian":"lang_ro","Russian":"lang_ru","Spanish":"lang_es","Swedish":"lang_sv","Turkish":"lang_tr"}
+        lang_url = lang+lang_param[args.language]
+    else:
+        lang_url = ''
+
     built_url = "&tbs="
     counter = 0
     params = {'color':[args.color,{'red':'ic:specific,isc:red', 'orange':'ic:specific,isc:orange', 'yellow':'ic:specific,isc:yellow', 'green':'ic:specific,isc:green', 'teal':'ic:specific,isc:teel', 'blue':'ic:specific,isc:blue', 'purple':'ic:specific,isc:purple', 'pink':'ic:specific,isc:pink', 'white':'ic:specific,isc:white', 'gray':'ic:specific,isc:gray', 'black':'ic:specific,isc:black', 'brown':'ic:specific,isc:brown'}],
@@ -293,6 +281,7 @@ def build_url_parameters():
             else:
                 built_url = built_url + ',' + ext_param
                 counter += 1
+    built_url = lang_url+built_url
     return built_url
 
 #building main search URL
@@ -309,6 +298,7 @@ def build_search_url(search_term,params):
     else:
         url = 'https://www.google.com/search?q=' + quote(
             search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+    #print(url)
     return url
 
 #measures the file size
@@ -321,6 +311,105 @@ def file_size(file_path):
                 return "%3.1f %s" % (size, x)
             size /= 1024.0
         return size
+
+# make directories
+def create_directories(main_directory, dir_name):
+    dir_name_thumbnail = dir_name + " - thumbnail"
+    # make a search keyword  directory
+    try:
+        if not os.path.exists(main_directory):
+            os.makedirs(main_directory)
+            time.sleep(0.2)
+            path = str(dir_name)
+            sub_directory = os.path.join(main_directory, path)
+            if not os.path.exists(sub_directory):
+                os.makedirs(sub_directory)
+            if args.thumbnail:
+                sub_directory_thumbnail = os.path.join(main_directory, dir_name_thumbnail)
+                if not os.path.exists(sub_directory_thumbnail):
+                    os.makedirs(sub_directory_thumbnail)
+        else:
+            path = str(dir_name)
+            sub_directory = os.path.join(main_directory, path)
+            if not os.path.exists(sub_directory):
+                os.makedirs(sub_directory)
+            if args.thumbnail:
+                sub_directory_thumbnail = os.path.join(main_directory, dir_name_thumbnail)
+                if not os.path.exists(sub_directory_thumbnail):
+                    os.makedirs(sub_directory_thumbnail)
+    except OSError as e:
+        if e.errno != 17:
+            raise
+            # time.sleep might help here
+        pass
+    return
+
+
+# Download Images
+def download_image_thumbnail(image_url, image_format, main_directory, dir_name, count):
+    if args.print_urls:
+        print("Image URL: " + image_url)
+    try:
+        req = Request(image_url, headers={
+            "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
+        try:
+            # timeout time to download an image
+            if args.socket_timeout:
+                timeout = float(args.socket_timeout)
+            else:
+                timeout = 15
+            response = urlopen(req, None, timeout)
+
+            # keep everything after the last '/'
+            image_name = str(image_url[(image_url.rfind('tbn')) + 4:])
+            image_name = image_name.lower()
+            # if no extension then add it
+            # remove everything after the image name
+            if image_format == "":
+                image_name = image_name + ".jpg"
+            else:
+                image_name = image_name + "." + image_format
+
+            #prefix name in image
+            if args.prefix:
+                prefix = args.prefix + " "
+            else:
+                prefix = ''
+
+            path = main_directory + "/" + dir_name + " - thumbnail" + "/" + prefix + " " +  str(count) + ". " + image_name
+            output_file = open(path, 'wb')
+            data = response.read()
+            output_file.write(data)
+            response.close()
+
+            # image size parameter
+            if args.print_size:
+                print("Image Size: " + str(file_size(path)))
+
+            download_status = 'success'
+            download_message = "Completed Image Thumbnail ====> " + prefix + str(count) + ". " + image_name
+
+        except UnicodeEncodeError as e:
+            download_status = 'fail'
+            download_message = "UnicodeEncodeError on an image...trying next one..." + " Error: " + str(e)
+
+    except HTTPError as e:  # If there is any HTTPError
+        download_status = 'fail'
+        download_message = "HTTPError on an image...trying next one..." + " Error: " + str(e)
+
+    except URLError as e:
+        download_status = 'fail'
+        download_message = "URLError on an image...trying next one..." + " Error: " + str(e)
+
+    except ssl.CertificateError as e:
+        download_status = 'fail'
+        download_message = "CertificateError on an image...trying next one..." + " Error: " + str(e)
+
+    except IOError as e:  # If there is any IOError
+        download_status = 'fail'
+        download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
+    return download_status, download_message
+
 
 # Download Images
 def download_image(image_url,image_format,main_directory,dir_name,count):
@@ -347,7 +436,13 @@ def download_image(image_url,image_format,main_directory,dir_name,count):
             else:
                 image_name = image_name[:image_name.find(image_format) + 3]
 
-            path = main_directory + "/" + dir_name + "/" + str(count) + ". " + image_name
+            # prefix name in image
+            if args.prefix:
+                prefix = args.prefix + " "
+            else:
+                prefix = ''
+
+            path = main_directory + "/" + dir_name + "/" + prefix + str(count) + ". " + image_name
             output_file = open(path, 'wb')
             data = response.read()
             output_file.write(data)
@@ -358,7 +453,7 @@ def download_image(image_url,image_format,main_directory,dir_name,count):
                 print("Image Size: " + str(file_size(path)))
 
             download_status = 'success'
-            download_message = "Completed ====> " + str(count) + ". " + image_name
+            download_message = "Completed Image ====> " + prefix +  str(count) + ". " + image_name
 
         except UnicodeEncodeError as e:
             download_status = 'fail'
@@ -428,6 +523,12 @@ def _get_all_items(page,main_directory,dir_name,limit):
             download_status,download_message = download_image(object['image_link'],object['image_format'],main_directory,dir_name,count)
             print(download_message)
             if download_status == "success":
+
+                # download image_thumbnails
+                if args.thumbnail:
+                    download_status, download_message_thumbnail = download_image_thumbnail(object['image_thumbnail_url'],object['image_format'],main_directory, dir_name, count)
+                    print(download_message_thumbnail)
+
                 count += 1
             else:
                 errorCount += 1
