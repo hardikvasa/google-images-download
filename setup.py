@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-__version__ = '1.0.2'
+__version__ = '1.0.5'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -35,7 +35,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    keywords='',
+    keywords='google images download save filter color image-search image-dataset image-scrapper image-gallery terminal command-line',
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,
     author='Hardik Vasa',

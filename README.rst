@@ -25,13 +25,13 @@ You can use **one of the below methods** to download and use this repository.
 
 **Using pip:**
 
-::
+.. code-block:: bash
 
     $ pip install google_images_download
 
 **Manually using CLI:**
 
-::
+.. code-block:: bash
 
     $ git clone https://github.com/hardikvasa/google-images-download.git
     $ cd google-images-download && sudo python setup.py install
@@ -45,20 +45,20 @@ Usage
 
 If installed via pip or using CLI, use the following command:
 
-::
+.. code-block:: bash
 
     $ googleimagesdownload [Arguments...]
 
 If downloaded via the UI, unzip the file downloaded, go to the 'google_images_download' directory and use one of the below commands:
 
-::
+.. code-block:: bash
     
     $ python3 google_images_download.py [Arguments...]
     OR
     $ python google_images_download.py [Arguments...]
 
 Arguments
-~~~~~~~~~
+---------
 
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | Argument         | Short hand  | Description                                                                                                                   |
@@ -144,6 +144,12 @@ Arguments
 | socket_timeout   | st          | Allows you to specify the time to wait for socket connection.                                                                 |
 |                  |             | You could specy a higher timeout time for slow internet connection. The default value is 15 seconds.                          |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| thumbnail        | th          | Downloads image thumbnails corresponding to each image downloaded. Thumbnails are saved in their own sub-directories.         |
++------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| language         | la          | Defines the language filter. The search results are authomatically returned in that language                                  |
++------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| prefix           | pr          | A word that you would want to prefix in front of actual image name. This feature can be used for image identification purpose.|
++------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help             | h           | show the help message regarding the usage of the above arguments                                                              |
 +------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 
@@ -154,66 +160,96 @@ Examples
 
 - Simple examples
 
-``googleimagesdownload --keywords "Polar bears, baloons, Beaches" --limit 20``
+.. code-block:: bash
+    
+    $ googleimagesdownload --keywords "Polar bears, baloons, Beaches" --limit 20
 
 -  Using Suffix Keywords allows you to specify words after the main
    keywords. For example if the ``keyword = car`` and
    ``suffix keyword = 'red,blue'`` then it will first search for
    ``car red`` and then ``car blue``
 
-``googleimagesdownload --k "car" -sk 'red,blue,white' -l 10``
+.. code-block:: bash
+    
+    $ googleimagesdownload --k "car" -sk 'red,blue,white' -l 10
 
 -  To use the short hand command
 
-``googleimagesdownload -k "Polar bears, baloons, Beaches" -l 20``
+.. code-block:: bash
+    
+    $ googleimagesdownload -k "Polar bears, baloons, Beaches" -l 20
 
 -  To download images with specific image extension/format
 
-``googleimagesdownload --keywords "logo" --format svg``
+.. code-block:: bash
+    
+    $ googleimagesdownload --keywords "logo" --format svg
 
 -  To use color filters for the images
 
-``googleimagesdownload -k "playground" -l 20 -c red``
+.. code-block:: bash
+    
+    $ googleimagesdownload -k "playground" -l 20 -c red
 
 -  To use non-English keywords for image search
 
-``googleimagesdownload -k "北极熊" -l 5``
+.. code-block:: bash
+    
+    $ googleimagesdownload -k "北极熊" -l 5
 
 -  To download images from the google images link
 
-``googleimagesdownload -k "sample" -u <google images page URL>``
+.. code-block:: bash
+    
+    $ googleimagesdownload -k "sample" -u <google images page URL>
 
 -  To save images in specific main directory (instead of in 'downloads')
 
-``googleimagesdownload -k "boat" -o "boat_new"``
+.. code-block:: bash
+    
+    $ googleimagesdownload -k "boat" -o "boat_new"
 
 -  To download one single image with the image URL
 
-``googleimagesdownload --keywords "baloons" --single_image <URL of the images>``
+.. code-block:: bash
+    
+    $ googleimagesdownload --keywords "baloons" --single_image <URL of the images>
 
 -  To download images with size and type constrains
 
-``googleimagesdownload --keywords "baloons" --size medium --type animated``
+.. code-block:: bash
+    
+    $ googleimagesdownload --keywords "baloons" --size medium --type animated
 
 -  To download images with specific usage rights
 
-``googleimagesdownload --keywords "universe" --usage_rights labled-for-reuse``
+.. code-block:: bash
+    
+    $ googleimagesdownload --keywords "universe" --usage_rights labled-for-reuse
 
 -  To download images with specific color type
 
-``googleimagesdownload --keywords "flowers" --color_type black-and-white``
+.. code-block:: bash
+    
+    $ googleimagesdownload --keywords "flowers" --color_type black-and-white
 
 -  To download images with specific aspect ratio
 
-``googleimagesdownload --keywords "universe" --aspect_ratio panoramic``
+.. code-block:: bash
+    
+    $ googleimagesdownload --keywords "universe" --aspect_ratio panoramic
 
 -  To download images which are similar to the image in the image URL that you provided (Reverse Image search).
 
-``googleimagesdownload -si <image url> -l 10``
+.. code-block:: bash
+    
+    $ googleimagesdownload -si <image url> -l 10
 
 -  To download images from specific website or domain name for a given keyword
 
-``googleimagesdownload --keywords "universe" --specific_site example.com``
+.. code-block:: bash
+    
+    $ googleimagesdownload --keywords "universe" --specific_site example.com
 
 ===> The images would be downloaded in their own sub-directories inside the main directory
 (either the one you provided or in 'downloads') in the same folder you are in.
@@ -221,7 +257,7 @@ Examples
 --------------
 
 Troubleshooting
-----------
+---------------
 
 **## SSL Errors**
 
@@ -234,18 +270,24 @@ and run the file.
 While using the above commands, if you get ``Error: -bash: googleimagesdownload: command not found`` then you have to set the correct path variable.
 
 To get the details of the repo, run the following command:
-::
-	$ pip show -f google_images_download 
+
+.. code-block:: bash
+
+    $ pip show -f google_images_download 
 
 you will get the result like this:
-::
+
+.. code-block:: bash
+
 	Location: /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
 	Files:
 	  ../../../bin/googleimagesdownload
 
 together they make: ``/Library/Frameworks/Python.framework/Versions/2.7/bin`` which you need add it to the path:
-::
-	$ export PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin
+
+.. code-block:: bash
+	
+    $ export PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin"
 
 
 **## [Errno 13] Permission denied creating directory 'downloads'**
@@ -256,8 +298,10 @@ When you run the command, it downloads the images in the current directory (the 
 **## Permission denied while installing the library**
 
 On MAC and Linux, when you get permission denied when installing the library using pip, try doing a user install.
-::
-	$ pip install google_images_download --user
+
+.. code-block:: bash
+	
+    $ pip install google_images_download --user
 
 You can also run pip install as a superuser with ``sudo pip install google_images_download`` but it is not generally a good idea because it can cause issues with your system-level packages.
 
@@ -266,7 +310,7 @@ Structure
 
 Below diagram represents the code logic.
 
-.. figure:: images/flow-chart.png
+.. figure:: http://www.zseries.in/flow-chart.png
    :alt:
 
 Contribute
