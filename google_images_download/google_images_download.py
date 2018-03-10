@@ -25,10 +25,12 @@ import ssl
 import datetime
 import json
 import re
+import codecs
 
 # Taking command line arguments from users
 parser = argparse.ArgumentParser()
 parser.add_argument('-k', '--keywords', help='delimited list input', type=str, required=False)
+parser.add_argument('-kf', '--keywords_from_file', help='extract list of keywords from a text file', type=str, required=False)
 parser.add_argument('-sk', '--suffix_keywords', help='comma separated additional words added to main keyword', type=str, required=False)
 parser.add_argument('-l', '--limit', help='delimited list input', type=str, required=False)
 parser.add_argument('-f', '--format', help='download images with specific format', type=str, required=False,
@@ -69,6 +71,32 @@ args = parser.parse_args()
 if args.keywords:
     search_keyword = [str(item) for item in args.keywords.split(',')]
 
+#Initialization and Validation of user arguments
+if args.keywords_from_file:
+    search_keyword = []
+    file_name = args.keywords_from_file
+    with codecs.open(file_name, 'r', encoding='utf-8-sig') as f:
+        if '.csv' in file_name:
+            for line in f:
+                if line in ['\n', '\r\n']:
+                    pass
+                else:
+                    search_keyword.append(line.replace('\n', '').replace('\r', ''))
+                    # print(line)
+            print(search_keyword)
+        elif '.txt' in file_name:
+            for line in f:
+                if line in ['\n', '\r\n']:
+                    pass
+                else:
+                    # print line
+                    search_keyword.append(line.replace('\n', ''))
+            print(search_keyword)
+        else:
+            print("Invalid file type: Valid file types are either .txt or .csv \n"
+                  "exiting...")
+            sys.exit()
+
 #Additional words added to keywords
 if args.suffix_keywords:
     suffix_keywords = [" " + str(sk) for sk in args.suffix_keywords.split(',')]
@@ -92,7 +120,7 @@ if args.similar_images:
     search_keyword = [current_time.replace(":", "_")]
 
 # If single_image or url argument not present then keywords is mandatory argument
-if args.single_image is None and args.url is None and args.similar_images is None and args.keywords is None:
+if args.single_image is None and args.url is None and args.similar_images is None and args.keywords is None and args.keywords_from_file is None:
             parser.error('Keywords is a required argument!')
 
 # If this argument is present, set the custom output directory
