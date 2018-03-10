@@ -29,14 +29,12 @@ Installation
 You can use **one of the below methods** to download and use this repository.
 
 Using pip
----------
 
 .. code-block:: bash
 
     $ pip install google_images_download
 
 Manually using CLI
-------------------
 
 .. code-block:: bash
 
@@ -44,7 +42,6 @@ Manually using CLI
     $ cd google-images-download && sudo python setup.py install
 
 Manually using UI
------------------
 
 Go to the `repo on github <https://github.com/hardikvasa/google-images-download>`__ ==> Click on 'Clone or Download' ==> Click on 'Download ZIP' and save it on your local disk.
     
@@ -68,98 +65,122 @@ If downloaded via the UI, unzip the file downloaded, go to the 'google_images_do
 Arguments
 =========
 
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| Argument         | Short hand  | Description                                                                                                                   |
-+==================+=============+===============================================================================================================================+
-| keywords         | k           | Denotes the keywords/key phrases you want to search for and the directory file name.                                          |
-|                  |             |                                                                                                                               |
-|                  |             | Tips:                                                                                                                         |
-|                  |             |                                                                                                                               |
-|                  |             | * If you simply type the keyword, Google will best try to match it                                                            |
-|                  |             | * If you want to search for exact phrase, you can wrap the keywords in double quotes ("")                                     |
-|                  |             | * If you want to search to contain either of the words provided, use **OR** between the words.                                |
-|                  |             | * If you want to explicitly not want a specific word use a minus sign before the word (-)                                     |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| suffix_keywords  | sk          | Denotes additional words added after main keyword while making the search query.                                              |
-|                  |             |                                                                                                                               |
-|                  |             | Useful when you have multiple suffix keywords for one keyword.                                                                |
-|                  |             |                                                                                                                               |
-|                  |             | The final search query would be: <keyword> <suffix keyword>                                                                   |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| limit            | l           | Denotes number of images that you want to download.                                                                           |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| format           | f           | Denotes the format/extension that you want to download.                                                                       |
-|                  |             |                                                                                                                               |
-|                  |             | `Possible values: jpg, gif, png, bmp, svg, webp, ico`                                                                         |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| color            | c           | Denotes the color filter that you want to apply to the images.                                                                |
-|                  |             |                                                                                                                               |
-|                  |             | `Possible values`:                                                                                                            |
-|                  |             |                                                                                                                               |
-|                  |             | `red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`                                             |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| color_type       | ct          | Denotes the color type you want to apply to the images.                                                                       |
-|                  |             |                                                                                                                               |
-|                  |             | `Possible values: full-color, black-and-white, transparent`                                                                   |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| usage_rights     | r           | Denotes the usage rights/licence under which the image is classified.                                                         |
-|                  |             |                                                                                                                               |
-|                  |             | `Possible values:`                                                                                                            |
-|                  |             |                                                                                                                               |
-|                  |             | * `labled-for-reuse-with-modifications`,                                                                                      |
-|                  |             | * `labled-for-reuse`,                                                                                                         |
-|                  |             | * `labled-for-noncommercial-reuse-with-modification`,                                                                         |
-|                  |             | * `labled-for-nocommercial-reuse`                                                                                             |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| size             | s           | Denotes the relative size of the image to be downloaded.                                                                      |
-|                  |             |                                                                                                                               |
-|                  |             | `Possible values: large, medium, icon`                                                                                        |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| aspect_ratio     | a           | Denotes the aspect ration of images to download.                                                                              |
-|                  |             |                                                                                                                               |
-|                  |             | `Possible values: tall, square, wide, panoramic`                                                                              |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| type             | t           | Denotes the type of image to be downloaded.                                                                                   |
-|                  |             |                                                                                                                               |
-|                  |             | `Possible values: face,photo,clip-art,line-drawing,animated`                                                                  |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| time             | w           | Denotes the time the image was uploaded/indexed.                                                                              |
-|                  |             |                                                                                                                               |
-|                  |             | `Possible values: past-24-hours, past-7-days`                                                                                 |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| delay            | d           | Time to wait between downloading two images                                                                                   |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| url              | u           | Allows you search by image. It downloads images from the google images link provided                                          |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| single_image     | x           | Allows you to download one image if the complete URL of the image is provided                                                 |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| output_directory | o           | Allows you specify the main directory name. If not specified, it will default to 'downloads'                                  |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| similar_images   | si          | Reverse Image Search.                                                                                                         |
-|                  |             |                                                                                                                               |
-|                  |             | Searches and downloads images that are similar to the image link/url you provide.                                             |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| specific_site    | ss          | Allows you to download images with keywords only from a specific website/domain name you mention as indexed in Google Images. |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| print_urls       | p           | Print the URLs of the imageson the console. These image URLs can be used for debugging purposes                               |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| print_size       | ps          | Prints the size of the image on the console                                                                                   |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| metadata         | m           | Prints the metada of the image. This includes image size, origin, image attributes, description, image URL, etc.              |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| extract_metadata | e           | Metadata of all the downloaded images is stored in a text file. This file can be found in the ``logs/`` directory             |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| socket_timeout   | st          | Allows you to specify the time to wait for socket connection.                                                                 |
-|                  |             | You could specy a higher timeout time for slow internet connection. The default value is 15 seconds.                          |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| thumbnail        | th          | Downloads image thumbnails corresponding to each image downloaded. Thumbnails are saved in their own sub-directories.         |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| language         | la          | Defines the language filter. The search results are authomatically returned in that language                                  |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| prefix           | pr          | A word that you would want to prefix in front of actual image name. This feature can be used for image identification purpose.|
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| help             | h           | show the help message regarding the usage of the above arguments                                                              |
-+------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| Argument          | Short hand  | Description                                                                                                                   |
++===================+=============+===============================================================================================================================+
+| keywords          | k           | Denotes the keywords/key phrases you want to search for. For more than one keywords, wrap it in single quotes.                |
+|                   |             |                                                                                                                               |
+|                   |             | Tips:                                                                                                                         |
+|                   |             |                                                                                                                               |
+|                   |             | * If you simply type the keyword, Google will best try to match it                                                            |
+|                   |             | * If you want to search for exact phrase, you can wrap the keywords in double quotes ("")                                     |
+|                   |             | * If you want to search to contain either of the words provided, use **OR** between the words.                                |
+|                   |             | * If you want to explicitly not want a specific word use a minus sign before the word (-)                                     |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| keywords_from_file| kf          | Denotes the file name from where you would want to import the keywords.                                                       |
+|                   |             |                                                                                                                               |
+|                   |             | Add one keyword per line. Blank/Empty lines are truncated automatically.                                                      |
+|                   |             |                                                                                                                               |
+|                   |             | Only file types '.txt' or  '.csv' are allowed.                                                                                |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| suffix_keywords   | sk          | Denotes additional words added after main keyword while making the search query.                                              |
+|                   |             |                                                                                                                               |
+|                   |             | Useful when you have multiple suffix keywords for one keyword.                                                                |
+|                   |             |                                                                                                                               |
+|                   |             | The final search query would be: <keyword> <suffix keyword>                                                                   |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| limit             | l           | Denotes number of images that you want to download.                                                                           |
+|                   |             |                                                                                                                               |
+|                   |             | As of now you can select anything between 1 and 100. If this value is not specified, it defaults to 100.                      |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| format            | f           | Denotes the format/extension of the image that you want to download.                                                          |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: jpg, gif, png, bmp, svg, webp, ico`                                                                         |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| color             | c           | Denotes the color filter that you want to apply to the images.                                                                |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`                            |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| color_type        | ct          | Denotes the color type you want to apply to the images.                                                                       |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: full-color, black-and-white, transparent`                                                                   |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| usage_rights      | r           | Denotes the usage rights/licence under which the image is classified.                                                         |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values:`                                                                                                            |
+|                   |             |                                                                                                                               |
+|                   |             | * `labled-for-reuse-with-modifications`,                                                                                      |
+|                   |             | * `labled-for-reuse`,                                                                                                         |
+|                   |             | * `labled-for-noncommercial-reuse-with-modification`,                                                                         |
+|                   |             | * `labled-for-nocommercial-reuse`                                                                                             |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| size              | s           | Denotes the relative size of the image to be downloaded.                                                                      |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: large, medium, icon`                                                                                        |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| aspect_ratio      | a           | Denotes the aspect ratio of images to download.                                                                               |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: tall, square, wide, panoramic`                                                                              |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| type              | t           | Denotes the type of image to be downloaded.                                                                                   |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: face, photo, clip-art, line-drawing, animated`                                                              |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| time              | w           | Denotes the time the image was uploaded/indexed.                                                                              |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: past-24-hours, past-7-days`                                                                                 |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| delay             | d           | Time to wait between downloading two images                                                                                   |
+|                   |             |                                                                                                                               |
+|                   |             | Time is to be specified in seconds. But you can have sub-second times by using decimal points.                                |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| url               | u           | Allows you search by image URL. It downloads images from the google images link provided                                      |
+|                   |             |                                                                                                                               |
+|                   |             | If you are searching an image on the browser google images page, simply grab the browser URL and paste it in this parameter   |
+|                   |             | It will download all the images seen on that page.                                                                            |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| single_image      | x           | Allows you to download one image if the complete (absolute) URL of the image is provided                                      |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| output_directory  | o           | Allows you specify the main directory name in which the images are downloaded.                                                |
+|                   |             |                                                                                                                               |
+|                   |             | If not specified, it will default to 'downloads' directory. This directory is located in the path from where you run this code|
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| similar_images    | si          | Reverse Image Search.                                                                                                         |
+|                   |             |                                                                                                                               |
+|                   |             | Searches and downloads images that are similar to the absolute image link/url you provide.                                    |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| specific_site     | ss          | Allows you to download images with keywords only from a specific website/domain name you mention.                             |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| print_urls        | p           | Print the URLs of the images on the console. These image URLs can be used for debugging purposes                              |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| print_size        | ps          | Prints the size of the images on the console                                                                                  |
+|                   |             |                                                                                                                               |
+|                   |             | The size denoted the actual size of the image and not the size of the image on disk                                           |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| metadata          | m           | Prints the metada of the image on the console.                                                                                |
+|                   |             |                                                                                                                               |
+|                   |             | This includes image size, origin, image attributes, description, image URL, etc.                                              |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| extract_metadata  | e           | This option allows you to save metadata of all the downloaded images in a text file.                                          |
+|                   |             |                                                                                                                               |
+|                   |             | This file can be found in the ``logs/`` directory. The name of the file would be same as the keyword nam                      |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| socket_timeout    | st          | Allows you to specify the time to wait for socket connection.                                                                 |
+|                   |             |                                                                                                                               |
+|                   |             | You could specify a higher timeout time for slow internet connection. The default value is 15 seconds.                        |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| thumbnail         | th          | Downloads image thumbnails corresponding to each image downloaded.                                                            |
+|                   |             |                                                                                                                               |
+|                   |             | Thumbnails are saved in their own sub-directories inside of the main directory.                                               |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| language          | la          | Defines the language filter. The search results are automatically returned in that language                                   |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| prefix            | pr          | A word that you would want to prefix in front of actual image name.                                                           |
+|                   |             |                                                                                                                               |
+|                   |             | This feature can be used to rename files for image identification purpose.                                                    |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| help              | h           | show the help message regarding the usage of the above arguments                                                              |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 
 **Note:** If ``single_image`` or ``url`` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
 
