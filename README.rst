@@ -116,7 +116,8 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | size              | s           | Denotes the relative size of the image to be downloaded.                                                                      |
 |                   |             |                                                                                                                               |
-|                   |             | `Possible values: large, medium, icon`                                                                                        |
+|                   |             | `Possible values: large, medium, icon, >400*300, >640*480, >800*600, >1024*768, >2MP, >4MP, >6MP, >8MP, >10MP,                |
+|                   |             | >12MP, >15MP, >20MP, >40MP, >70MP`                                                                                            |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | aspect_ratio      | a           | Denotes the aspect ratio of images to download.                                                                               |
 |                   |             |                                                                                                                               |
@@ -129,6 +130,10 @@ Arguments
 | time              | w           | Denotes the time the image was uploaded/indexed.                                                                              |
 |                   |             |                                                                                                                               |
 |                   |             | `Possible values: past-24-hours, past-7-days`                                                                                 |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| time_range        | wr          | Denotes the time range for which you want to search the images                                                                |
+|                   |             |                                                                                                                               |
+|                   |             | The value of this parameter should be in the following format '{"time_min":"MM/DD/YYYY","time_max":"MM/DD/YYYY"}'             |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | delay             | d           | Time to wait between downloading two images                                                                                   |
 |                   |             |                                                                                                                               |
@@ -174,6 +179,10 @@ Arguments
 |                   |             | Thumbnails are saved in their own sub-directories inside of the main directory.                                               |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | language          | la          | Defines the language filter. The search results are automatically returned in that language                                   |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible Values: Arabic, Chinese (Simplified), Chinese (Traditional), Czech, Danish, Dutch, English, Estonian. Finnish,      |
+|                   |             | French, German, Greek, Hebrew, Hungarian, Icelandic, Italian, Japanese, Korean, Latvianm, Lithuanian, Norwegian, Portuguese,  |
+|                   |             | Polish, Romanian, Russian, Spanish, Swedish, Turkish`                                                                         |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | prefix            | pr          | A word that you would want to prefix in front of actual image name.                                                           |
 |                   |             |                                                                                                                               |
@@ -356,7 +365,7 @@ Disclaimer
 ==========
 
 This program lets you download tons of images from Google.
-Please do not download any image without violating its copyright terms.
+Please do not download or use any image that violates its copyright terms.
 Google Images is a search engine that merely indexes images and allows you to find them.
 It does NOT produce its own images and, as such, it doesn't own copyright on any of them.
 The original creators of the images own the copyrights.
