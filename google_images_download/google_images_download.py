@@ -46,11 +46,12 @@ parser.add_argument('-ct', '--color_type', help='filter on color', type=str, req
 parser.add_argument('-r', '--usage_rights', help='usage rights', type=str, required=False,
                     choices=['labled-for-reuse-with-modifications','labled-for-reuse','labled-for-noncommercial-reuse-with-modification','labled-for-nocommercial-reuse'])
 parser.add_argument('-s', '--size', help='image size', type=str, required=False,
-                    choices=['large','medium','icon'])
+                    choices=['large','medium','icon','>400*300','>640*480','>800*600','>1024*768','>2MP','>4MP','>6MP','>8MP','>10MP','>12MP','>15MP','>20MP','>40MP','>70MP'])
 parser.add_argument('-t', '--type', help='image type', type=str, required=False,
                     choices=['face','photo','clip-art','line-drawing','animated'])
 parser.add_argument('-w', '--time', help='image age', type=str, required=False,
                     choices=['past-24-hours','past-7-days'])
+parser.add_argument('-wr', '--time_range', help='time range for the age of the image. should be in the format {"time_min":"MM/DD/YYYY","time_max":"MM/DD/YYYY"}', type=str, required=False)
 parser.add_argument('-a', '--aspect_ratio', help='comma separated additional words added to keywords', type=str, required=False,
                     choices=['tall', 'square', 'wide', 'panoramic'])
 parser.add_argument('-si', '--similar_images', help='downloads images very similar to the image URL you provide', type=str, required=False)
@@ -83,19 +84,23 @@ if args.keywords_from_file:
                 else:
                     search_keyword.append(line.replace('\n', '').replace('\r', ''))
                     # print(line)
-            print(search_keyword)
+            #print(search_keyword)
         elif '.txt' in file_name:
             for line in f:
                 if line in ['\n', '\r\n']:
                     pass
                 else:
                     # print line
-                    search_keyword.append(line.replace('\n', ''))
-            print(search_keyword)
+                    search_keyword.append(line.replace('\n', '').replace('\r', ''))
+            #print(search_keyword)
         else:
             print("Invalid file type: Valid file types are either .txt or .csv \n"
                   "exiting...")
             sys.exit()
+
+# both time and time range should not be allowed in the same query
+if args.time and args.time_range:
+    parser.error('Either time or time range should be used in a query. Both cannot be used at the same time.')
 
 #Additional words added to keywords
 if args.suffix_keywords:
@@ -288,12 +293,19 @@ def build_url_parameters():
     else:
         lang_url = ''
 
+    if args.time_range:
+        json_acceptable_string = args.time_range.replace("'", "\"")
+        d = json.loads(json_acceptable_string)
+        time_range = '&cdr:1,cd_min:' + d['time_min'] + ',cd_max:' + d['time_min']
+    else:
+        time_range = ''
+
     built_url = "&tbs="
     counter = 0
     params = {'color':[args.color,{'red':'ic:specific,isc:red', 'orange':'ic:specific,isc:orange', 'yellow':'ic:specific,isc:yellow', 'green':'ic:specific,isc:green', 'teal':'ic:specific,isc:teel', 'blue':'ic:specific,isc:blue', 'purple':'ic:specific,isc:purple', 'pink':'ic:specific,isc:pink', 'white':'ic:specific,isc:white', 'gray':'ic:specific,isc:gray', 'black':'ic:specific,isc:black', 'brown':'ic:specific,isc:brown'}],
               'color_type':[args.color_type,{'full-color':'ic:color', 'black-and-white':'ic:gray','transparent':'ic:trans'}],
               'usage_rights':[args.usage_rights,{'labled-for-reuse-with-modifications':'sur:fmc','labled-for-reuse':'sur:fc','labled-for-noncommercial-reuse-with-modification':'sur:fm','labled-for-nocommercial-reuse':'sur:f'}],
-              'size':[args.size,{'large':'isz:l','medium':'isz:m','icon':'isz:i'}],
+              'size':[args.size,{'large':'isz:l','medium':'isz:m','icon':'isz:i','>400*300':'isz:lt,islt:qsvga','>640*480':'isz:lt,islt:vga','>800*600':'isz:lt,islt:svga','>1024*768':'visz:lt,islt:xga','>2MP':'isz:lt,islt:2mp','>4MP':'isz:lt,islt:4mp','>6MP':'isz:lt,islt:6mp','>8MP':'isz:lt,islt:8mp','>10MP':'isz:lt,islt:10mp','>12MP':'isz:lt,islt:12mp','>15MP':'isz:lt,islt:15mp','>20MP':'isz:lt,islt:20mp','>40MP':'isz:lt,islt:40mp','>70MP':'isz:lt,islt:70mp'}],
               'type':[args.type,{'face':'itp:face','photo':'itp:photo','clip-art':'itp:clip-art','line-drawing':'itp:lineart','animated':'itp:animated'}],
               'time':[args.time,{'past-24-hours':'qdr:d','past-7-days':'qdr:w'}],
               'aspect_ratio':[args.aspect_ratio,{'tall':'iar:t','square':'iar:s','wide':'iar:w','panoramic':'iar:xw'}],
@@ -309,7 +321,7 @@ def build_url_parameters():
             else:
                 built_url = built_url + ',' + ext_param
                 counter += 1
-    built_url = lang_url+built_url
+    built_url = lang_url+built_url+time_range
     return built_url
 
 #building main search URL
@@ -322,7 +334,7 @@ def build_search_url(search_term,params):
         url = 'https://www.google.com/search?q=' + keywordem + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
     elif args.specific_site:
         url = 'https://www.google.com/search?q=' + quote(
-            search_term) + 'site:' + args.specific_site + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+            search_term) + '&as_sitesearch=' + args.specific_site + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
     else:
         url = 'https://www.google.com/search?q=' + quote(
             search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
@@ -461,6 +473,8 @@ def download_image(image_url,image_format,main_directory,dir_name,count):
             # remove everything after the image name
             if image_format == "":
                 image_name = image_name + "." + "jpg"
+            elif image_format == "jpeg":
+                image_name = image_name[:image_name.find(image_format) + 4]
             else:
                 image_name = image_name[:image_name.find(image_format) + 3]
 
@@ -507,7 +521,7 @@ def download_image(image_url,image_format,main_directory,dir_name,count):
 
 # Finding 'Next Image' from the given raw page
 def _get_next_item(s):
-    start_line = s.find('rg_di')
+    start_line = s.find('rg_meta notranslate')
     if start_line == -1:  # If no links are found then give an error!
         end_quote = 0
         link = "no_links"
