@@ -150,6 +150,10 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | If not specified, it will default to 'downloads' directory. This directory is located in the path from where you run this code|
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| proxy             | px          | Allows you to specify proxy server setting for all your requests                                                              |
+|                   |             |                                                                                                                               |
+|                   |             | You can specify the proxy settings in 'IP:Port' format                                                                        |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | similar_images    | si          | Reverse Image Search.                                                                                                         |
 |                   |             |                                                                                                                               |
 |                   |             | Searches and downloads images that are similar to the absolute image link/url you provide.                                    |
