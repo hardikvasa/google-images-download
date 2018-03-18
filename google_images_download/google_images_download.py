@@ -65,6 +65,7 @@ parser.add_argument('-th', '--thumbnail', default=False, help="Downloads image t
 parser.add_argument('-la', '--language', default=False, help="Defines the language filter. The search results are authomatically returned in that language", type=str, required=False,
                     choices=['Arabic','Chinese (Simplified)','Chinese (Traditional)','Czech','Danish','Dutch','English','Estonian','Finnish','French','German','Greek','Hebrew','Hungarian','Icelandic','Italian','Japanese','Korean','Latvian','Lithuanian','Norwegian','Portuguese','Polish','Romanian','Russian','Spanish','Swedish','Turkish'])
 parser.add_argument('-pr', '--prefix', default=False, help="A word that you would want to prefix in front of each image name", type=str, required=False)
+parser.add_argument('-px', '--proxy', help='specify a proxy address and port', type=str, required=False)
 
 args = parser.parse_args()
 
@@ -152,6 +153,10 @@ if args.print_size:
     print_size = 'yes'
 else:
     print_size = 'no'
+
+if args.proxy:
+    os.environ["http_proxy"] = args.proxy
+    os.environ["https_proxy"] = args.proxy
 
 #------ Initialization Complete ------#
 
@@ -386,7 +391,7 @@ def create_directories(main_directory, dir_name):
 
 
 # Download Images
-def download_image_thumbnail(image_url, image_format, main_directory, dir_name, count):
+def download_image_thumbnail(image_url,main_directory,dir_name,return_image_name):
     if args.print_urls:
         print("Image URL: " + image_url)
     try:
@@ -400,34 +405,18 @@ def download_image_thumbnail(image_url, image_format, main_directory, dir_name, 
                 timeout = 15
             response = urlopen(req, None, timeout)
 
-            # keep everything after the last '/'
-            image_name = str(image_url[(image_url.rfind('tbn')) + 4:])
-            image_name = image_name.lower()
-            # if no extension then add it
-            # remove everything after the image name
-            if image_format == "":
-                image_name = image_name + ".jpg"
-            else:
-                image_name = image_name + "." + image_format
-
-            #prefix name in image
-            if args.prefix:
-                prefix = args.prefix + " "
-            else:
-                prefix = ''
-
-            path = main_directory + "/" + dir_name + " - thumbnail" + "/" + prefix + " " +  str(count) + ". " + image_name
+            path = main_directory + "/" + dir_name + " - thumbnail" + "/" + return_image_name
             output_file = open(path, 'wb')
             data = response.read()
             output_file.write(data)
             response.close()
 
+            download_status = 'success'
+            download_message = "Completed Image Thumbnail ====> " + return_image_name
+
             # image size parameter
             if args.print_size:
                 print("Image Size: " + str(file_size(path)))
-
-            download_status = 'success'
-            download_message = "Completed Image Thumbnail ====> " + prefix + str(count) + ". " + image_name
 
         except UnicodeEncodeError as e:
             download_status = 'fail'
@@ -490,33 +479,41 @@ def download_image(image_url,image_format,main_directory,dir_name,count):
             output_file.write(data)
             response.close()
 
-            #image size parameter
-            if args.print_size:
-                print("Image Size: " + str(file_size(path)))
+            #return image name back to calling method to use it for thumbnail downloads
+            return_image_name = prefix + str(count) + ". " + image_name
 
             download_status = 'success'
             download_message = "Completed Image ====> " + prefix +  str(count) + ". " + image_name
 
+            # image size parameter
+            if args.print_size:
+                print("Image Size: " + str(file_size(path)))
+
         except UnicodeEncodeError as e:
             download_status = 'fail'
             download_message = "UnicodeEncodeError on an image...trying next one..." + " Error: " + str(e)
+            return_image_name = ''
 
     except HTTPError as e:  # If there is any HTTPError
         download_status = 'fail'
         download_message = "HTTPError on an image...trying next one..." + " Error: " + str(e)
+        return_image_name = ''
 
     except URLError as e:
         download_status = 'fail'
         download_message = "URLError on an image...trying next one..." + " Error: " + str(e)
+        return_image_name = ''
 
     except ssl.CertificateError as e:
         download_status = 'fail'
         download_message = "CertificateError on an image...trying next one..." + " Error: " + str(e)
+        return_image_name = ''
 
     except IOError as e:  # If there is any IOError
         download_status = 'fail'
         download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
-    return download_status,download_message
+        return_image_name = ''
+    return download_status,download_message,return_image_name
 
 
 # Finding 'Next Image' from the given raw page
@@ -562,13 +559,13 @@ def _get_all_items(page,main_directory,dir_name,limit):
             items.append(object)  # Append all the links in the list named 'Links'
 
             #download the images
-            download_status,download_message = download_image(object['image_link'],object['image_format'],main_directory,dir_name,count)
+            download_status,download_message,return_image_name = download_image(object['image_link'],object['image_format'],main_directory,dir_name,count)
             print(download_message)
             if download_status == "success":
 
                 # download image_thumbnails
                 if args.thumbnail:
-                    download_status, download_message_thumbnail = download_image_thumbnail(object['image_thumbnail_url'],object['image_format'],main_directory, dir_name, count)
+                    download_status, download_message_thumbnail = download_image_thumbnail(object['image_thumbnail_url'],main_directory,dir_name,return_image_name)
                     print(download_message_thumbnail)
 
                 count += 1
