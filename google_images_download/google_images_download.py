@@ -112,8 +112,6 @@ else:
 # Setting limit on number of images to be downloaded
 if args.limit:
     limit = int(args.limit)
-    if int(args.limit) >= 100:
-        limit = 100
 else:
     limit = 100
 
@@ -188,6 +186,34 @@ def download_page(url):
             return page
         except:
             return "Page Not found"
+
+# Download Page for more than 100 images
+def download_extended_page(url):
+    try:
+        from selenium import webdriver
+        scrolls = 5
+        driver = webdriver.Firefox()
+        driver.get(url)
+        for scroll in range(scrolls):
+            for page_scroll in range(10):
+                driver.execute_script("window.scrollBy(0, 10000)")
+                time.sleep(0.5)
+            time.sleep(1)
+            try:
+                driver.find_element_by_xpath("//input[@value='Show more results']").click()
+            except:
+                print("End of page reached...")
+                break
+        version = (3, 0)
+        cur_version = sys.version_info
+        if cur_version >= version:  # If the Current Version of Python is 3.0 or above
+            page = driver.page_source
+        else:    #python 2
+            page = driver.page_source.encode('utf-8')
+        driver.quit()
+        return page
+    except:
+        return "Page Not found"
 
 #Correcting the escape characters for python2
 def replace_with_byte(match):
@@ -402,7 +428,7 @@ def download_image_thumbnail(image_url,main_directory,dir_name,return_image_name
             if args.socket_timeout:
                 timeout = float(args.socket_timeout)
             else:
-                timeout = 15
+                timeout = 10
             response = urlopen(req, None, timeout)
 
             path = main_directory + "/" + dir_name + " - thumbnail" + "/" + return_image_name
@@ -452,7 +478,7 @@ def download_image(image_url,image_format,main_directory,dir_name,count):
             if args.socket_timeout:
                 timeout = float(args.socket_timeout)
             else:
-                timeout = 15
+                timeout = 10
             response = urlopen(req, None, timeout)
 
             # keep everything after the last '/'
@@ -528,15 +554,20 @@ def _get_next_item(s):
         start_object = s.find('{', start_line + 1)
         end_object = s.find('</div>', start_object + 1)
         object_raw = str(s[start_object:end_object])
-        #####print(object_raw)
         #remove escape characters based on python version
         version = (3, 0)
         cur_version = sys.version_info
         if cur_version >= version: #python3
-            object_decode = bytes(object_raw, "utf-8").decode("unicode_escape")
-            final_object = json.loads(object_decode)
+            try:
+                object_decode = bytes(object_raw, "utf-8").decode("unicode_escape")
+                final_object = json.loads(object_decode)
+            except:
+                final_object = ""
         else:  #python2
-            final_object = (json.loads(repair(object_raw)))
+            try:
+                final_object = (json.loads(repair(object_raw)))
+            except:
+                final_object = ""
         return final_object, end_object
 
 
@@ -550,6 +581,8 @@ def _get_all_items(page,main_directory,dir_name,limit):
         object, end_content = _get_next_item(page)
         if object == "no_links":
             break
+        elif object == "":
+            page = page[end_content:]
         else:
             #format the item for readability
             object = format_object(object)
@@ -606,7 +639,10 @@ def bulk_download(search_keyword,suffix_keywords,limit,main_directory):
 
             url = build_search_url(search_term,params)      #building main search url
 
-            raw_html = (download_page(url))     #download page
+            if limit < 101:
+                raw_html = download_page(url)  # download page
+            else:
+                raw_html = download_extended_page(url)
 
             print("Starting Download...")
             items,errorCount = _get_all_items(raw_html,main_directory,dir_name,limit)    #get all image items and download images
