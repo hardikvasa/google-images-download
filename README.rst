@@ -357,7 +357,7 @@ You can also run pip install as a superuser with ``sudo pip install google_image
 
 If you would want to download more than 100 images per keyword, then you will need to install 'selenium' along with geckodriver.
 
-If you have pip installed the library or run the setup.py file, Selenium would have automatically installed on your machine. For geckidriver:
+If you have pip installed the library or run the setup.py file, Selenium would have automatically installed on your machine. You will also need Firefox browser on your machine. For geckidriver:
 
 `Download the correct geckodriver <https://github.com/mozilla/geckodriver/releases>`__ based on your operating system. Below example shows how to install it for Linux operating system.
 
@@ -368,6 +368,9 @@ If you have pip installed the library or run the setup.py file, Selenium would h
     $ chmod +x geckodriver
     $ export PATH=$PATH:/path-to-extracted-file/geckodriver
 
+For **Windows** if for some reason the geckodriver gives you trouble, download it under the current directory and run the command.
+
+On **Linux** if you get errors related to ``libmozgtk.so``, refer to this `Link <https://support.mozilla.org/en-US/questions/1121133>`__
 
 Structure
 =========
