@@ -11,9 +11,12 @@ Summary
 =======
 
 This is a command line python program to search keywords/key-phrases on Google Images
-and then also optionally download one or more images to your computer.
-This is a small program which is ready-to-run, but still under development.
-Many more features will be added to it going forward.
+and optionally download images to your computer.
+
+This is a small and ready-to-run program. No dependencies are required to be installed
+if you would only want to download up to 100 images per keyword. If you would want more than 100
+images per keyword, then you would need to install ``Selenium`` library along with ``geckodriver``.
+Detailed instructions in the troubleshooting section.
 
 
 Compatability
@@ -91,7 +94,9 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | limit             | l           | Denotes number of images that you want to download.                                                                           |
 |                   |             |                                                                                                                               |
-|                   |             | As of now you can select anything between 1 and 100. If this value is not specified, it defaults to 100.                      |
+|                   |             | You can specify any integer value here. It will try and get all the images that it finds in the google image search page.     |
+|                   |             |                                                                                                                               |
+|                   |             | If this value is not specified, it defaults to 100.                                                                           |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | format            | f           | Denotes the format/extension of the image that you want to download.                                                          |
 |                   |             |                                                                                                                               |
@@ -176,7 +181,7 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | socket_timeout    | st          | Allows you to specify the time to wait for socket connection.                                                                 |
 |                   |             |                                                                                                                               |
-|                   |             | You could specify a higher timeout time for slow internet connection. The default value is 15 seconds.                        |
+|                   |             | You could specify a higher timeout time for slow internet connection. The default value is 10 seconds.                        |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | thumbnail         | th          | Downloads image thumbnails corresponding to each image downloaded.                                                            |
 |                   |             |                                                                                                                               |
@@ -346,6 +351,23 @@ On MAC and Linux, when you get permission denied when installing the library usi
     $ pip install google_images_download --user
 
 You can also run pip install as a superuser with ``sudo pip install google_images_download`` but it is not generally a good idea because it can cause issues with your system-level packages.
+
+
+**## Installing the geckodriver (with Selenium)**
+
+If you would want to download more than 100 images per keyword, then you will need to install 'selenium' along with geckodriver.
+
+If you have pip installed the library or run the setup.py file, Selenium would have automatically installed on your machine. For geckidriver:
+
+`Download the correct geckodriver <https://github.com/mozilla/geckodriver/releases>`__ based on your operating system. Below example shows how to install it for Linux operating system.
+
+.. code-block:: bash
+
+    $ wget https://github.com/mozilla/geckodriver/releases/download/v0.20.0/geckodriver-v0.20.0-linux64.tar.gz
+    $ tar -xvzf geckodriver*
+    $ chmod +x geckodriver
+    $ export PATH=$PATH:/path-to-extracted-file/geckodriver
+
 
 Structure
 =========
