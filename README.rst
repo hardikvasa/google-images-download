@@ -71,6 +71,15 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | Argument          | Short hand  | Description                                                                                                                   |
 +===================+=============+===============================================================================================================================+
+| config_file       | cf          | You can pass the arguments inside a config file. This is an alternative to passing arguments on the command line directly.    |
+|                   |             |                                                                                                                               |
+|                   |             | Please refer to the                                                                                                           |
+|                   |             | `config file format <https://github.com/hardikvasa/google-images-download/blob/master/README.rst#config-file-format>`__ below |
+|                   |             |                                                                                                                               |
+|                   |             | * If 'config_file' argument is present, the program will use the config file and command line arguments will be discarded     |
+|                   |             | * Config file can only be in **JSON** format                                                                                  |
+|                   |             | * Please refrain from passing invalid arguments from config file. Refer to the below arguments list                           |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | keywords          | k           | Denotes the keywords/key phrases you want to search for. For more than one keywords, wrap it in single quotes.                |
 |                   |             |                                                                                                                               |
 |                   |             | Tips:                                                                                                                         |
@@ -202,10 +211,45 @@ Arguments
 
 **Note:** If ``single_image`` or ``url`` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
 
+Config File Format
+==================
+
+You can either pass the arguments directly from the command as in the examples below or you can pass it through a config file. Below is a sample of how a config
+file looks.
+
+You can pass more than one record through a config file. The below sample consist of two set of records. The code will iterate through each of the record and
+download images based on arguments passed.
+
+.. code:: json
+
+    {
+        "Records": [
+            {
+                "keywords": "apple",
+                "limit": 5,
+                "color": "green",
+                "print_urls": true
+            },
+            {
+                "keywords": "universe",
+                "limit": 15,
+                "size": "large",
+                "print_urls": true
+            }
+        ]
+    }
+
+
 Examples
 ========
 
-- Simple examples
+- If you are passing arguments from a config file, simply pass the config_file argument with name of your JSON file
+
+.. code-block:: bash
+
+    $ googleimagesdownload -cf example.json
+
+- Simple example of using keywords and limit arguments
 
 .. code-block:: bash
     
