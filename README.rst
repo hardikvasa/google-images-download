@@ -97,9 +97,10 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | suffix_keywords   | sk          | Denotes additional words added after main keyword while making the search query.                                              |
 |                   |             |                                                                                                                               |
-|                   |             | Useful when you have multiple suffix keywords for one keyword.                                                                |
-|                   |             |                                                                                                                               |
 |                   |             | The final search query would be: <keyword> <suffix keyword>                                                                   |
+|                   |             |                                                                                                                               |
+|                   |             | So, for example, if the keyword is 'car' and suffix_keyword is 'red,yellow,blue', it will search and download images for      |
+|                   |             | 'car red', 'car yellow' and 'car blue' individually                                                                           |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | limit             | l           | Denotes number of images that you want to download.                                                                           |
 |                   |             |                                                                                                                               |
