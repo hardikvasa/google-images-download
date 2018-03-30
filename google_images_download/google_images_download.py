@@ -84,6 +84,7 @@ else:
                         choices=['Arabic','Chinese (Simplified)','Chinese (Traditional)','Czech','Danish','Dutch','English','Estonian','Finnish','French','German','Greek','Hebrew','Hungarian','Icelandic','Italian','Japanese','Korean','Latvian','Lithuanian','Norwegian','Portuguese','Polish','Romanian','Russian','Spanish','Swedish','Turkish'])
     parser.add_argument('-pr', '--prefix', default=False, help="A word that you would want to prefix in front of each image name", type=str, required=False)
     parser.add_argument('-px', '--proxy', help='specify a proxy address and port', type=str, required=False)
+    parser.add_argument('-cd', '--chromedriver', help='specify the path to chromedriver executable in your local machine', type=str, required=False)
 
     args = parser.parse_args()
     arguments = vars(args)
@@ -122,31 +123,52 @@ def download_page(url):
 
 # Download Page for more than 100 images
 def download_extended_page(url):
+    from selenium import webdriver
+    from selenium.webdriver.common.keys import Keys
+    if sys.version_info[0] < 3:
+        reload(sys)
+        sys.setdefaultencoding('utf8')
+    options = webdriver.ChromeOptions()
+    options.add_argument('--no-sandbox')
+    options.add_argument("--headless")
+
     try:
-        from selenium import webdriver
-        scrolls = 5
-        driver = webdriver.Firefox()
-        driver.get(url)
-        for scroll in range(scrolls):
-            for page_scroll in range(10):
-                driver.execute_script("window.scrollBy(0, 10000)")
-                time.sleep(0.5)
-            time.sleep(1)
-            try:
-                driver.find_element_by_xpath("//input[@value='Show more results']").click()
-            except:
-                print("End of page reached...")
-                break
-        version = (3, 0)
-        cur_version = sys.version_info
-        if cur_version >= version:  # If the Current Version of Python is 3.0 or above
-            page = driver.page_source
-        else:    #python 2
-            page = driver.page_source.encode('utf-8')
-        driver.quit()
-        return page
+        browser = webdriver.Chrome(arguments['chromedriver'], chrome_options=options)
     except:
-        return "Page Not found"
+        print("Looks like we cannot locate the path the 'chromedriver'. Please use the '--chromedriver' "
+              "argument to specify the path to the executable.")
+        sys.exit()
+    browser.set_window_size(1024, 768)
+
+    # Open the link
+    browser.get(url)
+    time.sleep(1)
+    print("Getting you a lot of images. This may take a few moments...")
+
+    element = browser.find_element_by_tag_name("body")
+    # Scroll down
+    for i in range(30):
+        element.send_keys(Keys.PAGE_DOWN)
+        time.sleep(0.3)
+
+    try:
+        browser.find_element_by_id("smb").click()
+        for i in range(50):
+            element.send_keys(Keys.PAGE_DOWN)
+            time.sleep(0.3)  # bot id protection
+    except:
+        for i in range(10):
+            element.send_keys(Keys.PAGE_DOWN)
+            time.sleep(0.3)  # bot id protection
+
+    print("Reached end of Page.")
+    time.sleep(0.5)
+
+    source = browser.page_source #page source
+    #close the browser
+    browser.close()
+
+    return source
 
 #Correcting the escape characters for python2
 def replace_with_byte(match):

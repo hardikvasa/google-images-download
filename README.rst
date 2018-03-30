@@ -15,7 +15,7 @@ and optionally download images to your computer.
 
 This is a small and ready-to-run program. No dependencies are required to be installed
 if you would only want to download up to 100 images per keyword. If you would want more than 100
-images per keyword, then you would need to install ``Selenium`` library along with ``geckodriver``.
+images per keyword, then you would need to install ``Selenium`` library along with ``chromedriver``.
 Detailed instructions in the troubleshooting section.
 
 
@@ -206,6 +206,10 @@ Arguments
 | prefix            | pr          | A word that you would want to prefix in front of actual image name.                                                           |
 |                   |             |                                                                                                                               |
 |                   |             | This feature can be used to rename files for image identification purpose.                                                    |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| chromedriver      | cd          | With this argument you can pass the path to the 'chromedriver'.                                                               |
+|                   |             |                                                                                                                               |
+|                   |             | The path looks like this: "path/to/chromedriver". In windows it will be "path/to/chromedriver.exe"                            |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help              | h           | show the help message regarding the usage of the above arguments                                                              |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
@@ -398,24 +402,21 @@ On MAC and Linux, when you get permission denied when installing the library usi
 You can also run pip install as a superuser with ``sudo pip install google_images_download`` but it is not generally a good idea because it can cause issues with your system-level packages.
 
 
-**## Installing the geckodriver (with Selenium)**
+**## Installing the chromedriver (with Selenium)**
 
-If you would want to download more than 100 images per keyword, then you will need to install 'selenium' along with geckodriver.
+If you would want to download more than 100 images per keyword, then you will need to install 'selenium' along with 'chromedriver'.
 
-If you have pip installed the library or run the setup.py file, Selenium would have automatically installed on your machine. You will also need Firefox browser on your machine. For geckidriver:
+If you have pip installed the library or run the setup.py file, Selenium would have automatically installed on your machine. You will also need Chrome browser on your machine. For chromedriver:
 
-`Download the correct geckodriver <https://github.com/mozilla/geckodriver/releases>`__ based on your operating system. Below example shows how to install it for Linux operating system.
+`Download the correct chromedriver <https://sites.google.com/a/chromium.org/chromedriver/downloads>`__ based on your operating system.
 
-.. code-block:: bash
+On **Windows** or **MAC** if for some reason the chromedriver gives you trouble, download it under the current directory and run the command.
 
-    $ wget https://github.com/mozilla/geckodriver/releases/download/v0.20.0/geckodriver-v0.20.0-linux64.tar.gz
-    $ tar -xvzf geckodriver*
-    $ chmod +x geckodriver
-    $ export PATH=$PATH:/path-to-extracted-file/geckodriver
+On **Linux** if you are having issues installing google chrome browser, refer to this `CentOS or Amazon Linux Guide <https://intoli.com/blog/installing-google-chrome-on-centos/>`__
+or `Ubuntu Guide <https://askubuntu.com/questions/510056/how-to-install-google-chrome in documentation>`__
 
-For **Windows** if for some reason the geckodriver gives you trouble, download it under the current directory and run the command.
-
-On **Linux** if you get errors related to ``libmozgtk.so``, refer to this `Link <https://support.mozilla.org/en-US/questions/1121133>`__
+For **All the operating systems** you will have to use '--chromedriver' or '-cd' argument to specify the path of
+chromedriver that you have downloaded in your machine.
 
 Structure
 =========

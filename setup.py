@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-__version__ = '1.2.1'
+__version__ = '1.3.1'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -26,7 +26,7 @@ setup(
     download_url='https://github.com/hardikvasa/google-images-download/tarball/' + __version__,
     license='MIT',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
