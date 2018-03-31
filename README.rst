@@ -108,6 +108,15 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | If this value is not specified, it defaults to 100.                                                                           |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| related_images    | ri          | This argument downloads a ton of images related to the keyword you provided.                                                  |
+|                   |             |                                                                                                                               |
+|                   |             | Google Images page returns list of related keywords to the keyword you have mentioned in the query. This tool downloads       |
+|                   |             | images from each of those related keywords based on the limit you have mentioned in your query                                |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--related_images' or '-ri' in your query.                                    |
+|                   |             |                                                                                                                               |
+|                   |             | **Note:**  This argument can download hundreds or thousands of additional images so please use this carefully.                |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | format            | f           | Denotes the format/extension of the image that you want to download.                                                          |
 |                   |             |                                                                                                                               |
 |                   |             | `Possible values: jpg, gif, png, bmp, svg, webp, ico`                                                                         |
@@ -176,18 +185,26 @@ Arguments
 | specific_site     | ss          | Allows you to download images with keywords only from a specific website/domain name you mention.                             |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | print_urls        | p           | Print the URLs of the images on the console. These image URLs can be used for debugging purposes                              |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--print_urls' or '-p' in your query.                                         |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | print_size        | ps          | Prints the size of the images on the console                                                                                  |
 |                   |             |                                                                                                                               |
 |                   |             | The size denoted the actual size of the image and not the size of the image on disk                                           |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--print_size' or '-ps' in your query.                                        |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | metadata          | m           | Prints the metada of the image on the console.                                                                                |
 |                   |             |                                                                                                                               |
 |                   |             | This includes image size, origin, image attributes, description, image URL, etc.                                              |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--metadata' or '-m' in your query.                                           |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | extract_metadata  | e           | This option allows you to save metadata of all the downloaded images in a text file.                                          |
 |                   |             |                                                                                                                               |
 |                   |             | This file can be found in the ``logs/`` directory. The name of the file would be same as the keyword nam                      |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--extract_metadata' or '-e' in your query.                                   |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | socket_timeout    | st          | Allows you to specify the time to wait for socket connection.                                                                 |
 |                   |             |                                                                                                                               |
@@ -196,6 +213,8 @@ Arguments
 | thumbnail         | th          | Downloads image thumbnails corresponding to each image downloaded.                                                            |
 |                   |             |                                                                                                                               |
 |                   |             | Thumbnails are saved in their own sub-directories inside of the main directory.                                               |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--thumbnail' or '-th' in your query.                                         |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | language          | la          | Defines the language filter. The search results are automatically returned in that language                                   |
 |                   |             |                                                                                                                               |

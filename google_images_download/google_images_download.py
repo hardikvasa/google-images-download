@@ -85,6 +85,7 @@ else:
     parser.add_argument('-pr', '--prefix', default=False, help="A word that you would want to prefix in front of each image name", type=str, required=False)
     parser.add_argument('-px', '--proxy', help='specify a proxy address and port', type=str, required=False)
     parser.add_argument('-cd', '--chromedriver', help='specify the path to chromedriver executable in your local machine', type=str, required=False)
+    parser.add_argument('-ri', '--related_images', default=False, help="Downloads images that are similar to the keyword provided", action="store_true")
 
     args = parser.parse_args()
     arguments = vars(args)
@@ -135,8 +136,9 @@ def download_extended_page(url):
     try:
         browser = webdriver.Chrome(arguments['chromedriver'], chrome_options=options)
     except:
-        print("Looks like we cannot locate the path the 'chromedriver'. Please use the '--chromedriver' "
-              "argument to specify the path to the executable.")
+        print("Looks like we cannot locate the path the 'chromedriver' (use the '--chromedriver' "
+              "argument to specify the path to the executable.) or google chrome browser is not "
+              "installed on your machine")
         sys.exit()
     browser.set_window_size(1024, 768)
 
@@ -178,6 +180,41 @@ def repair(brokenjson):
     invalid_escape = re.compile(r'\\[0-7]{1,3}')  # up to 3 digits for byte values up to FF
     return invalid_escape.sub(replace_with_byte, brokenjson)
 
+# Finding 'Next Image' from the given raw page
+def get_next_tab(s):
+    start_line = s.find('class="ZO5Spb"')
+    if start_line == -1:  # If no links are found then give an error!
+        end_quote = 0
+        link = "no_tabs"
+        return link,'',end_quote
+    else:
+        start_line = s.find('class="ZO5Spb"')
+        start_content = s.find('href="', start_line + 1)
+        end_content = s.find('">', start_content + 1)
+        url_item = "https://www.google.com" + str(s[start_content+6:end_content])
+        url_item = url_item.replace('&amp;', '&')
+
+        start_line_2 = s.find('class="ZO5Spb"')
+        start_content_2 = s.find(':', start_line_2 + 1)
+        end_content_2 = s.find('"', start_content_2 + 1)
+        url_item_name = str(s[start_content_2 + 1:end_content_2])
+
+        #print(url_item,url_item_name)
+        return url_item,url_item_name,end_content
+
+
+# Getting all links with the help of '_images_get_next_image'
+def get_all_tabs(page):
+    tabs = {}
+    while True:
+        item,item_name,end_content = get_next_tab(page)
+        if item == "no_tabs":
+            break
+        else:
+            tabs[item_name] = item  # Append all the links in the list named 'Links'
+            time.sleep(0.1)  # Timer could be used to slow down the request for image downloads
+            page = page[end_content:]
+    return tabs
 
 #Format the object in readable format
 def format_object(object):
@@ -612,6 +649,20 @@ def bulk_download(search_keyword,suffix_keywords,limit,main_directory):
                 text_file = open("logs/"+search_keyword[i]+".txt", "w")
                 text_file.write(json.dumps(items, indent=4, sort_keys=True))
                 text_file.close()
+
+            #Related images
+            if arguments['related_images']:
+                print("\nGetting list of related keywords...this may take a few moments")
+                tabs = get_all_tabs(raw_html)
+                for key, value in tabs.items():
+                    final_search_term = (search_term + " - " + key)
+                    print("\nNow Downloading - " + final_search_term)
+                    if limit < 101:
+                        new_raw_html = download_page(value)  # download page
+                    else:
+                        new_raw_html = download_extended_page(value)
+                    create_directories(main_directory, final_search_term)
+                    _get_all_items(new_raw_html, main_directory, search_term + " - " + key, limit)
 
             i += 1
     return errorCount
