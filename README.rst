@@ -95,6 +95,13 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | Only file types '.txt' or  '.csv' are allowed.                                                                                |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| prefix_keywords   | pk          | Denotes additional words added before main keyword while making the search query.                                             |
+|                   |             |                                                                                                                               |
+|                   |             | The final search query would be: <prefix keyword> <keyword>                                                                   |
+|                   |             |                                                                                                                               |
+|                   |             | So, for example, if the keyword is 'car' and prefix_keyword is 'red,yellow,blue', it will search and download images for      |
+|                   |             | 'red car', 'yellow car' and 'blue car' individually                                                                           |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | suffix_keywords   | sk          | Denotes additional words added after main keyword while making the search query.                                              |
 |                   |             |                                                                                                                               |
 |                   |             | The final search query would be: <keyword> <suffix keyword>                                                                   |

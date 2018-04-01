@@ -49,7 +49,8 @@ else:
     parser = argparse.ArgumentParser()
     parser.add_argument('-k', '--keywords', help='delimited list input', type=str, required=False)
     parser.add_argument('-kf', '--keywords_from_file', help='extract list of keywords from a text file', type=str, required=False)
-    parser.add_argument('-sk', '--suffix_keywords', help='comma separated additional words added to main keyword', type=str, required=False)
+    parser.add_argument('-sk', '--suffix_keywords', help='comma separated additional words added after to main keyword', type=str, required=False)
+    parser.add_argument('-pk', '--prefix_keywords', help='comma separated additional words added before main keyword', type=str, required=False)
     parser.add_argument('-l', '--limit', help='delimited list input', type=str, required=False)
     parser.add_argument('-f', '--format', help='download images with specific format', type=str, required=False,
                         choices=['jpg', 'gif', 'png', 'bmp', 'svg', 'webp', 'ico'])
@@ -611,60 +612,64 @@ def _get_all_items(page,main_directory,dir_name,limit):
 
 
 # Bulk Download
-def bulk_download(search_keyword,suffix_keywords,limit,main_directory):
+def bulk_download(search_keyword,suffix_keywords,prefix_keywords,limit,main_directory):
     # appending a dummy value to Suffix Keywords array if it is blank
     if len(suffix_keywords) == 0:
         suffix_keywords.append('')
 
-    for sky in suffix_keywords:     # 1.for every suffix keywords
-        i = 0
-        while i < len(search_keyword):      # 2.for every main keyword
-            iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(search_keyword[i] + str(sky))
-            print(iteration)
-            print("Evaluating...")
-            search_term = search_keyword[i] + sky
-            dir_name = search_term + ('-' + arguments['color'] if arguments['color'] else '')   #sub-directory
+    if len(prefix_keywords) == 0:
+        prefix_keywords.append('')
 
-            create_directories(main_directory,dir_name)     #create directories in OS
+    for pky in prefix_keywords:
+        for sky in suffix_keywords:     # 1.for every suffix keywords
+            i = 0
+            while i < len(search_keyword):      # 2.for every main keyword
+                iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(pky) + str(search_keyword[i] + str(sky))
+                print(iteration)
+                print("Evaluating...")
+                search_term = pky + search_keyword[i] + sky
+                dir_name = search_term + ('-' + arguments['color'] if arguments['color'] else '')   #sub-directory
 
-            params = build_url_parameters()     #building URL with params
+                create_directories(main_directory,dir_name)     #create directories in OS
 
-            url = build_search_url(search_term,params)      #building main search url
+                params = build_url_parameters()     #building URL with params
 
-            if limit < 101:
-                raw_html = download_page(url)  # download page
-            else:
-                raw_html = download_extended_page(url)
+                url = build_search_url(search_term,params)      #building main search url
 
-            print("Starting Download...")
-            items,errorCount = _get_all_items(raw_html,main_directory,dir_name,limit)    #get all image items and download images
+                if limit < 101:
+                    raw_html = download_page(url)  # download page
+                else:
+                    raw_html = download_extended_page(url)
 
-            #dumps into a text file
-            if arguments['extract_metadata']:
-                try:
-                    if not os.path.exists("logs"):
-                        os.makedirs("logs")
-                except OSError as e:
-                    print(e)
-                text_file = open("logs/"+search_keyword[i]+".txt", "w")
-                text_file.write(json.dumps(items, indent=4, sort_keys=True))
-                text_file.close()
+                print("Starting Download...")
+                items,errorCount = _get_all_items(raw_html,main_directory,dir_name,limit)    #get all image items and download images
 
-            #Related images
-            if arguments['related_images']:
-                print("\nGetting list of related keywords...this may take a few moments")
-                tabs = get_all_tabs(raw_html)
-                for key, value in tabs.items():
-                    final_search_term = (search_term + " - " + key)
-                    print("\nNow Downloading - " + final_search_term)
-                    if limit < 101:
-                        new_raw_html = download_page(value)  # download page
-                    else:
-                        new_raw_html = download_extended_page(value)
-                    create_directories(main_directory, final_search_term)
-                    _get_all_items(new_raw_html, main_directory, search_term + " - " + key, limit)
+                #dumps into a text file
+                if arguments['extract_metadata']:
+                    try:
+                        if not os.path.exists("logs"):
+                            os.makedirs("logs")
+                    except OSError as e:
+                        print(e)
+                    text_file = open("logs/"+search_keyword[i]+".txt", "w")
+                    text_file.write(json.dumps(items, indent=4, sort_keys=True))
+                    text_file.close()
 
-            i += 1
+                #Related images
+                if arguments['related_images']:
+                    print("\nGetting list of related keywords...this may take a few moments")
+                    tabs = get_all_tabs(raw_html)
+                    for key, value in tabs.items():
+                        final_search_term = (search_term + " - " + key)
+                        print("\nNow Downloading - " + final_search_term)
+                        if limit < 101:
+                            new_raw_html = download_page(value)  # download page
+                        else:
+                            new_raw_html = download_extended_page(value)
+                        create_directories(main_directory, final_search_term)
+                        _get_all_items(new_raw_html, main_directory, search_term + " - " + key, limit)
+
+                i += 1
     return errorCount
 
 #------------- Main Program -------------#
@@ -708,6 +713,12 @@ for arguments in records:
         suffix_keywords = [" " + str(sk) for sk in arguments['suffix_keywords'].split(',')]
     else:
         suffix_keywords = []
+
+    # Additional words added to keywords
+    if arguments['prefix_keywords']:
+        prefix_keywords = [str(sk) + " " for sk in arguments['prefix_keywords'].split(',')]
+    else:
+        prefix_keywords = []
 
     # Setting limit on number of images to be downloaded
     if arguments['limit']:
@@ -761,7 +772,7 @@ for arguments in records:
         single_image()
     else:                       # or download multiple images based on keywords/keyphrase search
         t0 = time.time()  # start the timer
-        errorCount = bulk_download(search_keyword,suffix_keywords,limit,main_directory)
+        errorCount = bulk_download(search_keyword,suffix_keywords,prefix_keywords,limit,main_directory)
 
         print("\nEverything downloaded!")
         print("Total Errors: " + str(errorCount) + "\n")
