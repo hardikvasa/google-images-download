@@ -140,10 +140,10 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | `Possible values:`                                                                                                            |
 |                   |             |                                                                                                                               |
-|                   |             | * `labled-for-reuse-with-modifications`,                                                                                      |
-|                   |             | * `labled-for-reuse`,                                                                                                         |
-|                   |             | * `labled-for-noncommercial-reuse-with-modification`,                                                                         |
-|                   |             | * `labled-for-nocommercial-reuse`                                                                                             |
+|                   |             | * `labeled-for-reuse-with-modifications`,                                                                                      |
+|                   |             | * `labeled-for-reuse`,                                                                                                         |
+|                   |             | * `labeled-for-noncommercial-reuse-with-modification`,                                                                         |
+|                   |             | * `labeled-for-nocommercial-reuse`                                                                                             |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | size              | s           | Denotes the relative size of the image to be downloaded.                                                                      |
 |                   |             |                                                                                                                               |
@@ -347,7 +347,7 @@ Examples
 
 .. code-block:: bash
     
-    $ googleimagesdownload --keywords "universe" --usage_rights labled-for-reuse
+    $ googleimagesdownload --keywords "universe" --usage_rights labeled-for-reuse
 
 -  To download images with specific color type
 
