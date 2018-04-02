@@ -140,10 +140,10 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | `Possible values:`                                                                                                            |
 |                   |             |                                                                                                                               |
-|                   |             | * `labeled-for-reuse-with-modifications`,                                                                                      |
-|                   |             | * `labeled-for-reuse`,                                                                                                         |
-|                   |             | * `labeled-for-noncommercial-reuse-with-modification`,                                                                         |
-|                   |             | * `labeled-for-nocommercial-reuse`                                                                                             |
+|                   |             | * `labeled-for-reuse-with-modifications`,                                                                                     |
+|                   |             | * `labeled-for-reuse`,                                                                                                        |
+|                   |             | * `labeled-for-noncommercial-reuse-with-modification`,                                                                        |
+|                   |             | * `labeled-for-nocommercial-reuse`                                                                                            |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | size              | s           | Denotes the relative size of the image to be downloaded.                                                                      |
 |                   |             |                                                                                                                               |
