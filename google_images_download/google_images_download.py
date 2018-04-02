@@ -33,7 +33,7 @@ config_file_check = config.parse_known_args()
 object_check = vars(config_file_check[0])
 
 if object_check['config_file'] != '':
-    args_list = ["keywords","keywords_from_file","suffix_keywords","limit","format","url","single_image","output_directory","delay","color","color_type","usage_rights","size","type","time","time_range","aspect_ratio","similar_images","specific_site","print_urls","print_size","metadata","extract_metadata","socket_timeout","thumbnail","language","prefix","proxy"]
+    args_list = ["keywords","keywords_from_file","suffix_keywords","prefix_keywords","limit","format","url","single_image","output_directory","delay","color","color_type","usage_rights","size","type","time","time_range","aspect_ratio","similar_images","specific_site","print_urls","print_size","metadata","extract_metadata","socket_timeout","thumbnail","language","prefix","proxy","related_images"]
     records = []
     json_file = json.load(open(config_file_check[0].config_file))
     for record in range(0,len(json_file['Records'])):
@@ -81,7 +81,7 @@ else:
     parser.add_argument('-e', '--extract_metadata', default=False, help="Dumps all the logs into a text file", action="store_true")
     parser.add_argument('-st', '--socket_timeout', default=False, help="Connection timeout waiting for the image to download", type=float)
     parser.add_argument('-th', '--thumbnail', default=False, help="Downloads image thumbnail along with the actual image", action="store_true")
-    parser.add_argument('-la', '--language', default=False, help="Defines the language filter. The search results are authomatically returned in that language", type=str, required=False,
+    parser.add_argument('-la', '--language', default=False, help="Defines the language filter. The search results are automatically returned in that language", type=str, required=False,
                         choices=['Arabic','Chinese (Simplified)','Chinese (Traditional)','Czech','Danish','Dutch','English','Estonian','Finnish','French','German','Greek','Hebrew','Hungarian','Icelandic','Italian','Japanese','Korean','Latvian','Lithuanian','Norwegian','Portuguese','Polish','Romanian','Russian','Spanish','Swedish','Turkish'])
     parser.add_argument('-pr', '--prefix', default=False, help="A word that you would want to prefix in front of each image name", type=str, required=False)
     parser.add_argument('-px', '--proxy', help='specify a proxy address and port', type=str, required=False)
