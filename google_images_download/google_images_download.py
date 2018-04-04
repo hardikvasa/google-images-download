@@ -233,6 +233,8 @@ def format_object(object):
 #function to download single image
 def single_image():
     url = arguments['single_image']
+    prefix = arguments['prefix'] if arguments['prefix'] else ''
+
     try:
         os.makedirs(main_directory)
     except OSError as e:
@@ -246,15 +248,15 @@ def single_image():
     if '?' in image_name:
         image_name = image_name[:image_name.find('?')]
     if ".jpg" in image_name or ".gif" in image_name or ".png" in image_name or ".bmp" in image_name or ".svg" in image_name or ".webp" in image_name or ".ico" in image_name:
-        output_file = open(main_directory + "/" + image_name, 'wb')
+        output_file = open(main_directory + "/" + prefix + image_name, 'wb')
     else:
-        output_file = open(main_directory + "/" + image_name + ".jpg", 'wb')
+        output_file = open(main_directory + "/" + prefix + image_name + ".jpg", 'wb')
         image_name = image_name + ".jpg"
 
     data = response.read()
     output_file.write(data)
     response.close()
-    print("completed ====> " + image_name)
+    print("completed ====> " + prefix + image_name)
     return
 
 def similar_images():
