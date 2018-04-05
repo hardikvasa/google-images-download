@@ -11,7 +11,8 @@ Summary
 =======
 
 This is a command line python program to search keywords/key-phrases on Google Images
-and optionally download images to your computer.
+and optionally download images to your computer. You can also invoke this script from
+another python file.
 
 This is a small and ready-to-run program. No dependencies are required to be installed
 if you would only want to download up to 100 images per keyword. If you would want more than 100
@@ -47,9 +48,9 @@ Manually using CLI
 Manually using UI
 
 Go to the `repo on github <https://github.com/hardikvasa/google-images-download>`__ ==> Click on 'Clone or Download' ==> Click on 'Download ZIP' and save it on your local disk.
-    
-Usage
-=====
+
+Usage - Using Command Line Interface
+====================================
 
 If installed via pip or using CLI, use the following command:
 
@@ -60,10 +61,24 @@ If installed via pip or using CLI, use the following command:
 If downloaded via the UI, unzip the file downloaded, go to the 'google_images_download' directory and use one of the below commands:
 
 .. code-block:: bash
-    
+
     $ python3 google_images_download.py [Arguments...]
     OR
     $ python google_images_download.py [Arguments...]
+
+
+Usage - From another python file
+================================
+
+If you would want to use this library from another python file, you could use it as shown below:
+
+.. code-block:: python
+
+    from google_images_download import google_images_download
+
+    response = google_images_download.googleimagesdownload()
+    response.download({<Arguments...>})
+
 
 Arguments
 =========
@@ -128,7 +143,7 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | `Possible values: jpg, gif, png, bmp, svg, webp, ico`                                                                         |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| color             | c           | Denotes the color filter that you want to apply to the images.                                                                |
+| color             | co          | Denotes the color filter that you want to apply to the images.                                                                |
 |                   |             |                                                                                                                               |
 |                   |             | `Possible values: red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`                            |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
@@ -170,7 +185,8 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | Time is to be specified in seconds. But you can have sub-second times by using decimal points.                                |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| url               | u           | Allows you search by image URL. It downloads images from the google images link provided                                      |
+| url               | u           | Allows you search by image when you have the URL from the Google Images page.                                                 |
+|                   |             | It downloads images from the google images link provided                                                                      |
 |                   |             |                                                                                                                               |
 |                   |             | If you are searching an image on the browser google images page, simply grab the browser URL and paste it in this parameter   |
 |                   |             | It will download all the images seen on that page.                                                                            |
@@ -185,7 +201,7 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | You can specify the proxy settings in 'IP:Port' format                                                                        |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| similar_images    | si          | Reverse Image Search.                                                                                                         |
+| similar_images    | si          | Reverse Image Search or 'Search by Image' as it is referred to on Google.                                                     |
 |                   |             |                                                                                                                               |
 |                   |             | Searches and downloads images that are similar to the absolute image link/url you provide.                                    |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
@@ -274,6 +290,18 @@ download images based on arguments passed.
 Examples
 ========
 
+- If you are calling this library from another python file, below is the sample code
+
+.. code-block:: python
+
+    from google_images_download import google_images_download   #importing the library
+
+    response = google_images_download.googleimagesdownload()   #class instantiation
+
+    arguments = {"keywords":"Polar bears,baloons,Beaches","limit":20,"print_urls":True}   #creating list of arguments
+    response.download(arguments)   #passing the arguments to the function
+
+
 - If you are passing arguments from a config file, simply pass the config_file argument with name of your JSON file
 
 .. code-block:: bash
@@ -283,7 +311,7 @@ Examples
 - Simple example of using keywords and limit arguments
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "Polar bears, baloons, Beaches" --limit 20
 
 -  Using Suffix Keywords allows you to specify words after the main
@@ -292,26 +320,26 @@ Examples
    ``car red`` and then ``car blue``
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --k "car" -sk 'red,blue,white' -l 10
 
 -  To use the short hand command
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload -k "Polar bears, baloons, Beaches" -l 20
 
 -  To download images with specific image extension/format
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "logo" --format svg
 
 -  To use color filters for the images
 
 .. code-block:: bash
-    
-    $ googleimagesdownload -k "playground" -l 20 -c red
+
+    $ googleimagesdownload -k "playground" -l 20 -co red
 
 -  To use non-English keywords for image search
 

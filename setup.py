@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-__version__ = '1.4.4'
+__version__ = '2.0.4'
 
 here = path.abspath(path.dirname(__file__))
 
@@ -44,7 +44,7 @@ setup(
     author_email='hnvasa@gmail.com',
     entry_points={
         'console_scripts': [
-            'googleimagesdownload = google_images_download.__init__:main'
+            'googleimagesdownload = google_images_download.google_images_download:main'
         ]},
 
 )
