@@ -259,7 +259,11 @@ class googleimagesdownload:
             pass
         req = Request(url, headers={
             "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
+
         response = urlopen(req, None, 10)
+        data = response.read()
+        response.close()
+
         image_name = str(url[(url.rfind('/')) + 1:])
         if '?' in image_name:
             image_name = image_name[:image_name.find('?')]
@@ -268,9 +272,6 @@ class googleimagesdownload:
         else:
             file_name = main_directory + "/" + image_name + ".jpg"
             image_name = image_name + ".jpg"
-
-        data = response.read()
-        response.close()
 
         try:
             output_file = open(file_name, 'wb')
