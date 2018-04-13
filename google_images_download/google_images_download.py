@@ -536,7 +536,10 @@ class googleimagesdownload:
                     timeout = float(socket_timeout)
                 else:
                     timeout = 10
+
                 response = urlopen(req, None, timeout)
+                data = response.read()
+                response.close()
 
                 # keep everything after the last '/'
                 image_name = str(image_url[(image_url.rfind('/')) + 1:])
@@ -557,8 +560,6 @@ class googleimagesdownload:
                     prefix = ''
 
                 path = main_directory + "/" + dir_name + "/" + prefix + str(count) + ". " + image_name
-                data = response.read()
-                response.close()
 
                 try:
                     output_file = open(path, 'wb')
@@ -575,10 +576,9 @@ class googleimagesdownload:
                     output_file.close()
 
                 #return image name back to calling method to use it for thumbnail downloads
-                return_image_name = prefix + str(count) + ". " + image_name
-
                 download_status = 'success'
-                download_message = "Completed Image ====> " + prefix +  str(count) + ". " + image_name
+                download_message = "Completed Image ====> " + prefix + str(count) + ". " + image_name
+                return_image_name = prefix + str(count) + ". " + image_name
 
                 # image size parameter
                 if print_size:
@@ -608,6 +608,7 @@ class googleimagesdownload:
             download_status = 'fail'
             download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
             return_image_name = ''
+
         return download_status,download_message,return_image_name
 
 
