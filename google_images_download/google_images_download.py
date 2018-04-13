@@ -264,14 +264,24 @@ class googleimagesdownload:
         if '?' in image_name:
             image_name = image_name[:image_name.find('?')]
         if ".jpg" in image_name or ".gif" in image_name or ".png" in image_name or ".bmp" in image_name or ".svg" in image_name or ".webp" in image_name or ".ico" in image_name:
-            output_file = open(main_directory + "/" + image_name, 'wb')
+            file_name = main_directory + "/" + image_name
         else:
-            output_file = open(main_directory + "/" + image_name + ".jpg", 'wb')
+            file_name = main_directory + "/" + image_name + ".jpg"
             image_name = image_name + ".jpg"
 
         data = response.read()
-        output_file.write(data)
         response.close()
+
+        try:
+            output_file = open(file_name, 'wb')
+            output_file.write(data)
+        except OSError as e:
+            raise e
+        except IOError as e:
+            raise e
+        finally:
+            output_file.close()
+
         print("completed ====> " + image_name)
         return
 
@@ -465,13 +475,24 @@ class googleimagesdownload:
                     timeout = float(socket_timeout)
                 else:
                     timeout = 10
+
                 response = urlopen(req, None, timeout)
+                data = response.read()
+                response.close()
 
                 path = main_directory + "/" + dir_name + " - thumbnail" + "/" + return_image_name
-                output_file = open(path, 'wb')
-                data = response.read()
-                output_file.write(data)
-                response.close()
+
+                try:
+                    output_file = open(path, 'wb')
+                    output_file.write(data)
+                except OSError as e:
+                    download_status = 'fail'
+                    download_message = "OSError on an image...trying next one..." + " Error: " + str(e)
+                except IOError as e:
+                    download_status = 'fail'
+                    download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
+                finally:
+                    output_file.close()
 
                 download_status = 'success'
                 download_message = "Completed Image Thumbnail ====> " + return_image_name
@@ -536,10 +557,22 @@ class googleimagesdownload:
                     prefix = ''
 
                 path = main_directory + "/" + dir_name + "/" + prefix + str(count) + ". " + image_name
-                output_file = open(path, 'wb')
                 data = response.read()
-                output_file.write(data)
                 response.close()
+
+                try:
+                    output_file = open(path, 'wb')
+                    output_file.write(data)
+                except OSError as e:
+                    download_status = 'fail'
+                    download_message = "OSError on an image...trying next one..." + " Error: " + str(e)
+                    return_image_name = ''
+                except IOError as e:
+                    download_status = 'fail'
+                    download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
+                    return_image_name = ''
+                finally:
+                    output_file.close()
 
                 #return image name back to calling method to use it for thumbnail downloads
                 return_image_name = prefix + str(count) + ". " + image_name
