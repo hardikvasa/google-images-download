@@ -33,7 +33,6 @@ args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywor
              "output_directory", "proxy", "similar_images", "specific_site", "print_urls", "print_size",
              "metadata", "extract_metadata", "socket_timeout", "thumbnail", "language", "prefix", "chromedriver"]
 
-
 def user_input():
     config = argparse.ArgumentParser()
     config.add_argument('-cf', '--config_file', help='config file name', default='', type=str, required=False)
@@ -104,7 +103,7 @@ def user_input():
 
 class googleimagesdownload:
     def __init__(self):
-        pass
+        self.internet_error = False
 
     # Downloading entire Web Document (Raw Page Content)
     def download_page(self,url):
@@ -259,7 +258,10 @@ class googleimagesdownload:
             pass
         req = Request(url, headers={
             "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
-        response = urlopen(req, None, 10)
+        try:
+            response = urlopen(req, None, 10)
+        except:
+            self.internet_error = True
         image_name = str(url[(url.rfind('/')) + 1:])
         if '?' in image_name:
             image_name = image_name[:image_name.find('?')]
@@ -738,6 +740,10 @@ class googleimagesdownload:
                     else:
                         raw_html = self.download_extended_page(url,arguments['chromedriver'])
 
+                    if type(raw_html) == type(None):
+                        self.internet_error = True
+                        break
+
                     print("Starting Download...")
                     items,errorCount = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
 
@@ -778,12 +784,17 @@ def main():
         if arguments['single_image']:  # Download Single Image using a URL
             response = googleimagesdownload()
             response.single_image(arguments['single_image'])
+            if response.internet_error:
+                print("Please check your internet connection.")
         else:  # or download multiple images based on keywords/keyphrase search
             t0 = time.time()  # start the timer
             response = googleimagesdownload()
             response.download(arguments)
+            if response.internet_error:
+                print("Please check your internet connection.")
+            else:
+                print("\nEverything downloaded!")
 
-            print("\nEverything downloaded!")
             t1 = time.time()  # stop the timer
             total_time = t1 - t0  # Calculating the total time required to crawl, find and download all the links of 60,000 images
             print("Total time taken: " + str(total_time) + " Seconds")
