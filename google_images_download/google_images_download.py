@@ -747,7 +747,14 @@ class googleimagesdownload:
         # If single_image or url argument not present then keywords is mandatory argument
         if arguments['single_image'] is None and arguments['url'] is None and arguments['similar_images'] is None and \
                         arguments['keywords'] is None and arguments['keywords_from_file'] is None:
-            raise ValueError('Keywords is a required argument!')
+            print('-------------------------------\n'
+                  'Uh oh! Keywords is a required argument \n\n'
+                  'Please refer to the documentation on guide to writing queries \n'
+                  'https://github.com/hardikvasa/google-images-download#examples'
+                  '\n\nexiting!\n'
+                  '-------------------------------')
+            sys.exit()
+
 
         # If this argument is present, set the custom output directory
         if arguments['output_directory']:
