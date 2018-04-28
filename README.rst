@@ -20,7 +20,7 @@ images per keyword, then you would need to install ``Selenium`` library along wi
 Detailed instructions in the troubleshooting section.
 
 
-Compatability
+Compatibility
 =============
 
 This program is compatible with both the versions of python - 2.x and 3.x (recommended).
@@ -129,6 +129,8 @@ Arguments
 |                   |             | You can specify any integer value here. It will try and get all the images that it finds in the google image search page.     |
 |                   |             |                                                                                                                               |
 |                   |             | If this value is not specified, it defaults to 100.                                                                           |
+|                   |             |                                                                                                                               |
+|                   |             | **Note**: In case of occasional errors while downloading images, you could get less than 100 (if the limit is set to 100)     |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | related_images    | ri          | This argument downloads a ton of images related to the keyword you provided.                                                  |
 |                   |             |                                                                                                                               |
