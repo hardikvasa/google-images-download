@@ -167,6 +167,13 @@ Arguments
 |                   |             | `Possible values: large, medium, icon, >400*300, >640*480, >800*600, >1024*768, >2MP, >4MP, >6MP, >8MP, >10MP,                |
 |                   |             | >12MP, >15MP, >20MP, >40MP, >70MP`                                                                                            |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| exact_size        | es          | You can specify the exact size/resolution of the images                                                                       |
+|                   |             |                                                                                                                               |
+|                   |             | This value of this argument can be specified as ``<integer,integer>`` where the fist integer stands for width of the image    |
+|                   |             | and the second integer stands for the height of the image. For example, ``-es 1024,786``                                      |
+|                   |             |                                                                                                                               |
+|                   |             | **Note**: You cannot specify both 'size' and 'exact_size' arguments in the same query. You can only give one of them.         |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | aspect_ratio      | a           | Denotes the aspect ratio of images to download.                                                                               |
 |                   |             |                                                                                                                               |
 |                   |             | `Possible values: tall, square, wide, panoramic`                                                                              |

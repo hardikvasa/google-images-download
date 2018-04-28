@@ -30,7 +30,7 @@ import codecs
 
 args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywords",
              "limit", "related_images", "format", "color", "color_type", "usage_rights", "size",
-             "aspect_ratio", "type", "time", "time_range", "delay", "url", "single_image",
+             "exact_size", "aspect_ratio", "type", "time", "time_range", "delay", "url", "single_image",
              "output_directory", "proxy", "similar_images", "specific_site", "print_urls", "print_size",
              "metadata", "extract_metadata", "socket_timeout", "thumbnail", "language", "prefix", "chromedriver"]
 
@@ -74,6 +74,7 @@ def user_input():
                             choices=['labeled-for-reuse-with-modifications','labeled-for-reuse','labeled-for-noncommercial-reuse-with-modification','labeled-for-nocommercial-reuse'])
         parser.add_argument('-s', '--size', help='image size', type=str, required=False,
                             choices=['large','medium','icon','>400*300','>640*480','>800*600','>1024*768','>2MP','>4MP','>6MP','>8MP','>10MP','>12MP','>15MP','>20MP','>40MP','>70MP'])
+        parser.add_argument('-es', '--exact_size', help='exact image resolution "WIDTH,HEIGHT"', type=str, required=False)
         parser.add_argument('-t', '--type', help='image type', type=str, required=False,
                             choices=['face','photo','clip-art','line-drawing','animated'])
         parser.add_argument('-w', '--time', help='image age', type=str, required=False,
@@ -353,6 +354,12 @@ class googleimagesdownload:
         else:
             time_range = ''
 
+        if arguments['exact_size']:
+            size_array = [x.strip() for x in arguments['exact_size'].split(',')]
+            exact_size = ",isz:ex,iszw:" + str(size_array[0]) + ",iszh:" + str(size_array[1])
+        else:
+            exact_size = ''
+
         built_url = "&tbs="
         counter = 0
         params = {'color':[arguments['color'],{'red':'ic:specific,isc:red', 'orange':'ic:specific,isc:orange', 'yellow':'ic:specific,isc:yellow', 'green':'ic:specific,isc:green', 'teal':'ic:specific,isc:teel', 'blue':'ic:specific,isc:blue', 'purple':'ic:specific,isc:purple', 'pink':'ic:specific,isc:pink', 'white':'ic:specific,isc:white', 'gray':'ic:specific,isc:gray', 'black':'ic:specific,isc:black', 'brown':'ic:specific,isc:brown'}],
@@ -374,7 +381,7 @@ class googleimagesdownload:
                 else:
                     built_url = built_url + ',' + ext_param
                     counter += 1
-        built_url = lang_url+built_url+time_range
+        built_url = lang_url+built_url+exact_size+time_range
         return built_url
 
 
@@ -706,6 +713,10 @@ class googleimagesdownload:
         # both time and time range should not be allowed in the same query
         if arguments['time'] and arguments['time_range']:
             raise ValueError('Either time or time range should be used in a query. Both cannot be used at the same time.')
+
+        # both time and time range should not be allowed in the same query
+        if arguments['size'] and arguments['exact_size']:
+            raise ValueError('Either "size" or "exact_size" should be used in a query. Both cannot be used at the same time.')
 
         # Additional words added to keywords
         if arguments['suffix_keywords']:
