@@ -276,11 +276,12 @@ class googleimagesdownload:
         try:
             output_file = open(file_name, 'wb')
             output_file.write(data)
-            output_file.close()
         except OSError as e:
             raise e
         except IOError as e:
             raise e
+        finally:
+            output_file.close()
 
         print("completed ====> " + image_name)
         return
@@ -485,13 +486,14 @@ class googleimagesdownload:
                 try:
                     output_file = open(path, 'wb')
                     output_file.write(data)
-                    output_file.close()
                 except OSError as e:
                     download_status = 'fail'
                     download_message = "OSError on an image...trying next one..." + " Error: " + str(e)
                 except IOError as e:
                     download_status = 'fail'
                     download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
+                finally:
+                    output_file.close()
 
                 download_status = 'success'
                 download_message = "Completed Image Thumbnail ====> " + return_image_name
@@ -563,7 +565,6 @@ class googleimagesdownload:
                 try:
                     output_file = open(path, 'wb')
                     output_file.write(data)
-                    output_file.close()
                 except OSError as e:
                     download_status = 'fail'
                     download_message = "OSError on an image...trying next one..." + " Error: " + str(e)
@@ -572,6 +573,8 @@ class googleimagesdownload:
                     download_status = 'fail'
                     download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
                     return_image_name = ''
+                finally:
+                    output_file.close()
 
                 #return image name back to calling method to use it for thumbnail downloads
                 download_status = 'success'
