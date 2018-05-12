@@ -483,7 +483,7 @@ On **Windows** or **MAC** if for some reason the chromedriver gives you trouble,
 
 On windows however, the path to chromedriver has to be given in the following format:
 
-'C:\\complete\\path\\to\\chromedriver.exe'
+`C:\\complete\\path\\to\\chromedriver.exe`
 
 On **Linux** if you are having issues installing google chrome browser, refer to this `CentOS or Amazon Linux Guide <https://intoli.com/blog/installing-google-chrome-on-centos/>`__
 or `Ubuntu Guide <https://askubuntu.com/questions/510056/how-to-install-google-chrome in documentation>`__
