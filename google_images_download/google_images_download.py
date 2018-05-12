@@ -151,10 +151,10 @@ class googleimagesdownload:
 
         try:
             browser = webdriver.Chrome(chromedriver, chrome_options=options)
-        except:
+        except Exception as e:
             print("Looks like we cannot locate the path the 'chromedriver' (use the '--chromedriver' "
                   "argument to specify the path to the executable.) or google chrome browser is not "
-                  "installed on your machine")
+                  "installed on your machine (exception: %s)" % e)
             sys.exit()
         browser.set_window_size(1024, 768)
 
