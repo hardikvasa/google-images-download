@@ -77,7 +77,7 @@ If you would want to use this library from another python file, you could use it
     from google_images_download import google_images_download
 
     response = google_images_download.googleimagesdownload()
-    response.download({<Arguments...>})
+    absolute_image_paths = response.download({<Arguments...>})
 
 
 Arguments
@@ -226,6 +226,12 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | This argument does not take any value. Just add '--print_size' or '-ps' in your query.                                        |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| print_paths       | pp          | Prints the list of all the absolute paths of the downloaded images                                                            |
+|                   |             |                                                                                                                               |
+|                   |             | When calling the script from another python file, this list will be saved in a variable (as shown in the example below)       |
+|                   |             |                                                                                                                               |
+|                   |             | This argument also allows you to print the list on the console                                                                |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | metadata          | m           | Prints the metada of the image on the console.                                                                                |
 |                   |             |                                                                                                                               |
 |                   |             | This includes image size, origin, image attributes, description, image URL, etc.                                              |
@@ -308,8 +314,8 @@ Examples
     response = google_images_download.googleimagesdownload()   #class instantiation
 
     arguments = {"keywords":"Polar bears,baloons,Beaches","limit":20,"print_urls":True}   #creating list of arguments
-    response.download(arguments)   #passing the arguments to the function
-
+    paths = response.download(arguments)   #passing the arguments to the function
+    print(paths)   #printing absolute paths of the downloaded images
 
 - If you are passing arguments from a config file, simply pass the config_file argument with name of your JSON file
 
@@ -474,6 +480,10 @@ If you have pip installed the library or run the setup.py file, Selenium would h
 `Download the correct chromedriver <https://sites.google.com/a/chromium.org/chromedriver/downloads>`__ based on your operating system.
 
 On **Windows** or **MAC** if for some reason the chromedriver gives you trouble, download it under the current directory and run the command.
+
+On windows however, the path to chromedriver has to be given in the following format:
+
+'C:\\complete\\path\\to\\chromedriver.exe'
 
 On **Linux** if you are having issues installing google chrome browser, refer to this `CentOS or Amazon Linux Guide <https://intoli.com/blog/installing-google-chrome-on-centos/>`__
 or `Ubuntu Guide <https://askubuntu.com/questions/510056/how-to-install-google-chrome in documentation>`__

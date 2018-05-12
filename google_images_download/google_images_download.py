@@ -13,12 +13,15 @@ if cur_version >= version:  # If the Current Version of Python is 3.0 or above
     from urllib.request import Request, urlopen
     from urllib.request import URLError, HTTPError
     from urllib.parse import quote
-    import html
+    import http.client
+    http.client._MAXHEADERS = 1000
 else:  # If the Current Version of Python is 2.x
     import urllib2
     from urllib2 import Request, urlopen
     from urllib2 import URLError, HTTPError
     from urllib import quote
+    import httplib
+    httplib._MAXHEADERS = 1000
 import time  # Importing the time library to check the time of code execution
 import os
 import argparse
@@ -27,12 +30,14 @@ import datetime
 import json
 import re
 import codecs
+import socket
 
 args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywords",
              "limit", "related_images", "format", "color", "color_type", "usage_rights", "size",
              "exact_size", "aspect_ratio", "type", "time", "time_range", "delay", "url", "single_image",
              "output_directory", "proxy", "similar_images", "specific_site", "print_urls", "print_size",
-             "metadata", "extract_metadata", "socket_timeout", "thumbnail", "language", "prefix", "chromedriver"]
+             "print_paths", "metadata", "extract_metadata", "socket_timeout", "thumbnail", "language",
+             "prefix", "chromedriver"]
 
 
 def user_input():
@@ -86,6 +91,7 @@ def user_input():
         parser.add_argument('-ss', '--specific_site', help='downloads images that are indexed from a specific website', type=str, required=False)
         parser.add_argument('-p', '--print_urls', default=False, help="Print the URLs of the images", action="store_true")
         parser.add_argument('-ps', '--print_size', default=False, help="Print the size of the images on disk", action="store_true")
+        parser.add_argument('-pp', '--print_paths', default=False, help="Prints the list of absolute paths of the images",action="store_true")
         parser.add_argument('-m', '--metadata', default=False, help="Print the metadata of the image", action="store_true")
         parser.add_argument('-e', '--extract_metadata', default=False, help="Dumps all the logs into a text file", action="store_true")
         parser.add_argument('-st', '--socket_timeout', default=False, help="Connection timeout waiting for the image to download", type=float)
@@ -279,9 +285,9 @@ class googleimagesdownload:
             output_file = open(file_name, 'wb')
             output_file.write(data)
             output_file.close()
-        except OSError as e:
-            raise e
         except IOError as e:
+            raise e
+        except OSError as e:
             raise e
 
         print("completed ====> " + image_name)
@@ -572,14 +578,12 @@ class googleimagesdownload:
                     output_file = open(path, 'wb')
                     output_file.write(data)
                     output_file.close()
+                    absolute_path = os.path.abspath(path)
                 except OSError as e:
                     download_status = 'fail'
                     download_message = "OSError on an image...trying next one..." + " Error: " + str(e)
                     return_image_name = ''
-                except IOError as e:
-                    download_status = 'fail'
-                    download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
-                    return_image_name = ''
+                    absolute_path = ''
 
                 #return image name back to calling method to use it for thumbnail downloads
                 download_status = 'success'
@@ -594,28 +598,39 @@ class googleimagesdownload:
                 download_status = 'fail'
                 download_message = "UnicodeEncodeError on an image...trying next one..." + " Error: " + str(e)
                 return_image_name = ''
+                absolute_path = ''
+
+            except URLError as e:
+                download_status = 'fail'
+                download_message = "URLError on an image...trying next one..." + " Error: " + str(e)
+                return_image_name = ''
+                absolute_path = ''
 
         except HTTPError as e:  # If there is any HTTPError
             download_status = 'fail'
             download_message = "HTTPError on an image...trying next one..." + " Error: " + str(e)
             return_image_name = ''
+            absolute_path = ''
 
         except URLError as e:
             download_status = 'fail'
             download_message = "URLError on an image...trying next one..." + " Error: " + str(e)
             return_image_name = ''
+            absolute_path = ''
 
         except ssl.CertificateError as e:
             download_status = 'fail'
             download_message = "CertificateError on an image...trying next one..." + " Error: " + str(e)
             return_image_name = ''
+            absolute_path = ''
 
         except IOError as e:  # If there is any IOError
             download_status = 'fail'
             download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
             return_image_name = ''
+            absolute_path = ''
 
-        return download_status,download_message,return_image_name
+        return download_status,download_message,return_image_name,absolute_path
 
 
     # Finding 'Next Image' from the given raw page
@@ -650,6 +665,7 @@ class googleimagesdownload:
     # Getting all links with the help of '_images_get_next_image'
     def _get_all_items(self,page,main_directory,dir_name,limit,arguments):
         items = []
+        abs_path = []
         errorCount = 0
         i = 0
         count = 1
@@ -668,7 +684,7 @@ class googleimagesdownload:
                 items.append(object)  # Append all the links in the list named 'Links'
 
                 #download the images
-                download_status,download_message,return_image_name = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'])
+                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'])
                 print(download_message)
                 if download_status == "success":
 
@@ -678,6 +694,7 @@ class googleimagesdownload:
                         print(download_message_thumbnail)
 
                     count += 1
+                    abs_path.append(absolute_path)
                 else:
                     errorCount += 1
 
@@ -691,7 +708,7 @@ class googleimagesdownload:
             print("\n\nUnfortunately all " + str(
                 limit) + " could not be downloaded because some images were not downloadable. " + str(
                 count-1) + " is all we got for this search filter!")
-        return items,errorCount
+        return items,errorCount,abs_path
 
 
     # Bulk Download
@@ -768,6 +785,7 @@ class googleimagesdownload:
             os.environ["https_proxy"] = arguments['proxy']
             ######Initialization Complete
 
+        paths = {}
         for pky in prefix_keywords:
             for sky in suffix_keywords:     # 1.for every suffix keywords
                 i = 0
@@ -790,7 +808,8 @@ class googleimagesdownload:
                         raw_html = self.download_extended_page(url,arguments['chromedriver'])
 
                     print("Starting Download...")
-                    items,errorCount = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
+                    items,errorCount,abs_path = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
+                    paths[pky + search_keyword[i] + sky] = abs_path
 
                     #dumps into a text file
                     if arguments['extract_metadata']:
@@ -819,7 +838,9 @@ class googleimagesdownload:
 
                     i += 1
                     print("\nErrors: " + str(errorCount) + "\n")
-        return
+        if arguments['print_paths']:
+            print(paths)
+        return paths
 
 #------------- Main Program -------------#
 def main():
@@ -832,7 +853,7 @@ def main():
         else:  # or download multiple images based on keywords/keyphrase search
             t0 = time.time()  # start the timer
             response = googleimagesdownload()
-            response.download(arguments)
+            paths = response.download(arguments)  #wrapping response in a variable just for consistency
 
             print("\nEverything downloaded!")
             t1 = time.time()  # stop the timer
