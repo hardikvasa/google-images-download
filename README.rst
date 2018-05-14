@@ -206,17 +206,17 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | If not specified, it will default to 'downloads' directory. This directory is located in the path from where you run this code|
 |                   |             |                                                                                                                               |
-|                   |             | The directory structure would look like: <output_directory><image_directory><images>                                          |
+|                   |             | The directory structure would look like: ``<output_directory><image_directory><images>``                                      |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | image_directory   | i           | This lets you specify a directory inside of the main directory (output_directory) in which the images will be saved           |
 |                   |             |                                                                                                                               |
 |                   |             | If not specified, it will default to the name of the keyword.                                                                 |
 |                   |             |                                                                                                                               |
-|                   |             | The directory structure would look like: <output_directory><image_directory><images>                                          |
+|                   |             | The directory structure would look like: ``<output_directory><image_directory><images>``                                      |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | no_directory      | n           | This option allows you download images directly in the main directory (output_directory) without an image_directory           |
 |                   |             |                                                                                                                               |
-|                   |             | The directory structure would look like: <output_directory><images>                                                           |
+|                   |             | The directory structure would look like: ``<output_directory><images>``                                                       |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | proxy             | px          | Allows you to specify proxy server setting for all your requests                                                              |
 |                   |             |                                                                                                                               |
