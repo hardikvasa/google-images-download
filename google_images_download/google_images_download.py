@@ -35,9 +35,9 @@ import socket
 args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywords",
              "limit", "related_images", "format", "color", "color_type", "usage_rights", "size",
              "exact_size", "aspect_ratio", "type", "time", "time_range", "delay", "url", "single_image",
-             "output_directory", "proxy", "similar_images", "specific_site", "print_urls", "print_size",
-             "print_paths", "metadata", "extract_metadata", "socket_timeout", "thumbnail", "language",
-             "prefix", "chromedriver"]
+             "output_directory", "image_directory", "no_directory", "proxy", "similar_images", "specific_site",
+             "print_urls", "print_size", "print_paths", "metadata", "extract_metadata", "socket_timeout",
+             "thumbnail", "language", "prefix", "chromedriver"]
 
 
 def user_input():
@@ -69,7 +69,9 @@ def user_input():
                             choices=['jpg', 'gif', 'png', 'bmp', 'svg', 'webp', 'ico'])
         parser.add_argument('-u', '--url', help='search with google image URL', type=str, required=False)
         parser.add_argument('-x', '--single_image', help='downloading a single image from URL', type=str, required=False)
-        parser.add_argument('-o', '--output_directory', help='download images in a specific directory', type=str, required=False)
+        parser.add_argument('-o', '--output_directory', help='download images in a specific main directory', type=str, required=False)
+        parser.add_argument('-i', '--image_directory', help='download images in a specific sub-directory', type=str, required=False)
+        parser.add_argument('-n', '--no_directory', default=False, help='download images in the main directory but no sub-directory', action="store_true")
         parser.add_argument('-d', '--delay', help='delay in seconds to wait between downloading two images', type=int, required=False)
         parser.add_argument('-co', '--color', help='filter on color', type=str, required=False,
                             choices=['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'pink', 'white', 'gray', 'black', 'brown'])
@@ -735,6 +737,10 @@ class googleimagesdownload:
         if arguments['size'] and arguments['exact_size']:
             raise ValueError('Either "size" or "exact_size" should be used in a query. Both cannot be used at the same time.')
 
+        # both image directory and no image directory should not be allowed in the same query
+        if arguments['image_directory'] and arguments['no_directory']:
+            raise ValueError('You can either specify image directory or specify no image directory, not both!')
+
         # Additional words added to keywords
         if arguments['suffix_keywords']:
             suffix_keywords = [" " + str(sk) for sk in arguments['suffix_keywords'].split(',')]
@@ -794,7 +800,13 @@ class googleimagesdownload:
                     print(iteration)
                     print("Evaluating...")
                     search_term = pky + search_keyword[i] + sky
-                    dir_name = search_term + ('-' + arguments['color'] if arguments['color'] else '')   #sub-directory
+
+                    if arguments['image_directory']:
+                        dir_name = arguments['image_directory']
+                    elif arguments['no_directory']:
+                        dir_name = ''
+                    else:
+                        dir_name = search_term + ('-' + arguments['color'] if arguments['color'] else '')   #sub-directory
 
                     self.create_directories(main_directory,dir_name,arguments['thumbnail'])     #create directories in OS
 
