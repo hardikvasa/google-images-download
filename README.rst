@@ -280,6 +280,18 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | The path looks like this: "path/to/chromedriver". In windows it will be "path/to/chromedriver.exe"                            |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| safe_search       | sa          | Searches for images with the Safe Search filter On                                                                            |
+|                   |             |                                                                                                                               |
+|                   |             | And this filter will be Off by default if you do not specify the safe_search argument                                         |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--safe_search' or '-sa' in your query.                                       |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| no_numbering      | nn          | When you specify this argument, the script does not add ordered numbering as prefix to the images it downloads                |
+|                   |             |                                                                                                                               |
+|                   |             | If this argument is not specified, the images are numbered in order in which they are downloaded                              |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--no_numbering' or '-nn' in your query.                                      |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help              | h           | show the help message regarding the usage of the above arguments                                                              |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 

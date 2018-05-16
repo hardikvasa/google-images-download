@@ -14,6 +14,7 @@ if cur_version >= version:  # If the Current Version of Python is 3.0 or above
     from urllib.request import URLError, HTTPError
     from urllib.parse import quote
     import http.client
+    from http.client import IncompleteRead
     http.client._MAXHEADERS = 1000
 else:  # If the Current Version of Python is 2.x
     import urllib2
@@ -21,6 +22,7 @@ else:  # If the Current Version of Python is 2.x
     from urllib2 import URLError, HTTPError
     from urllib import quote
     import httplib
+    from httplib import IncompleteRead
     httplib._MAXHEADERS = 1000
 import time  # Importing the time library to check the time of code execution
 import os
@@ -33,11 +35,11 @@ import codecs
 import socket
 
 args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywords",
-             "limit", "related_images", "format", "color", "color_type", "usage_rights", "size",
+             "limit", "format", "color", "color_type", "usage_rights", "size",
              "exact_size", "aspect_ratio", "type", "time", "time_range", "delay", "url", "single_image",
              "output_directory", "image_directory", "no_directory", "proxy", "similar_images", "specific_site",
              "print_urls", "print_size", "print_paths", "metadata", "extract_metadata", "socket_timeout",
-             "thumbnail", "language", "prefix", "chromedriver"]
+             "thumbnail", "language", "prefix", "chromedriver", "related_images", "safe_search", "no_numbering"]
 
 
 def user_input():
@@ -104,6 +106,8 @@ def user_input():
         parser.add_argument('-px', '--proxy', help='specify a proxy address and port', type=str, required=False)
         parser.add_argument('-cd', '--chromedriver', help='specify the path to chromedriver executable in your local machine', type=str, required=False)
         parser.add_argument('-ri', '--related_images', default=False, help="Downloads images that are similar to the keyword provided", action="store_true")
+        parser.add_argument('-sa', '--safe_search', default=False, help="Turns on the safe search filter while searching for images", action="store_true")
+        parser.add_argument('-nn', '--no_numbering', default=False, help="Allows you to exclude the default numbering of images", action="store_true")
 
         args = parser.parse_args()
         arguments = vars(args)
@@ -358,7 +362,7 @@ class googleimagesdownload:
         if arguments['time_range']:
             json_acceptable_string = arguments['time_range'].replace("'", "\"")
             d = json.loads(json_acceptable_string)
-            time_range = '&cdr:1,cd_min:' + d['time_min'] + ',cd_max:' + d['time_min']
+            time_range = ',cdr:1,cd_min:' + d['time_min'] + ',cd_max:' + d['time_min']
         else:
             time_range = ''
 
@@ -394,7 +398,9 @@ class googleimagesdownload:
 
 
     #building main search URL
-    def build_search_url(self,search_term,params,url,similar_images,specific_site):
+    def build_search_url(self,search_term,params,url,similar_images,specific_site,safe_search):
+        #check safe_search
+        safe_search_string = "&safe=active"
         # check the args and choose the URL
         if url:
             url = url
@@ -408,7 +414,12 @@ class googleimagesdownload:
         else:
             url = 'https://www.google.com/search?q=' + quote(
                 search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
-        #print(url)
+
+        #safe search check
+        if safe_search:
+            url = url + safe_search_string
+
+        # print(url)
         return url
 
 
@@ -539,7 +550,7 @@ class googleimagesdownload:
 
 
     # Download Images
-    def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size):
+    def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering):
         if print_urls:
             print("Image URL: " + image_url)
         try:
@@ -574,7 +585,10 @@ class googleimagesdownload:
                 else:
                     prefix = ''
 
-                path = main_directory + "/" + dir_name + "/" + prefix + str(count) + ". " + image_name
+                if no_numbering:
+                    path = main_directory + "/" + dir_name + "/" + prefix + image_name
+                else:
+                    path = main_directory + "/" + dir_name + "/" + prefix + str(count) + ". " + image_name
 
                 try:
                     output_file = open(path, 'wb')
@@ -632,6 +646,12 @@ class googleimagesdownload:
             return_image_name = ''
             absolute_path = ''
 
+        except IncompleteRead as e:
+            download_status = 'fail'
+            download_message = "IncompleteReadError on an image...trying next one..." + " Error: " + str(e)
+            return_image_name = ''
+            absolute_path = ''
+
         return download_status,download_message,return_image_name,absolute_path
 
 
@@ -686,7 +706,7 @@ class googleimagesdownload:
                 items.append(object)  # Append all the links in the list named 'Links'
 
                 #download the images
-                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'])
+                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'],arguments['no_numbering'])
                 print(download_message)
                 if download_status == "success":
 
@@ -812,7 +832,7 @@ class googleimagesdownload:
 
                     params = self.build_url_parameters(arguments)     #building URL with params
 
-                    url = self.build_search_url(search_term,params,arguments['url'],arguments['similar_images'],arguments['specific_site'])      #building main search url
+                    url = self.build_search_url(search_term,params,arguments['url'],arguments['similar_images'],arguments['specific_site'],arguments['safe_search'])      #building main search url
 
                     if limit < 101:
                         raw_html = self.download_page(url)  # download page
