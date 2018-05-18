@@ -714,6 +714,7 @@ class googleimagesdownload:
                         print(download_message_thumbnail)
 
                     count += 1
+                    object['image_filename'] = return_image_name
                     items.append(object)  # Append all the links in the list named 'Links'
                     abs_path.append(absolute_path)
                 else:
