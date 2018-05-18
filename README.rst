@@ -294,6 +294,10 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help              | h           | show the help message regarding the usage of the above arguments                                                              |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| keep_name         | kn          | This argument takes value "true"(default) or "false". If true the downloader preserves file name; in the other case it stores |
+|                   |             |                                                                                                                               |
+|                   |             | the file with the prefix number plus the incremental number.                                                                  |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 
 **Note:** If ``single_image`` or ``url`` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
 
