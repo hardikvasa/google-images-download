@@ -292,10 +292,9 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | This argument does not take any value. Just add '--no_numbering' or '-nn' in your query.                                      |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| offset            | of          | Specify how many links to skip before starting to download.
-    |
+| offset            | of          | Specify how many links to skip before starting to download.                                                                   |
 |                   |             |                                                                                                                               |
-|                   |             | ``--limit 90 --offset 40`` will download 50 images, starting from 40th link
+|                   |             | ``--limit 90 --offset 40`` will download 50 images, starting from 40th link                                                   |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help              | h           | show the help message regarding the usage of the above arguments                                                              |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
