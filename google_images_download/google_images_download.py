@@ -843,7 +843,7 @@ class googleimagesdownload:
                     items,errorCount,abs_path = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
                     paths[pky + search_keyword[i] + sky] = abs_path
 
-                    #dumps into a text file
+                    #dumps into a json file
                     if arguments['extract_metadata']:
                         try:
                             if not os.path.exists("logs"):
@@ -851,7 +851,7 @@ class googleimagesdownload:
                         except OSError as e:
                             print(e)
                         json_file = open("logs/"+search_keyword[i]+".json", "w")
-                        json.dump(items, json_file, indent=4, sort_keys=True))
+                        json.dump(items, json_file, indent=4, sort_keys=True)
                         json_file.close()
 
                     #Related images
