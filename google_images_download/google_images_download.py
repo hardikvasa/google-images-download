@@ -278,9 +278,7 @@ class googleimagesdownload:
         data = response.read()
         response.close()
 
-        image_name = str(url[(url.rfind('/')) + 1:])
-        if '?' in image_name:
-            image_name = image_name[:image_name.find('?')]
+        image_name = str(url).split('/')[-1].partition('?')[0]
         if ".jpg" in image_name or ".gif" in image_name or ".png" in image_name or ".bmp" in image_name or ".svg" in image_name or ".webp" in image_name or ".ico" in image_name:
             file_name = main_directory + "/" + image_name
         else:
@@ -288,12 +286,9 @@ class googleimagesdownload:
             image_name = image_name + ".jpg"
 
         try:
-            output_file = open(file_name, 'wb')
-            output_file.write(data)
-            output_file.close()
-        except IOError as e:
-            raise e
-        except OSError as e:
+            with open(file_name, 'wb') as output_file:
+               output_file.write(data)
+        except (IOError, OSError) as e:
             raise e
 
         print("completed ====> " + image_name)
@@ -440,13 +435,13 @@ class googleimagesdownload:
         with codecs.open(file_name, 'r', encoding='utf-8-sig') as f:
             if '.csv' in file_name:
                 for line in f:
-                    if line in ['\n', '\r\n']:
+                    if line in ('\n', '\r\n'):
                         pass
                     else:
                         search_keyword.append(line.replace('\n', '').replace('\r', ''))
             elif '.txt' in file_name:
                 for line in f:
-                    if line in ['\n', '\r\n']:
+                    if line in ('\n', '\r\n'):
                         pass
                     else:
                         search_keyword.append(line.replace('\n', '').replace('\r', ''))
@@ -498,11 +493,7 @@ class googleimagesdownload:
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
             try:
                 # timeout time to download an image
-                if socket_timeout:
-                    timeout = float(socket_timeout)
-                else:
-                    timeout = 10
-
+                timeout = float(socket_timeout or 10) 
                 response = urlopen(req, None, timeout)
                 data = response.read()
                 response.close()
@@ -513,15 +504,14 @@ class googleimagesdownload:
                     output_file = open(path, 'wb')
                     output_file.write(data)
                     output_file.close()
+                    download_status = 'success'
+                    download_message = "Completed Image Thumbnail ====> " + return_image_name
                 except OSError as e:
                     download_status = 'fail'
                     download_message = "OSError on an image...trying next one..." + " Error: " + str(e)
                 except IOError as e:
                     download_status = 'fail'
                     download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
-
-                download_status = 'success'
-                download_message = "Completed Image Thumbnail ====> " + return_image_name
 
                 # image size parameter
                 if print_size:
@@ -558,18 +548,13 @@ class googleimagesdownload:
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
             try:
                 # timeout time to download an image
-                if socket_timeout:
-                    timeout = float(socket_timeout)
-                else:
-                    timeout = 10
-
+                timeout = float(socket_timeout or 10)
                 response = urlopen(req, None, timeout)
                 data = response.read()
                 response.close()
 
                 # keep everything after the last '/'
-                image_name = str(image_url[(image_url.rfind('/')) + 1:])
-                image_name = image_name.lower()
+                image_name = str(image_url).split('/')[-1].lower()
                 # if no extension then add it
                 # remove everything after the image name
                 if image_format == "":
@@ -591,9 +576,8 @@ class googleimagesdownload:
                     path = main_directory + "/" + dir_name + "/" + prefix + str(count) + ". " + image_name
 
                 try:
-                    output_file = open(path, 'wb')
-                    output_file.write(data)
-                    output_file.close()
+                    with open(path, 'wb') as output_file:
+                        output_file.write(data)
                     absolute_path = os.path.abspath(path)
                 except OSError as e:
                     download_status = 'fail'
@@ -774,10 +758,7 @@ class googleimagesdownload:
             prefix_keywords = ['']
 
         # Setting limit on number of images to be downloaded
-        if arguments['limit']:
-            limit = int(arguments['limit'])
-        else:
-            limit = 100
+        limit = int(arguments['limit']) or 100
 
         if arguments['url']:
             current_time = str(datetime.datetime.now()).split('.')[0]
@@ -800,10 +781,7 @@ class googleimagesdownload:
 
 
         # If this argument is present, set the custom output directory
-        if arguments['output_directory']:
-            main_directory = arguments['output_directory']
-        else:
-            main_directory = "downloads"
+        main_directory = arguments['output_directory'] or "downloads"
 
         # Proxy settings
         if arguments['proxy']:
