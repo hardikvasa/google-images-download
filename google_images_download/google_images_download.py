@@ -756,7 +756,7 @@ class googleimagesdownload:
             prefix_keywords = ['']
 
         # Setting limit on number of images to be downloaded
-        limit = int(arguments['limit']) or 100
+        limit = int(arguments['limit'] or 100)
 
         if arguments['url']:
             current_time = str(datetime.datetime.now()).split('.')[0]
