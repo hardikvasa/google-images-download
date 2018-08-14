@@ -279,11 +279,9 @@ class googleimagesdownload:
         response.close()
 
         image_name = str(url).split('/')[-1].partition('?')[0]
-        if ".jpg" in image_name or ".gif" in image_name or ".png" in image_name or ".bmp" in image_name or ".svg" in image_name or ".webp" in image_name or ".ico" in image_name:
-            file_name = main_directory + "/" + image_name
-        else:
-            file_name = main_directory + "/" + image_name + ".jpg"
-            image_name = image_name + ".jpg"
+        if not image_name.lower().endswith(".jpg .gif .png .bmp .svg .webp .ico".split()):
+            image_name += ".jpg"
+         file_name = main_directory + "/" + image_name + ".jpg"
 
         try:
             with open(file_name, 'wb') as output_file:
