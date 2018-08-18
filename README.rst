@@ -15,8 +15,8 @@ and optionally download images to your computer. You can also invoke this script
 another python file.
 
 This is a small and ready-to-run program. No dependencies are required to be installed
-if you would only want to download up to 100 images per keyword. If you would want more than 100
-images per keyword, then you would need to install ``Selenium`` library along with ``chromedriver``.
+if you would only want to download up to 100 images per keyword. If you would want **more than 100
+images** per keyword, then you would need to install ``Selenium`` library along with ``chromedriver``.
 Detailed instructions in the troubleshooting section.
 
 
@@ -451,8 +451,8 @@ Examples
 
 --------------
 
-Troubleshooting
-===============
+Troubleshooting Errors/Issues
+=============================
 
 **#~~~# SSL Errors**
 
@@ -526,7 +526,7 @@ If on any rare occasion the chromedriver does not work for you, try downgrading 
 Structure
 =========
 
-Below diagram represents the code logic.
+Below diagram represents the algorithm logic to download images.
 
 .. figure:: http://www.zseries.in/flow-chart.png
    :alt:
