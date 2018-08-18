@@ -292,6 +292,12 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | This argument does not take any value. Just add '--no_numbering' or '-nn' in your query.                                      |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| offset            | of          | When you specify this argument, it will skip the offset number of links before it starts downloading images                   |
+|                   |             |                                                                                                                               |
+|                   |             | If this argument is not specified, the script will start downloading form the first link until the limit is reached           |
+|                   |             |                                                                                                                               |
+|                   |             | This argument takes integer. Make sure the value of this argument is less than the value of limit                             |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help              | h           | show the help message regarding the usage of the above arguments                                                              |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 

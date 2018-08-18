@@ -39,7 +39,8 @@ args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywor
              "exact_size", "aspect_ratio", "type", "time", "time_range", "delay", "url", "single_image",
              "output_directory", "image_directory", "no_directory", "proxy", "similar_images", "specific_site",
              "print_urls", "print_size", "print_paths", "metadata", "extract_metadata", "socket_timeout",
-             "thumbnail", "language", "prefix", "chromedriver", "related_images", "safe_search", "no_numbering"]
+             "thumbnail", "language", "prefix", "chromedriver", "related_images", "safe_search", "no_numbering",
+             "offset"]
 
 
 def user_input():
@@ -108,6 +109,7 @@ def user_input():
         parser.add_argument('-ri', '--related_images', default=False, help="Downloads images that are similar to the keyword provided", action="store_true")
         parser.add_argument('-sa', '--safe_search', default=False, help="Turns on the safe search filter while searching for images", action="store_true")
         parser.add_argument('-nn', '--no_numbering', default=False, help="Allows you to exclude the default numbering of images", action="store_true")
+        parser.add_argument('-of', '--offset', help="Where to start in the fetched links", type=str, required=False)
 
         args = parser.parse_args()
         arguments = vars(args)
@@ -697,6 +699,9 @@ class googleimagesdownload:
                 break
             elif object == "":
                 page = page[end_content:]
+            elif arguments['offset'] and count < int(arguments['offset']):
+                    count += 1
+                    page = page[end_content:]
             else:
                 #format the item for readability
                 object = self.format_object(object)
