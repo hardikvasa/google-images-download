@@ -14,7 +14,8 @@ if cur_version >= version:  # If the Current Version of Python is 3.0 or above
     from urllib.request import URLError, HTTPError
     from urllib.parse import quote
     import http.client
-    from http.client import IncompleteRead
+    from http.client import IncompleteRead, HTTPException
+
     http.client._MAXHEADERS = 1000
 else:  # If the Current Version of Python is 2.x
     import urllib2
@@ -627,6 +628,12 @@ class googleimagesdownload:
         except HTTPError as e:  # If there is any HTTPError
             download_status = 'fail'
             download_message = "HTTPError on an image...trying next one..." + " Error: " + str(e)
+            return_image_name = ''
+            absolute_path = ''
+
+        except HTTPException as e:  # If there is any HTTPException
+            download_status = 'fail'
+            download_message = "HTTPException on an image...trying next one..." + " Error: " + str(e)
             return_image_name = ''
             absolute_path = ''
 
