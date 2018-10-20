@@ -135,7 +135,7 @@ class googleimagesdownload:
                 respData = str(resp.read())
                 return respData
             except Exception as e:
-                print(str(e))
+                print("Could not open URL. Please check your internet connection and/or ssl settings")
         else:  # If the Current Version of Python is 2.x
             try:
                 headers = {}
@@ -149,6 +149,7 @@ class googleimagesdownload:
                 page = response.read()
                 return page
             except:
+                print("Could not open URL. Please check your internet connection and/or ssl settings")
                 return "Page Not found"
 
 
