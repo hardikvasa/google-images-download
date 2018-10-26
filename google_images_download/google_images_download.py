@@ -40,7 +40,7 @@ args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywor
              "output_directory", "image_directory", "no_directory", "proxy", "similar_images", "specific_site",
              "print_urls", "print_size", "print_paths", "metadata", "extract_metadata", "socket_timeout",
              "thumbnail", "language", "prefix", "chromedriver", "related_images", "safe_search", "no_numbering",
-             "offset"]
+             "offset", "dry_run", "quiet"]
 
 
 def user_input():
@@ -134,6 +134,10 @@ def user_input():
         parser.add_argument('-nn', '--no_numbering', default=False,
                             help="Allows you to exclude the default numbering of images", action="store_true")
         parser.add_argument('-of', '--offset', help="Where to start in the fetched links", type=str, required=False)
+        parser.add_argument('-dr', '--dry_run', default=False, action="store_true",
+                            help="Print metadata only, no images are downloaded")
+        parser.add_argument('-q', '--quiet', default=False, action="store_true",
+                            help="Disable verbose output. Useful along with --dry_run to simply get a list of images")
 
         args = parser.parse_args()
         arguments = vars(args)
@@ -198,7 +202,7 @@ class googleimagesdownload:
         # Open the link
         browser.get(url)
         time.sleep(1)
-        print("Getting you a lot of images. This may take a few moments...")
+        out("Getting you a lot of images. This may take a few moments...")
 
         element = browser.find_element_by_tag_name("body")
         # Scroll down
@@ -216,7 +220,7 @@ class googleimagesdownload:
                 element.send_keys(Keys.PAGE_DOWN)
                 time.sleep(0.3)  # bot id protection
 
-        print("Reached end of Page.")
+        out("Reached end of Page.")
         time.sleep(0.5)
 
         source = browser.page_source  # page source
@@ -316,7 +320,7 @@ class googleimagesdownload:
         except OSError as e:
             raise e
 
-        print("completed ====> " + image_name)
+        out("completed ====> " + image_name)
         return
 
     def similar_images(self, similar_images):
@@ -425,7 +429,7 @@ class googleimagesdownload:
         if url:
             url = url
         elif similar_images:
-            print(similar_images)
+            out(similar_images)
             keywordem = self.similar_images(similar_images)
             url = 'https://www.google.com/search?q=' + keywordem + \
                 '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
@@ -511,7 +515,7 @@ class googleimagesdownload:
     # Download Images
     def download_image_thumbnail(self, image_url, main_directory, dir_name, return_image_name, print_urls, socket_timeout, print_size):
         if print_urls:
-            print("Image URL: " + image_url)
+            out("Image URL: " + image_url)
         try:
             req = Request(image_url, headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
@@ -544,7 +548,7 @@ class googleimagesdownload:
 
                 # image size parameter
                 if print_size:
-                    print("Image Size: " + str(self.file_size(path)))
+                    out("Image Size: " + str(self.file_size(path)))
 
             except UnicodeEncodeError as e:
                 download_status = 'fail'
@@ -570,7 +574,7 @@ class googleimagesdownload:
     # Download Images
     def download_image(self, image_url, image_format, main_directory, dir_name, count, print_urls, socket_timeout, prefix, print_size, no_numbering):
         if print_urls:
-            print("Image URL: " + image_url)
+            out("Image URL: " + image_url)
         try:
             req = Request(image_url, headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
@@ -626,7 +630,7 @@ class googleimagesdownload:
 
                 # image size parameter
                 if print_size:
-                    print("Image Size: " + str(self.file_size(path)))
+                    out("Image Size: " + str(self.file_size(path)))
 
             except UnicodeEncodeError as e:
                 download_status = 'fail'
@@ -720,19 +724,25 @@ class googleimagesdownload:
                 # format the item for readability
                 object = self.format_object(object)
                 if arguments['metadata']:
-                    print("\nImage Metadata: " + str(object))
+                    out("\nImage Metadata: " + str(object))
+
+                if arguments['dry_run']:
+                    items.append(object)  # Append all the links in the list named 'Links'
+                    count += 1
+                    page = page[end_content:]
+                    continue
 
                 # download the images
                 download_status, download_message, return_image_name, absolute_path = self.download_image(
                     object['image_link'], object['image_format'], main_directory, dir_name, count, arguments['print_urls'], arguments['socket_timeout'], arguments['prefix'], arguments['print_size'], arguments['no_numbering'])
-                print(download_message)
+                out(download_message)
                 if download_status == "success":
 
                     # download image_thumbnails
                     if arguments['thumbnail']:
                         download_status, download_message_thumbnail = self.download_image_thumbnail(
                             object['image_thumbnail_url'], main_directory, dir_name, return_image_name, arguments['print_urls'], arguments['socket_timeout'], arguments['print_size'])
-                        print(download_message_thumbnail)
+                        out(download_message_thumbnail)
 
                     count += 1
                     object['image_filename'] = return_image_name
@@ -748,7 +758,7 @@ class googleimagesdownload:
                 page = page[end_content:]
             i += 1
         if count < limit:
-            print("\n\nUnfortunately all " + str(
+            out("\n\nUnfortunately all " + str(
                 limit) + " could not be downloaded because some images were not downloadable. " + str(
                 count-1) + " is all we got for this search filter!")
         return items, errorCount, abs_path
@@ -838,8 +848,8 @@ class googleimagesdownload:
                 while i < len(search_keyword):      # 2.for every main keyword
                     iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + \
                         " Item name = " + str(pky) + str(search_keyword[i] + str(sky))
-                    print(iteration)
-                    print("Evaluating...")
+                    out(iteration)
+                    out("Evaluating...")
                     search_term = pky + search_keyword[i] + sky
 
                     if arguments['image_directory']:
@@ -864,10 +874,13 @@ class googleimagesdownload:
                     else:
                         raw_html = self.download_extended_page(url, arguments['chromedriver'])
 
-                    print("Starting Download...")
+                    out("Starting Download...")
                     items, errorCount, abs_path = self._get_all_items(
                         raw_html, main_directory, dir_name, limit, arguments)  # get all image items and download images
                     paths[pky + search_keyword[i] + sky] = abs_path
+
+                    if arguments['dry_run']:
+                        out(items, True)
 
                     # dumps into a json file
                     if arguments['extract_metadata']:
@@ -882,11 +895,11 @@ class googleimagesdownload:
 
                     # Related images
                     if arguments['related_images']:
-                        print("\nGetting list of related keywords...this may take a few moments")
+                        out("\nGetting list of related keywords...this may take a few moments")
                         tabs = self.get_all_tabs(raw_html)
                         for key, value in tabs.items():
                             final_search_term = (search_term + " - " + key)
-                            print("\nNow Downloading - " + final_search_term)
+                            out("\nNow Downloading - " + final_search_term)
                             if limit < 101:
                                 new_raw_html = self.download_page(value)  # download page
                             else:
@@ -896,17 +909,29 @@ class googleimagesdownload:
                                                 search_term + " - " + key, limit, arguments)
 
                     i += 1
-                    print("\nErrors: " + str(errorCount) + "\n")
+                    out("\nErrors: " + str(errorCount) + "\n")
         if arguments['print_paths']:
             print(paths)
         return paths
 
-#------------- Main Program -------------#
+
+def out(msg, force_print=False):
+    global current_arguments
+
+    if not current_arguments['quiet'] or force_print:
+        print("{}\n".format(msg))
+
+# ------------- Main Program -------------#
+
+
+current_arguments = None
 
 
 def main():
     records = user_input()
     for arguments in records:
+        global current_arguments
+        current_arguments = arguments
 
         if arguments['single_image']:  # Download Single Image using a URL
             response = googleimagesdownload()
@@ -914,12 +939,12 @@ def main():
         else:  # or download multiple images based on keywords/keyphrase search
             t0 = time.time()  # start the timer
             response = googleimagesdownload()
-            paths = response.download(arguments)  # wrapping response in a variable just for consistency
+            response.download(arguments)  # wrapping response in a variable just for consistency
 
-            print("\nEverything downloaded!")
+            out("\nEverything downloaded!")
             t1 = time.time()  # stop the timer
             total_time = t1 - t0  # Calculating the total time required to crawl, find and download all the links of 60,000 images
-            print("Total time taken: " + str(total_time) + " Seconds")
+            out("Total time taken: " + str(total_time) + " Seconds")
 
 
 if __name__ == "__main__":
