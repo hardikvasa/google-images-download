@@ -880,7 +880,7 @@ class googleimagesdownload:
                     paths[pky + search_keyword[i] + sky] = abs_path
 
                     if arguments['dry_run']:
-                        out(items, True)
+                        out(json.dumps(items), True)
 
                     # dumps into a json file
                     if arguments['extract_metadata']:
