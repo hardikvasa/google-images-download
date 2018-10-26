@@ -298,6 +298,19 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | This argument takes integer. Make sure the value of this argument is less than the value of limit                             |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| dry_run           | dr          | When you specify this argument, it will skip downloading of the images and will print all images metadata at the end          |
+|                   |             |                                                                                                                               |
+|                   |             | If this argument is not specified, the script will start downloading form the first link until the limit is reached           |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--dry-run' or '-da' in your query.                                           |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| quiet             | q           | When you specify this argument, script will not output its' progress to the console. Only errors or metadata at the end of    |
+|                   |             | --dry_run will be printed                                                                                                     |
+|                   |             |                                                                                                                               |
+|                   |             | If this argument is not specified, the script will print each step of the workflow as it goes through it                      |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--quiet' or '-q' in your query.                                              |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help              | h           | show the help message regarding the usage of the above arguments                                                              |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 
