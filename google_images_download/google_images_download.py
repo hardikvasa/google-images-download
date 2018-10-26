@@ -279,7 +279,7 @@ class googleimagesdownload:
         formatted_object['image_height'] = object['oh']
         formatted_object['image_width'] = object['ow']
         formatted_object['image_link'] = object['ou']
-        formatted_object['image_description'] = object['pt']
+        # formatted_object['image_description'] = object['pt']
         formatted_object['image_host'] = object['rh']
         formatted_object['image_source'] = object['ru']
         formatted_object['image_thumbnail_url'] = object['tu']
