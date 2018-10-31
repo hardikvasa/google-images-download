@@ -15,15 +15,15 @@ and optionally download images to your computer. You can also invoke this script
 another python file.
 
 This is a small and ready-to-run program. No dependencies are required to be installed
-if you would only want to download up to 100 images per keyword. If you would want **more than 100
-images** per keyword, then you would need to install ``Selenium`` library along with ``chromedriver``.
+if you only want to download up to 100 images per keyword. If you want **more than 100
+images** per keyword, then you need to install the ``Selenium`` library along with ``chromedriver``.
 Detailed instructions in the troubleshooting section.
 
 
 Compatibility
 =============
 
-This program is compatible with both the versions of python - 2.x and 3.x (recommended).
+This program is compatible with both versions of python: 2.x and 3.x (recommended).
 It is a download-and-run program with no changes to the file.
 You will just have to specify parameters through the command line.
 
@@ -292,6 +292,10 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | This argument does not take any value. Just add '--no_numbering' or '-nn' in your query.                                      |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| suffix            | nn          | Places the number after a suffix at the end of the image file name.                                                           |
+|                   |             |                                                                                                                               |
+|                   |             | If used with --no_numbering, the suffix is just postpended to the file name.                                                  |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | offset            | of          | When you specify this argument, it will skip the offset number of links before it starts downloading images                   |
 |                   |             |                                                                                                                               |
 |                   |             | If this argument is not specified, the script will start downloading form the first link until the limit is reached           |
@@ -389,61 +393,61 @@ Examples
 -  To use non-English keywords for image search
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload -k "北极熊" -l 5
 
 -  To download images from the google images link
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload -k "sample" -u <google images page URL>
 
 -  To save images in specific main directory (instead of in 'downloads')
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload -k "boat" -o "boat_new"
 
 -  To download one single image with the image URL
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "baloons" --single_image <URL of the images>
 
 -  To download images with size and type constrains
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "baloons" --size medium --type animated
 
 -  To download images with specific usage rights
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "universe" --usage_rights labeled-for-reuse
 
 -  To download images with specific color type
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "flowers" --color_type black-and-white
 
 -  To download images with specific aspect ratio
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "universe" --aspect_ratio panoramic
 
 -  To download images which are similar to the image in the image URL that you provided (Reverse Image search).
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload -si <image url> -l 10
 
 -  To download images from specific website or domain name for a given keyword
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "universe" --specific_site example.com
 
 ===> The images would be downloaded in their own sub-directories inside the main directory
@@ -468,7 +472,7 @@ To get the details of the repo, run the following command:
 
 .. code-block:: bash
 
-    $ pip show -f google_images_download 
+    $ pip show -f google_images_download
 
 you will get the result like this:
 
@@ -481,7 +485,7 @@ you will get the result like this:
 together they make: ``/Library/Frameworks/Python.framework/Versions/2.7/bin`` which you need add it to the path:
 
 .. code-block:: bash
-	
+
     $ export PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin"
 
 
@@ -495,7 +499,7 @@ When you run the command, it downloads the images in the current directory (the 
 On MAC and Linux, when you get permission denied when installing the library using pip, try doing a user install.
 
 .. code-block:: bash
-	
+
     $ pip install google_images_download --user
 
 You can also run pip install as a superuser with ``sudo pip install google_images_download`` but it is not generally a good idea because it can cause issues with your system-level packages.
