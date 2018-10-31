@@ -40,7 +40,7 @@ args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywor
              "output_directory", "image_directory", "no_directory", "proxy", "similar_images", "specific_site",
              "print_urls", "print_size", "print_paths", "metadata", "extract_metadata", "socket_timeout",
              "thumbnail", "language", "prefix", "chromedriver", "related_images", "safe_search", "no_numbering",
-             "offset"]
+             "suffix","offset"]
 
 
 def user_input():
@@ -109,6 +109,7 @@ def user_input():
         parser.add_argument('-ri', '--related_images', default=False, help="Downloads images that are similar to the keyword provided", action="store_true")
         parser.add_argument('-sa', '--safe_search', default=False, help="Turns on the safe search filter while searching for images", action="store_true")
         parser.add_argument('-nn', '--no_numbering', default=False, help="Allows you to exclude the default numbering of images", action="store_true")
+        parser.add_argument('-sf', '--suffix', default=False, help="Places the number at the end of the image name following specified character", type=str, required=False)
         parser.add_argument('-of', '--offset', help="Where to start in the fetched links", type=str, required=False)
 
         args = parser.parse_args()
@@ -552,7 +553,7 @@ class googleimagesdownload:
 
 
     # Download Images
-    def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering):
+    def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering,suffix):
         if print_urls:
             print("Image URL: " + image_url)
         try:
@@ -572,14 +573,23 @@ class googleimagesdownload:
                 # keep everything after the last '/'
                 image_name = str(image_url[(image_url.rfind('/')) + 1:])
                 image_name = image_name.lower()
+
+                if image_format == "":
+                    image_name = image_name
+                else:
+                    image_name = image_name[:image_name.find(image_format) - 1]
+
                 # if no extension then add it
                 # remove everything after the image name
+                if suffix:
+                    image_name = image_name + suffix
+                    if not no_numbering:
+                        image_name = image_name + str(count)
+
                 if image_format == "":
                     image_name = image_name + "." + "jpg"
-                elif image_format == "jpeg":
-                    image_name = image_name[:image_name.find(image_format) + 4]
                 else:
-                    image_name = image_name[:image_name.find(image_format) + 3]
+                    image_name = image_name + "." + image_format
 
                 # prefix name in image
                 if prefix:
@@ -587,10 +597,12 @@ class googleimagesdownload:
                 else:
                     prefix = ''
 
-                if no_numbering:
-                    path = main_directory + "/" + dir_name + "/" + prefix + image_name
+                if no_numbering or suffix:
+                    file_name = prefix + image_name
                 else:
-                    path = main_directory + "/" + dir_name + "/" + prefix + str(count) + ". " + image_name
+                    file_name = prefix + str(count) + ". " + image_name
+
+                path = main_directory + "/" + dir_name + "/" + file_name
 
                 try:
                     output_file = open(path, 'wb')
@@ -605,8 +617,8 @@ class googleimagesdownload:
 
                 #return image name back to calling method to use it for thumbnail downloads
                 download_status = 'success'
-                download_message = "Completed Image ====> " + prefix + str(count) + ". " + image_name
-                return_image_name = prefix + str(count) + ". " + image_name
+                download_message = "Completed Image ====> " + file_name
+                return_image_name = file_name
 
                 # image size parameter
                 if print_size:
@@ -709,7 +721,7 @@ class googleimagesdownload:
                     print("\nImage Metadata: " + str(object))
 
                 #download the images
-                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'],arguments['no_numbering'])
+                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'],arguments['no_numbering'],arguments['suffix'])
                 print(download_message)
                 if download_status == "success":
 
@@ -762,6 +774,7 @@ class googleimagesdownload:
         if arguments['size'] and arguments['exact_size']:
             raise ValueError('Either "size" or "exact_size" should be used in a query. Both cannot be used at the same time.')
 
+
         # both image directory and no image directory should not be allowed in the same query
         if arguments['image_directory'] and arguments['no_directory']:
             raise ValueError('You can either specify image directory or specify no image directory, not both!')
@@ -771,7 +784,6 @@ class googleimagesdownload:
             suffix_keywords = [" " + str(sk) for sk in arguments['suffix_keywords'].split(',')]
         else:
             suffix_keywords = ['']
-
         # Additional words added to keywords
         if arguments['prefix_keywords']:
             prefix_keywords = [str(sk) + " " for sk in arguments['prefix_keywords'].split(',')]
