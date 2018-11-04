@@ -268,6 +268,7 @@ class googleimagesdownload:
     #function to download single image
     def single_image(self,image_url):
         main_directory = "downloads"
+        extensions = (".jpg", ".gif", ".png", ".bmp", ".svg", ".webp", ".ico")
         url = image_url
         try:
             os.makedirs(main_directory)
@@ -285,7 +286,8 @@ class googleimagesdownload:
         image_name = str(url[(url.rfind('/')) + 1:])
         if '?' in image_name:
             image_name = image_name[:image_name.find('?')]
-        if ".jpg" in image_name or ".gif" in image_name or ".png" in image_name or ".bmp" in image_name or ".svg" in image_name or ".webp" in image_name or ".ico" in image_name:
+        # if ".jpg" in image_name or ".gif" in image_name or ".png" in image_name or ".bmp" in image_name or ".svg" in image_name or ".webp" in image_name or ".ico" in image_name:
+        if any(map(lambda extension: extension in image_name, extensions)):
             file_name = main_directory + "/" + image_name
         else:
             file_name = main_directory + "/" + image_name + ".jpg"
