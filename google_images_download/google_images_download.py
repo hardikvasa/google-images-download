@@ -40,7 +40,7 @@ args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywor
              "output_directory", "image_directory", "no_directory", "proxy", "similar_images", "specific_site",
              "print_urls", "print_size", "print_paths", "metadata", "extract_metadata", "socket_timeout",
              "thumbnail", "language", "prefix", "chromedriver", "related_images", "safe_search", "no_numbering",
-             "offset"]
+             "offset", "no_download"]
 
 
 def user_input():
@@ -110,6 +110,7 @@ def user_input():
         parser.add_argument('-sa', '--safe_search', default=False, help="Turns on the safe search filter while searching for images", action="store_true")
         parser.add_argument('-nn', '--no_numbering', default=False, help="Allows you to exclude the default numbering of images", action="store_true")
         parser.add_argument('-of', '--offset', help="Where to start in the fetched links", type=str, required=False)
+        parser.add_argument('-nd', '--no_download', default=False, help="Prints the URLs of the images and/or thumbnails without downloading them", action="store_true")
 
         args = parser.parse_args()
         arguments = vars(args)
@@ -492,9 +493,11 @@ class googleimagesdownload:
 
 
     # Download Images
-    def download_image_thumbnail(self,image_url,main_directory,dir_name,return_image_name,print_urls,socket_timeout,print_size):
-        if print_urls:
+    def download_image_thumbnail(self,image_url,main_directory,dir_name,return_image_name,print_urls,socket_timeout,print_size,no_download):
+        if print_urls or no_download:
             print("Image URL: " + image_url)
+        if no_download:
+            return "success","Printed url without downloading"
         try:
             req = Request(image_url, headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
@@ -552,9 +555,11 @@ class googleimagesdownload:
 
 
     # Download Images
-    def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering):
-        if print_urls:
+    def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering,no_download):
+        if print_urls or no_download:
             print("Image URL: " + image_url)
+        if no_download:
+            return "success","Printed url without downloading",None,None
         try:
             req = Request(image_url, headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
@@ -709,13 +714,13 @@ class googleimagesdownload:
                     print("\nImage Metadata: " + str(object))
 
                 #download the images
-                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'],arguments['no_numbering'])
+                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'],arguments['no_numbering'],arguments['no_download'])
                 print(download_message)
                 if download_status == "success":
 
                     # download image_thumbnails
                     if arguments['thumbnail']:
-                        download_status, download_message_thumbnail = self.download_image_thumbnail(object['image_thumbnail_url'],main_directory,dir_name,return_image_name,arguments['print_urls'],arguments['socket_timeout'],arguments['print_size'])
+                        download_status, download_message_thumbnail = self.download_image_thumbnail(object['image_thumbnail_url'],main_directory,dir_name,return_image_name,arguments['print_urls'],arguments['socket_timeout'],arguments['print_size'],arguments['no_download'])
                         print(download_message_thumbnail)
 
                     count += 1
@@ -844,7 +849,10 @@ class googleimagesdownload:
                     else:
                         raw_html = self.download_extended_page(url,arguments['chromedriver'])
 
-                    print("Starting Download...")
+                    if arguments['no_download']:
+                        print("Starting to Print Image URLS")
+                    else:
+                        print("Starting Download...")
                     items,errorCount,abs_path = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
                     paths[pky + search_keyword[i] + sky] = abs_path
 
