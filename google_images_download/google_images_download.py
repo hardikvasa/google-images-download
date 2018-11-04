@@ -368,7 +368,7 @@ class googleimagesdownload:
         if arguments['time_range']:
             json_acceptable_string = arguments['time_range'].replace("'", "\"")
             d = json.loads(json_acceptable_string)
-            time_range = ',cdr:1,cd_min:' + d['time_min'] + ',cd_max:' + d['time_min']
+            time_range = ',cdr:1,cd_min:' + d['time_min'] + ',cd_max:' + d['time_max']
         else:
             time_range = ''
 
