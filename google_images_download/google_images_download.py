@@ -229,9 +229,16 @@ class googleimagesdownload:
             url_item = url_item.replace('&amp;', '&')
 
             start_line_2 = s.find('class="dtviD"')
+            s = s.replace('&amp;', '&')
             start_content_2 = s.find(':', start_line_2 + 1)
-            end_content_2 = s.find('"', start_content_2 + 1)
+            end_content_2 = s.find('&usg=', start_content_2 + 1)
             url_item_name = str(s[start_content_2 + 1:end_content_2])
+            if url_item_name[-3:] == '%3D':
+                end_content_3 = url_item_name.rfind(':')
+                url_item_name = url_item_name[:end_content_3]
+            url_item_name = url_item_name.replace(',g_1:',' ')
+            url_item_name = url_item_name.replace(',online_chips:',' ')
+            url_item_name = url_item_name.replace('+',' ')
 
             #print(url_item,url_item_name)
             return url_item,url_item_name,end_content
