@@ -216,19 +216,19 @@ class googleimagesdownload:
 
     # Finding 'Next Image' from the given raw page
     def get_next_tab(self,s):
-        start_line = s.find('class="ZO5Spb"')
+        start_line = s.find('class="dtviD"')
         if start_line == -1:  # If no links are found then give an error!
             end_quote = 0
             link = "no_tabs"
             return link,'',end_quote
         else:
-            start_line = s.find('class="ZO5Spb"')
+            start_line = s.find('class="dtviD"')
             start_content = s.find('href="', start_line + 1)
             end_content = s.find('">', start_content + 1)
             url_item = "https://www.google.com" + str(s[start_content+6:end_content])
             url_item = url_item.replace('&amp;', '&')
 
-            start_line_2 = s.find('class="ZO5Spb"')
+            start_line_2 = s.find('class="dtviD"')
             start_content_2 = s.find(':', start_line_2 + 1)
             end_content_2 = s.find('"', start_content_2 + 1)
             url_item_name = str(s[start_content_2 + 1:end_content_2])
