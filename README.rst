@@ -179,6 +179,10 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | The directory structure would look like: ``<output_directory><images>``                                                       |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| no_download       | nd          | Print the URLs of the images on the console without downloading them. These image URLs can be used for debugging purposes     |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--no-download' or '-nd' in your query.                                       |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | no_numbering      | nn          | When you specify this argument, the script does not add ordered numbering as prefix to the images it downloads                |
 |                   |             |                                                                                                                               |
 |                   |             | If this argument is not specified, the images are numbered in order in which they are downloaded                              |
@@ -300,12 +304,6 @@ Arguments
 |                   |             | * `labeled-for-noncommercial-reuse-with-modification`,                                                                        |
 |                   |             | * `labeled-for-nocommercial-reuse`                                                                                            |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-
-
-
-
-
-
 
 
 **Note:** If ``single_image`` or ``url`` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
