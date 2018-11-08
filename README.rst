@@ -306,7 +306,6 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 
 
-
 **Note:** If ``single_image`` or ``url`` parameter is not present, then keywords is a mandatory parameter. No other parameters are mandatory.
 
 Config File Format
