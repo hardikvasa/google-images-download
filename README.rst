@@ -304,10 +304,6 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help              | h           | show the help message regarding the usage of the above arguments                                                              |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| no_download       | nd          | Print the URLs of the images on the console without downloading them. These image URLs can be used for debugging purposes      |
-|                   |             |                                                                                                                               |
-|                   |             | This argument does not take any value. Just add '--no-download' or '-nd' in your query.                                         |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 
 
 
