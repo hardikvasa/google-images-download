@@ -124,6 +124,14 @@ Arguments
 |                   |             | So, for example, if the keyword is 'car' and suffix_keyword is 'red,yellow,blue', it will search and download images for      |
 |                   |             | 'car red', 'car yellow' and 'car blue' individually                                                                           |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| exclude_keywords  | ek          | Denotes words or websites to be excluded from search results                                                                  |
+|                   |             |                                                                                                                               |
+|                   |             | The final search query would be: <keyword> <excluded keyword(s)>                                                              |
+|                   |             |                                                                                                                               |
+|                   |             | So, for example, if the keyword is 'git' and results from github.com are to be excluded the search term would be              |
+|                   |             | "git -github.com", and it will search and download images from sites excluding github.com                                     | 
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | limit             | l           | Denotes number of images that you want to download.                                                                           |
 |                   |             |                                                                                                                               |
 |                   |             | You can specify any integer value here. It will try and get all the images that it finds in the google image search page.     |
