@@ -67,6 +67,7 @@ def user_input():
         parser.add_argument('-kf', '--keywords_from_file', help='extract list of keywords from a text file', type=str, required=False)
         parser.add_argument('-sk', '--suffix_keywords', help='comma separated additional words added after to main keyword', type=str, required=False)
         parser.add_argument('-pk', '--prefix_keywords', help='comma separated additional words added before main keyword', type=str, required=False)
+        parser.add_argument('-ek', '--exclude_keywords', help='exclude keywords or websites from results', type=str, required=False)
         parser.add_argument('-l', '--limit', help='delimited list input', type=str, required=False)
         parser.add_argument('-f', '--format', help='download images with specific format', type=str, required=False,
                             choices=['jpg', 'gif', 'png', 'bmp', 'svg', 'webp', 'ico'])
@@ -780,6 +781,13 @@ class googleimagesdownload:
         else:
             suffix_keywords = ['']
 
+        # Exclude these keywords from results
+        if arguments['exclude_keywords']:
+            exclude_keywords = [" -" + str(ek) for ek in arguments['exclude_keywords'].split(',')]
+            exclude_keywords = str(exclude_keywords)[1:-1] # get rid of square brackets so they don't interfere with search results
+        else:
+            exclude_keywords = ''
+
         # Additional words added to keywords
         if arguments['prefix_keywords']:
             prefix_keywords = [str(sk) + " " for sk in arguments['prefix_keywords'].split(',')]
@@ -832,8 +840,7 @@ class googleimagesdownload:
                     iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(pky) + str(search_keyword[i] + str(sky))
                     print(iteration)
                     print("Evaluating...")
-                    search_term = pky + search_keyword[i] + sky
-
+                    search_term = pky + search_keyword[i] + sky + exclude_keywords
                     if arguments['image_directory']:
                         dir_name = arguments['image_directory']
                     elif arguments['no_directory']:
