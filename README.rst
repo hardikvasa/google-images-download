@@ -298,6 +298,10 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | This argument takes integer. Make sure the value of this argument is less than the value of limit                             |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| save_source       | is          | Creates a text file with list of downloaded images along with their source page paths.                                        |
+|                   |             |                                                                                                                               |
+|                   |             | This argument takes a string, name of the text file.                                                                          |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | no_download       | nd          | Print the URLs of the images on the console without downloading them. These image URLs can be used for debugging purposes     |
 |                   |             |                                                                                                                               |
 |                   |             | This argument does not take any value. Just add '--no-download' or '-nd' in your query.                                       |
