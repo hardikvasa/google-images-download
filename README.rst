@@ -180,7 +180,7 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | type              | t           | Denotes the type of image to be downloaded.                                                                                   |
 |                   |             |                                                                                                                               |
-|                   |             | `Possible values: face, photo, clipart, line-drawing, animated`                                                              |
+|                   |             | `Possible values: face, photo, clipart, line-drawing, animated`                                                               |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | time              | w           | Denotes the time the image was uploaded/indexed.                                                                              |
 |                   |             |                                                                                                                               |
