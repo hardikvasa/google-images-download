@@ -585,15 +585,16 @@ class googleimagesdownload:
                     image_name = image_name[last_slash + 2:]
 
                 # lose any url parameters
-                tmp_idx = image_name.rfind('?')
+                tmp_idx = image_name.find('?')
                 if tmp_idx != -1:
                     image_name = image_name[:tmp_idx]
-                tmp_idx = image_name.rfind('&')
+                tmp_idx = image_name.find('&')
                 if tmp_idx != -1:
                     image_name = image_name[:tmp_idx]
 
                 # if no extension then add it
-                if image_format == "":
+                # TODO: make more robust, check a range of extensions
+                if image_format == "" and not image_name.endswith('.jpg') and not image_name.endswith('.jpeg') and not image_name.endswith('png'):
                     image_name = image_name + "." + "jpg"
 
                 # prefix name in image
