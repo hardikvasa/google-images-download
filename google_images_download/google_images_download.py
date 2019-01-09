@@ -612,9 +612,13 @@ class googleimagesdownload:
                     absolute_path = ''
 
                 #return image name back to calling method to use it for thumbnail downloads
+                if no_numbering:
+                    return_image_name = prefix + image_name
+                else:
+                    return_image_name = prefix + str(count) + ". " + image_name
+
                 download_status = 'success'
-                download_message = "Completed Image ====> " + prefix + str(count) + ". " + image_name
-                return_image_name = prefix + str(count) + ". " + image_name
+                download_message = "Completed Image ====> " + return_image_name
 
                 # image size parameter
                 if print_size:
