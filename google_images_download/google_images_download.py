@@ -580,14 +580,21 @@ class googleimagesdownload:
                 # keep everything after the last '/'
                 image_name = str(image_url[(image_url.rfind('/')) + 1:])
                 image_name = image_name.lower()
+                last_slash = image_name.rfind('%2f')
+                if last_slash != -1:
+                    image_name = image_name[last_slash + 2:]
+
+                # lose any url parameters
+                tmp_idx = image_name.rfind('?')
+                if tmp_idx != -1:
+                    image_name = image_name[:tmp_idx]
+                tmp_idx = image_name.rfind('&')
+                if tmp_idx != -1:
+                    image_name = image_name[:tmp_idx]
+
                 # if no extension then add it
-                # remove everything after the image name
                 if image_format == "":
                     image_name = image_name + "." + "jpg"
-                elif image_format == "jpeg":
-                    image_name = image_name[:image_name.find(image_format) + 4]
-                else:
-                    image_name = image_name[:image_name.find(image_format) + 3]
 
                 # prefix name in image
                 if prefix:
