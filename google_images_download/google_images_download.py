@@ -111,7 +111,7 @@ def user_input():
         parser.add_argument('-nn', '--no_numbering', default=False, help="Allows you to exclude the default numbering of images", action="store_true")
         parser.add_argument('-of', '--offset', help="Where to start in the fetched links", type=str, required=False)
         parser.add_argument('-nd', '--no_download', default=False, help="Prints the URLs of the images without downloading them", action="store_true")
-        parser.add_argument('-nd', '--no_download_thumbs', default=False, help="Prints the URLs of the thumbnails without downloading them", action="store_true")
+        parser.add_argument('-nt', '--no_download_thumbs', default=False, help="Prints the URLs of the thumbnails without downloading them", action="store_true")
 
         args = parser.parse_args()
         arguments = vars(args)
@@ -516,6 +516,8 @@ class googleimagesdownload:
                 data = response.read()
                 response.close()
 
+                print(main_directory, dir_name, return_image_name)
+                print("###############################################################x")
                 path = main_directory + "/" + dir_name + " - thumbnail" + "/" + return_image_name
 
                 try:
@@ -560,10 +562,31 @@ class googleimagesdownload:
 
     # Download Images
     def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering,no_download):
+
+        # keep everything after the last '/'
+        image_name = str(image_url[(image_url.rfind('/')) + 1:])
+        image_name = image_name.lower()
+        # if no extension then add it
+        # remove everything after the image name
+        if image_format == "":
+            image_name = image_name + "." + "jpg"
+        elif image_format == "jpeg":
+            image_name = image_name[:image_name.find(image_format) + 4]
+        else:
+            image_name = image_name[:image_name.find(image_format) + 3]
+
+        # prefix name in image
+        if prefix:
+            prefix = prefix + " "
+        else:
+            prefix = ''
+
+        return_image_name = prefix + str(count) + ". " + image_name
+
         if print_urls or no_download:
             print("Image URL: " + image_url)
         if no_download:
-            return "success","Printed url without downloading",None,None
+            return "success","Printed url without downloading",return_image_name,None
         try:
             req = Request(image_url, headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
@@ -577,24 +600,6 @@ class googleimagesdownload:
                 response = urlopen(req, None, timeout)
                 data = response.read()
                 response.close()
-
-                # keep everything after the last '/'
-                image_name = str(image_url[(image_url.rfind('/')) + 1:])
-                image_name = image_name.lower()
-                # if no extension then add it
-                # remove everything after the image name
-                if image_format == "":
-                    image_name = image_name + "." + "jpg"
-                elif image_format == "jpeg":
-                    image_name = image_name[:image_name.find(image_format) + 4]
-                else:
-                    image_name = image_name[:image_name.find(image_format) + 3]
-
-                # prefix name in image
-                if prefix:
-                    prefix = prefix + " "
-                else:
-                    prefix = ''
 
                 if no_numbering:
                     path = main_directory + "/" + dir_name + "/" + prefix + image_name
@@ -615,7 +620,6 @@ class googleimagesdownload:
                 #return image name back to calling method to use it for thumbnail downloads
                 download_status = 'success'
                 download_message = "Completed Image ====> " + prefix + str(count) + ". " + image_name
-                return_image_name = prefix + str(count) + ". " + image_name
 
                 # image size parameter
                 if print_size:
@@ -856,7 +860,11 @@ class googleimagesdownload:
                     if arguments['no_download']:
                         print("Starting to Print Image URLS")
                     else:
-                        print("Starting Download...")
+                        print("Starting Download of full size images...")
+                    if arguments['no_download_thumbs']:
+                        print("Starting to Print Image thumbnail URLS")
+                    else:
+                        print("Starting Download of image thumbnails...")
                     items,errorCount,abs_path = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
                     paths[pky + search_keyword[i] + sky] = abs_path
 

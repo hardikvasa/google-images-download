@@ -302,6 +302,10 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | This argument does not take any value. Just add '--no-download' or '-nd' in your query.                                       |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| no_download_thumbs| nt          | Print the URLs of the thumbnails on the console without downloading them. These thumb URLs can be used for debugging purposes |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--no-download_thumbs' or '-nt' in your query.                                |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help              | h           | show the help message regarding the usage of the above arguments                                                              |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 
