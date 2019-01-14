@@ -516,8 +516,6 @@ class googleimagesdownload:
                 data = response.read()
                 response.close()
 
-                print(main_directory, dir_name, return_image_name)
-                print("###############################################################x")
                 path = main_directory + "/" + dir_name + " - thumbnail" + "/" + return_image_name
 
                 try:
