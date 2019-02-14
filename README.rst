@@ -302,6 +302,10 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | This argument does not take any value. Just add '--no-download' or '-nd' in your query.                                       |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| ignore_urls       | iu          | Skip downloading of images whose urls contain certain strings such as wikipedia.org                                           |
+|                   |             |                                                                                                                               |
+|                   |             | This argument takes a delimited set of values e.g. wikipedia.org,wikimedia.org                                                |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help              | h           | show the help message regarding the usage of the above arguments                                                              |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 

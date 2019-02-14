@@ -111,7 +111,7 @@ def user_input():
         parser.add_argument('-nn', '--no_numbering', default=False, help="Allows you to exclude the default numbering of images", action="store_true")
         parser.add_argument('-of', '--offset', help="Where to start in the fetched links", type=str, required=False)
         parser.add_argument('-nd', '--no_download', default=False, help="Prints the URLs of the images and/or thumbnails without downloading them", action="store_true")
-        parser.add_argument('-iu', '--ignore_urls', default=False, help="delimited list input of image urls to ignore", type=str)
+        parser.add_argument('-iu', '--ignore_urls', default=False, help="delimited list input of image urls/keywords to ignore", type=str)
 
         args = parser.parse_args()
         arguments = vars(args)
