@@ -891,6 +891,8 @@ class googleimagesdownload:
         return paths
 
 #------------- Main Program -------------#
+
+
 def main():
     records = user_input()
     for arguments in records:
