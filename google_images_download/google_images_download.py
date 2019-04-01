@@ -580,14 +580,22 @@ class googleimagesdownload:
                 # keep everything after the last '/'
                 image_name = str(image_url[(image_url.rfind('/')) + 1:])
                 image_name = image_name.lower()
+                last_slash = image_name.rfind('%2f')
+                if last_slash != -1:
+                    image_name = image_name[last_slash + 2:]
+
+                # lose any url parameters
+                tmp_idx = image_name.find('?')
+                if tmp_idx != -1:
+                    image_name = image_name[:tmp_idx]
+                tmp_idx = image_name.find('&')
+                if tmp_idx != -1:
+                    image_name = image_name[:tmp_idx]
+
                 # if no extension then add it
-                # remove everything after the image name
-                if image_format == "":
+                # TODO: make more robust, check a range of extensions
+                if image_format == "" and not image_name.endswith('.jpg') and not image_name.endswith('.jpeg') and not image_name.endswith('png'):
                     image_name = image_name + "." + "jpg"
-                elif image_format == "jpeg":
-                    image_name = image_name[:image_name.find(image_format) + 4]
-                else:
-                    image_name = image_name[:image_name.find(image_format) + 3]
 
                 # prefix name in image
                 if prefix:
@@ -612,9 +620,13 @@ class googleimagesdownload:
                     absolute_path = ''
 
                 #return image name back to calling method to use it for thumbnail downloads
+                if no_numbering:
+                    return_image_name = prefix + image_name
+                else:
+                    return_image_name = prefix + str(count) + ". " + image_name
+
                 download_status = 'success'
-                download_message = "Completed Image ====> " + prefix + str(count) + ". " + image_name
-                return_image_name = prefix + str(count) + ". " + image_name
+                download_message = "Completed Image ====> " + return_image_name
 
                 # image size parameter
                 if print_size:
