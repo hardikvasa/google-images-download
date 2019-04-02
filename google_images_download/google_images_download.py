@@ -579,7 +579,6 @@ class googleimagesdownload:
 
                 # keep everything after the last '/'
                 image_name = str(image_url[(image_url.rfind('/')) + 1:])
-                image_name = image_name.lower()
                 # if no extension then add it
                 # remove everything after the image name
                 if image_format == "":
