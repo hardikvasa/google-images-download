@@ -745,21 +745,16 @@ class googleimagesdownload:
         return items,errorCount,abs_path
 
 
-    # Bulk Download
-    def download(self,arguments):
+    def parse_and_validate_arguments(self, arguments):
 
-        #for input coming from other python files
-        if __name__ != "__main__":
-            for arg in args_list:
-                if arg not in arguments:
-                    arguments[arg] = None
+        parsed = {**{k:None for k in args_list}, **arguments}
 
         ######Initialization and Validation of user arguments
         if arguments['keywords']:
-            search_keyword = [str(item) for item in arguments['keywords'].split(',')]
+            parsed['search_keyword'] = [str(item) for item in arguments['keywords'].split(',')]
 
         if arguments['keywords_from_file']:
-            search_keyword = self.keywords_from_file(arguments['keywords_from_file'])
+            parsed['search_keyword'] = self.keywords_from_file(arguments['keywords_from_file'])
 
         # both time and time range should not be allowed in the same query
         if arguments['time'] and arguments['time_range']:
@@ -775,29 +770,29 @@ class googleimagesdownload:
 
         # Additional words added to keywords
         if arguments['suffix_keywords']:
-            suffix_keywords = [" " + str(sk) for sk in arguments['suffix_keywords'].split(',')]
+            parsed['suffix_keywords'] = [" " + str(sk) for sk in arguments['suffix_keywords'].split(',')]
         else:
-            suffix_keywords = ['']
+            parsed['suffix_keywords'] = ['']
 
         # Additional words added to keywords
         if arguments['prefix_keywords']:
-            prefix_keywords = [str(sk) + " " for sk in arguments['prefix_keywords'].split(',')]
+            parsed['prefix_keywords'] = [str(sk) + " " for sk in arguments['prefix_keywords'].split(',')]
         else:
-            prefix_keywords = ['']
+            parsed['prefix_keywords'] = ['']
 
         # Setting limit on number of images to be downloaded
         if arguments['limit']:
-            limit = int(arguments['limit'])
+            parsed['limit'] = int(arguments['limit'])
         else:
-            limit = 100
+            parsed['limit'] = 100
 
         if arguments['url']:
-            current_time = str(datetime.datetime.now()).split('.')[0]
-            search_keyword = [current_time.replace(":", "_")]
+            parsed['current_time'] = str(datetime.datetime.now()).split('.')[0]
+            parsed['search_keyword'] = [parsed['current_time'].replace(":", "_")]
 
         if arguments['similar_images']:
-            current_time = str(datetime.datetime.now()).split('.')[0]
-            search_keyword = [current_time.replace(":", "_")]
+            parsed['current_time'] = str(datetime.datetime.now()).split('.')[0]
+            parsed['search_keyword'] = [parsed['current_time'].replace(":", "_")]
 
         # If single_image or url argument not present then keywords is mandatory argument
         if arguments['single_image'] is None and arguments['url'] is None and arguments['similar_images'] is None and \
@@ -810,12 +805,24 @@ class googleimagesdownload:
                   '-------------------------------')
             sys.exit()
 
-
         # If this argument is present, set the custom output directory
         if arguments['output_directory']:
-            main_directory = arguments['output_directory']
+            parsed['main_directory'] = arguments['output_directory']
         else:
-            main_directory = "downloads"
+            parsed['main_directory'] = "downloads"
+
+        return parsed
+
+    # Bulk Download
+    def download(self,arguments):
+
+        # #for input coming from other python files
+        # if __name__ != "__main__":
+        #     for arg in args_list:
+        #         if arg not in arguments:
+        #             arguments[arg] = None
+
+        arguments = self.parse_and_validate_arguments(arguments)
 
         # Proxy settings
         if arguments['proxy']:
@@ -824,14 +831,14 @@ class googleimagesdownload:
             ######Initialization Complete
 
         paths = {}
-        for pky in prefix_keywords:
-            for sky in suffix_keywords:     # 1.for every suffix keywords
+        for pky in arguments['prefix_keywords']:
+            for sky in arguments['suffix_keywords']:     # 1.for every suffix keywords
                 i = 0
-                while i < len(search_keyword):      # 2.for every main keyword
-                    iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(pky) + str(search_keyword[i] + str(sky))
+                while i < len(arguments['search_keyword']):      # 2.for every main keyword
+                    iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(pky) + str(arguments['search_keyword'][i] + str(sky))
                     print(iteration)
                     print("Evaluating...")
-                    search_term = pky + search_keyword[i] + sky
+                    search_term = pky + arguments['search_keyword'][i] + sky
 
                     if arguments['image_directory']:
                         dir_name = arguments['image_directory']
@@ -840,13 +847,13 @@ class googleimagesdownload:
                     else:
                         dir_name = search_term + ('-' + arguments['color'] if arguments['color'] else '')   #sub-directory
 
-                    self.create_directories(main_directory,dir_name,arguments['thumbnail'])     #create directories in OS
+                    self.create_directories(arguments['main_directory'],dir_name,arguments['thumbnail'])     #create directories in OS
 
                     params = self.build_url_parameters(arguments)     #building URL with params
 
                     url = self.build_search_url(search_term,params,arguments['url'],arguments['similar_images'],arguments['specific_site'],arguments['safe_search'])      #building main search url
 
-                    if limit < 101:
+                    if arguments['limit'] < 101:
                         raw_html = self.download_page(url)  # download page
                     else:
                         raw_html = self.download_extended_page(url,arguments['chromedriver'])
@@ -856,7 +863,7 @@ class googleimagesdownload:
                     else:
                         print("Starting Download...")
                     items,errorCount,abs_path = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
-                    paths[pky + search_keyword[i] + sky] = abs_path
+                    paths[pky + arguments['search_keyword'][i] + sky] = abs_path
 
                     #dumps into a json file
                     if arguments['extract_metadata']:
@@ -876,12 +883,12 @@ class googleimagesdownload:
                         for key, value in tabs.items():
                             final_search_term = (search_term + " - " + key)
                             print("\nNow Downloading - " + final_search_term)
-                            if limit < 101:
+                            if arguments['limit'] < 101:
                                 new_raw_html = self.download_page(value)  # download page
                             else:
                                 new_raw_html = self.download_extended_page(value,arguments['chromedriver'])
-                            self.create_directories(main_directory, final_search_term,arguments['thumbnail'])
-                            self._get_all_items(new_raw_html, main_directory, search_term + " - " + key, limit,arguments)
+                            self.create_directories(arguments['main_directory'], final_search_term,arguments['thumbnail'])
+                            self._get_all_items(new_raw_html, arguments['main_directory'], search_term + " - " + key, limit,arguments)
 
                     i += 1
                     print("\nErrors: " + str(errorCount) + "\n")
