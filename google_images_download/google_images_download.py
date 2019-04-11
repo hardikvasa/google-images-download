@@ -747,7 +747,8 @@ class googleimagesdownload:
 
     def parse_and_validate_arguments(self, arguments):
 
-        parsed = {**{k:None for k in args_list}, **arguments}
+        arguments = {**{k:None for k in args_list}, **arguments}
+        parsed = {}
 
         ######Initialization and Validation of user arguments
         if arguments['keywords']:
@@ -811,7 +812,7 @@ class googleimagesdownload:
         else:
             parsed['main_directory'] = "downloads"
 
-        return parsed
+        return {**arguments, **parsed}
 
     # Bulk Download
     def download(self,arguments):
@@ -862,7 +863,7 @@ class googleimagesdownload:
                         print("Starting to Print Image URLS")
                     else:
                         print("Starting Download...")
-                    items,errorCount,abs_path = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
+                    items,errorCount,abs_path = self._get_all_items(raw_html,arguments['main_directory'],dir_name,arguments['limit'],arguments)    #get all image items and download images
                     paths[pky + arguments['search_keyword'][i] + sky] = abs_path
 
                     #dumps into a json file
