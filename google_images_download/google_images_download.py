@@ -747,8 +747,9 @@ class googleimagesdownload:
 
     def parse_and_validate_arguments(self, arguments):
 
-        arguments = {**{k:None for k in args_list}, **arguments}
-        parsed = {}
+        parsed = dict([(k, None) for k in args_list])
+        parsed.update(arguments)
+        arguments = parsed
 
         ######Initialization and Validation of user arguments
         if arguments['keywords']:
@@ -812,7 +813,7 @@ class googleimagesdownload:
         else:
             parsed['main_directory'] = "downloads"
 
-        return {**arguments, **parsed}
+        return parsed
 
     # Bulk Download
     def download(self,arguments):
