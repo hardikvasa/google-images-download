@@ -14,7 +14,7 @@ if cur_version >= version:  # If the Current Version of Python is 3.0 or above
     from urllib.request import URLError, HTTPError
     from urllib.parse import quote
     import http.client
-    from http.client import IncompleteRead
+    from http.client import IncompleteRead, BadStatusLine
     http.client._MAXHEADERS = 1000
 else:  # If the Current Version of Python is 2.x
     import urllib2
@@ -22,7 +22,7 @@ else:  # If the Current Version of Python is 2.x
     from urllib2 import URLError, HTTPError
     from urllib import quote
     import httplib
-    from httplib import IncompleteRead
+    from httplib import IncompleteRead, BadStatusLine
     httplib._MAXHEADERS = 1000
 import time  # Importing the time library to check the time of code execution
 import os
@@ -416,10 +416,10 @@ class googleimagesdownload:
             url = 'https://www.google.com/search?q=' + keywordem + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
         elif specific_site:
             url = 'https://www.google.com/search?q=' + quote(
-                search_term) + '&as_sitesearch=' + specific_site + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+                search_term.encode('utf-8')) + '&as_sitesearch=' + specific_site + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
         else:
             url = 'https://www.google.com/search?q=' + quote(
-                search_term) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
+                search_term.encode('utf-8')) + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch' + params + '&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
 
         #safe search check
         if safe_search:
@@ -470,7 +470,7 @@ class googleimagesdownload:
             if not os.path.exists(main_directory):
                 os.makedirs(main_directory)
                 time.sleep(0.2)
-                path = str(dir_name)
+                path = (dir_name)
                 sub_directory = os.path.join(main_directory, path)
                 if not os.path.exists(sub_directory):
                     os.makedirs(sub_directory)
@@ -479,7 +479,7 @@ class googleimagesdownload:
                     if not os.path.exists(sub_directory_thumbnail):
                         os.makedirs(sub_directory_thumbnail)
             else:
-                path = str(dir_name)
+                path = (dir_name)
                 sub_directory = os.path.join(main_directory, path)
                 if not os.path.exists(sub_directory):
                     os.makedirs(sub_directory)
@@ -628,6 +628,12 @@ class googleimagesdownload:
             except URLError as e:
                 download_status = 'fail'
                 download_message = "URLError on an image...trying next one..." + " Error: " + str(e)
+                return_image_name = ''
+                absolute_path = ''
+                
+            except BadStatusLine as e:
+                download_status = 'fail'
+                download_message = "BadStatusLine on an image...trying next one..." + " Error: " + str(e)
                 return_image_name = ''
                 absolute_path = ''
 
@@ -828,7 +834,7 @@ class googleimagesdownload:
             for sky in suffix_keywords:     # 1.for every suffix keywords
                 i = 0
                 while i < len(search_keyword):      # 2.for every main keyword
-                    iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + str(pky) + str(search_keyword[i] + str(sky))
+                    iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + (pky) + (search_keyword[i]) + (sky)
                     print(iteration)
                     print("Evaluating...")
                     search_term = pky + search_keyword[i] + sky
