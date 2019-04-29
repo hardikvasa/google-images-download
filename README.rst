@@ -86,6 +86,22 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | Argument          | Short hand  | Description                                                                                                                   |
 +===================+=============+===============================================================================================================================+
+| aspect_ratio      | a           | Denotes the aspect ratio of images to download.                                                                               |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: tall, square, wide, panoramic`                                                                              |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| chromedriver      | cd          | With this argument you can pass the path to the 'chromedriver'.                                                               |
+|                   |             |                                                                                                                               |
+|                   |             | The path looks like this: "path/to/chromedriver". In windows it will be "C:\\path\\to\\chromedriver.exe"                      |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| color             | co          | Denotes the color filter that you want to apply to the images.                                                                |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`                            |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| color_type        | ct          | Denotes the color type you want to apply to the images.                                                                       |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: full-color, black-and-white, transparent`                                                                   |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | config_file       | cf          | You can pass the arguments inside a config file. This is an alternative to passing arguments on the command line directly.    |
 |                   |             |                                                                                                                               |
 |                   |             | Please refer to the                                                                                                           |
@@ -94,6 +110,35 @@ Arguments
 |                   |             | * If 'config_file' argument is present, the program will use the config file and command line arguments will be discarded     |
 |                   |             | * Config file can only be in **JSON** format                                                                                  |
 |                   |             | * Please refrain from passing invalid arguments from config file. Refer to the below arguments list                           |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| delay             | d           | Time to wait between downloading two images                                                                                   |
+|                   |             |                                                                                                                               |
+|                   |             | Time is to be specified in seconds. But you can have sub-second times by using decimal points.                                |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| exact_size        | es          | You can specify the exact size/resolution of the images                                                                       |
+|                   |             |                                                                                                                               |
+|                   |             | This value of this argument can be specified as ``<integer,integer>`` where the fist integer stands for width of the image    |
+|                   |             | and the second integer stands for the height of the image. For example, ``-es 1024,786``                                      |
+|                   |             |                                                                                                                               |
+|                   |             | **Note**: You cannot specify both 'size' and 'exact_size' arguments in the same query. You can only give one of them.         |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| extract_metadata  | e           | This option allows you to save metadata of all the downloaded images in a JSON file.                                          |
+|                   |             |                                                                                                                               |
+|                   |             | This file can be found in the ``logs/`` directory. The name of the file would be same as the keyword nam                      |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--extract_metadata' or '-e' in your query.                                   |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| format            | f           | Denotes the format/extension of the image that you want to download.                                                          |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: jpg, gif, png, bmp, svg, webp, ico`                                                                         |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| help              | h           | show the help message regarding the usage of the above arguments                                                              |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| image_directory   | i           | This lets you specify a directory inside of the main directory (output_directory) in which the images will be saved           |
+|                   |             |                                                                                                                               |
+|                   |             | If not specified, it will default to the name of the keyword.                                                                 |
+|                   |             |                                                                                                                               |
+|                   |             | The directory structure would look like: ``<output_directory><image_directory><images>``                                      |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | keywords          | k           | Denotes the keywords/key phrases you want to search for. For more than one keywords, wrap it in single quotes.                |
 |                   |             |                                                                                                                               |
@@ -110,19 +155,11 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | Only file types '.txt' or  '.csv' are allowed.                                                                                |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| prefix_keywords   | pk          | Denotes additional words added before main keyword while making the search query.                                             |
+| language          | la          | Defines the language filter. The search results are automatically returned in that language                                   |
 |                   |             |                                                                                                                               |
-|                   |             | The final search query would be: <prefix keyword> <keyword>                                                                   |
-|                   |             |                                                                                                                               |
-|                   |             | So, for example, if the keyword is 'car' and prefix_keyword is 'red,yellow,blue', it will search and download images for      |
-|                   |             | 'red car', 'yellow car' and 'blue car' individually                                                                           |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| suffix_keywords   | sk          | Denotes additional words added after main keyword while making the search query.                                              |
-|                   |             |                                                                                                                               |
-|                   |             | The final search query would be: <keyword> <suffix keyword>                                                                   |
-|                   |             |                                                                                                                               |
-|                   |             | So, for example, if the keyword is 'car' and suffix_keyword is 'red,yellow,blue', it will search and download images for      |
-|                   |             | 'car red', 'car yellow' and 'car blue' individually                                                                           |
+|                   |             | `Possible Values: Arabic, Chinese (Simplified), Chinese (Traditional), Czech, Danish, Dutch, English, Estonian. Finnish,      |
+|                   |             | French, German, Greek, Hebrew, Hungarian, Icelandic, Italian, Japanese, Korean, Latvianm, Lithuanian, Norwegian, Portuguese,  |
+|                   |             | Polish, Romanian, Russian, Spanish, Swedish, Turkish`                                                                         |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | limit             | l           | Denotes number of images that you want to download.                                                                           |
 |                   |             |                                                                                                                               |
@@ -132,159 +169,19 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | **Note**: In case of occasional errors while downloading images, you could get less than 100 (if the limit is set to 100)     |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| related_images    | ri          | This argument downloads a ton of images related to the keyword you provided.                                                  |
-|                   |             |                                                                                                                               |
-|                   |             | Google Images page returns list of related keywords to the keyword you have mentioned in the query. This tool downloads       |
-|                   |             | images from each of those related keywords based on the limit you have mentioned in your query                                |
-|                   |             |                                                                                                                               |
-|                   |             | This argument does not take any value. Just add '--related_images' or '-ri' in your query.                                    |
-|                   |             |                                                                                                                               |
-|                   |             | **Note:**  This argument can download hundreds or thousands of additional images so please use this carefully.                |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| format            | f           | Denotes the format/extension of the image that you want to download.                                                          |
-|                   |             |                                                                                                                               |
-|                   |             | `Possible values: jpg, gif, png, bmp, svg, webp, ico`                                                                         |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| color             | co          | Denotes the color filter that you want to apply to the images.                                                                |
-|                   |             |                                                                                                                               |
-|                   |             | `Possible values: red, orange, yellow, green, teal, blue, purple, pink, white, gray, black, brown`                            |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| color_type        | ct          | Denotes the color type you want to apply to the images.                                                                       |
-|                   |             |                                                                                                                               |
-|                   |             | `Possible values: full-color, black-and-white, transparent`                                                                   |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| usage_rights      | r           | Denotes the usage rights/licence under which the image is classified.                                                         |
-|                   |             |                                                                                                                               |
-|                   |             | `Possible values:`                                                                                                            |
-|                   |             |                                                                                                                               |
-|                   |             | * `labeled-for-reuse-with-modifications`,                                                                                     |
-|                   |             | * `labeled-for-reuse`,                                                                                                        |
-|                   |             | * `labeled-for-noncommercial-reuse-with-modification`,                                                                        |
-|                   |             | * `labeled-for-nocommercial-reuse`                                                                                            |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| size              | s           | Denotes the relative size of the image to be downloaded.                                                                      |
-|                   |             |                                                                                                                               |
-|                   |             | `Possible values: large, medium, icon, >400*300, >640*480, >800*600, >1024*768, >2MP, >4MP, >6MP, >8MP, >10MP,                |
-|                   |             | >12MP, >15MP, >20MP, >40MP, >70MP`                                                                                            |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| exact_size        | es          | You can specify the exact size/resolution of the images                                                                       |
-|                   |             |                                                                                                                               |
-|                   |             | This value of this argument can be specified as ``<integer,integer>`` where the fist integer stands for width of the image    |
-|                   |             | and the second integer stands for the height of the image. For example, ``-es 1024,786``                                      |
-|                   |             |                                                                                                                               |
-|                   |             | **Note**: You cannot specify both 'size' and 'exact_size' arguments in the same query. You can only give one of them.         |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| aspect_ratio      | a           | Denotes the aspect ratio of images to download.                                                                               |
-|                   |             |                                                                                                                               |
-|                   |             | `Possible values: tall, square, wide, panoramic`                                                                              |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| type              | t           | Denotes the type of image to be downloaded.                                                                                   |
-|                   |             |                                                                                                                               |
-|                   |             | `Possible values: face, photo, clip-art, line-drawing, animated`                                                              |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| time              | w           | Denotes the time the image was uploaded/indexed.                                                                              |
-|                   |             |                                                                                                                               |
-|                   |             | `Possible values: past-24-hours, past-7-days`                                                                                 |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| time_range        | wr          | Denotes the time range for which you want to search the images                                                                |
-|                   |             |                                                                                                                               |
-|                   |             | The value of this parameter should be in the following format '{"time_min":"MM/DD/YYYY","time_max":"MM/DD/YYYY"}'             |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| delay             | d           | Time to wait between downloading two images                                                                                   |
-|                   |             |                                                                                                                               |
-|                   |             | Time is to be specified in seconds. But you can have sub-second times by using decimal points.                                |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| url               | u           | Allows you search by image when you have the URL from the Google Images page.                                                 |
-|                   |             | It downloads images from the google images link provided                                                                      |
-|                   |             |                                                                                                                               |
-|                   |             | If you are searching an image on the browser google images page, simply grab the browser URL and paste it in this parameter   |
-|                   |             | It will download all the images seen on that page.                                                                            |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| single_image      | x           | Allows you to download one image if the complete (absolute) URL of the image is provided                                      |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| output_directory  | o           | Allows you specify the main directory name in which the images are downloaded.                                                |
-|                   |             |                                                                                                                               |
-|                   |             | If not specified, it will default to 'downloads' directory. This directory is located in the path from where you run this code|
-|                   |             |                                                                                                                               |
-|                   |             | The directory structure would look like: ``<output_directory><image_directory><images>``                                      |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| image_directory   | i           | This lets you specify a directory inside of the main directory (output_directory) in which the images will be saved           |
-|                   |             |                                                                                                                               |
-|                   |             | If not specified, it will default to the name of the keyword.                                                                 |
-|                   |             |                                                                                                                               |
-|                   |             | The directory structure would look like: ``<output_directory><image_directory><images>``                                      |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| no_directory      | n           | This option allows you download images directly in the main directory (output_directory) without an image_directory           |
-|                   |             |                                                                                                                               |
-|                   |             | The directory structure would look like: ``<output_directory><images>``                                                       |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| proxy             | px          | Allows you to specify proxy server setting for all your requests                                                              |
-|                   |             |                                                                                                                               |
-|                   |             | You can specify the proxy settings in 'IP:Port' format                                                                        |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| similar_images    | si          | Reverse Image Search or 'Search by Image' as it is referred to on Google.                                                     |
-|                   |             |                                                                                                                               |
-|                   |             | Searches and downloads images that are similar to the absolute image link/url you provide.                                    |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| specific_site     | ss          | Allows you to download images with keywords only from a specific website/domain name you mention.                             |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| print_urls        | p           | Print the URLs of the images on the console. These image URLs can be used for debugging purposes                              |
-|                   |             |                                                                                                                               |
-|                   |             | This argument does not take any value. Just add '--print_urls' or '-p' in your query.                                         |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| print_size        | ps          | Prints the size of the images on the console                                                                                  |
-|                   |             |                                                                                                                               |
-|                   |             | The size denoted the actual size of the image and not the size of the image on disk                                           |
-|                   |             |                                                                                                                               |
-|                   |             | This argument does not take any value. Just add '--print_size' or '-ps' in your query.                                        |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| print_paths       | pp          | Prints the list of all the absolute paths of the downloaded images                                                            |
-|                   |             |                                                                                                                               |
-|                   |             | When calling the script from another python file, this list will be saved in a variable (as shown in the example below)       |
-|                   |             |                                                                                                                               |
-|                   |             | This argument also allows you to print the list on the console                                                                |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | metadata          | m           | Prints the metada of the image on the console.                                                                                |
 |                   |             |                                                                                                                               |
 |                   |             | This includes image size, origin, image attributes, description, image URL, etc.                                              |
 |                   |             |                                                                                                                               |
 |                   |             | This argument does not take any value. Just add '--metadata' or '-m' in your query.                                           |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| extract_metadata  | e           | This option allows you to save metadata of all the downloaded images in a JSON file.                                          |
+| no_directory      | n           | This option allows you download images directly in the main directory (output_directory) without an image_directory           |
 |                   |             |                                                                                                                               |
-|                   |             | This file can be found in the ``logs/`` directory. The name of the file would be same as the keyword nam                      |
-|                   |             |                                                                                                                               |
-|                   |             | This argument does not take any value. Just add '--extract_metadata' or '-e' in your query.                                   |
+|                   |             | The directory structure would look like: ``<output_directory><images>``                                                       |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| socket_timeout    | st          | Allows you to specify the time to wait for socket connection.                                                                 |
+| no_download       | nd          | Print the URLs of the images on the console without downloading them. These image URLs can be used for debugging purposes     |
 |                   |             |                                                                                                                               |
-|                   |             | You could specify a higher timeout time for slow internet connection. The default value is 10 seconds.                        |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| thumbnail         | th          | Downloads image thumbnails corresponding to each image downloaded.                                                            |
-|                   |             |                                                                                                                               |
-|                   |             | Thumbnails are saved in their own sub-directories inside of the main directory.                                               |
-|                   |             |                                                                                                                               |
-|                   |             | This argument does not take any value. Just add '--thumbnail' or '-th' in your query.                                         |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| language          | la          | Defines the language filter. The search results are automatically returned in that language                                   |
-|                   |             |                                                                                                                               |
-|                   |             | `Possible Values: Arabic, Chinese (Simplified), Chinese (Traditional), Czech, Danish, Dutch, English, Estonian. Finnish,      |
-|                   |             | French, German, Greek, Hebrew, Hungarian, Icelandic, Italian, Japanese, Korean, Latvianm, Lithuanian, Norwegian, Portuguese,  |
-|                   |             | Polish, Romanian, Russian, Spanish, Swedish, Turkish`                                                                         |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| prefix            | pr          | A word that you would want to prefix in front of actual image name.                                                           |
-|                   |             |                                                                                                                               |
-|                   |             | This feature can be used to rename files for image identification purpose.                                                    |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| chromedriver      | cd          | With this argument you can pass the path to the 'chromedriver'.                                                               |
-|                   |             |                                                                                                                               |
-|                   |             | The path looks like this: "path/to/chromedriver". In windows it will be "C:\\path\\to\\chromedriver.exe"                      |
-+-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| safe_search       | sa          | Searches for images with the Safe Search filter On                                                                            |
-|                   |             |                                                                                                                               |
-|                   |             | And this filter will be Off by default if you do not specify the safe_search argument                                         |
-|                   |             |                                                                                                                               |
-|                   |             | This argument does not take any value. Just add '--safe_search' or '-sa' in your query.                                       |
+|                   |             | This argument does not take any value. Just add '--no-download' or '-nd' in your query.                                       |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | no_numbering      | nn          | When you specify this argument, the script does not add ordered numbering as prefix to the images it downloads                |
 |                   |             |                                                                                                                               |
@@ -298,11 +195,114 @@ Arguments
 |                   |             |                                                                                                                               |
 |                   |             | This argument takes integer. Make sure the value of this argument is less than the value of limit                             |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| no_download       | nd          | Print the URLs of the images on the console without downloading them. These image URLs can be used for debugging purposes     |
+| output_directory  | o           | Allows you specify the main directory name in which the images are downloaded.                                                |
 |                   |             |                                                                                                                               |
-|                   |             | This argument does not take any value. Just add '--no-download' or '-nd' in your query.                                       |
+|                   |             | If not specified, it will default to 'downloads' directory. This directory is located in the path from where you run this code|
+|                   |             |                                                                                                                               |
+|                   |             | The directory structure would look like: ``<output_directory><image_directory><images>``                                      |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| help              | h           | show the help message regarding the usage of the above arguments                                                              |
+| prefix            | pr          | A word that you would want to prefix in front of actual image name.                                                           |
+|                   |             |                                                                                                                               |
+|                   |             | This feature can be used to rename files for image identification purpose.                                                    |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| prefix_keywords   | pk          | Denotes additional words added before main keyword while making the search query.                                             |
+|                   |             |                                                                                                                               |
+|                   |             | The final search query would be: <prefix keyword> <keyword>                                                                   |
+|                   |             |                                                                                                                               |
+|                   |             | So, for example, if the keyword is 'car' and prefix_keyword is 'red,yellow,blue', it will search and download images for      |
+|                   |             | 'red car', 'yellow car' and 'blue car' individually                                                                           |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| print_paths       | pp          | Prints the list of all the absolute paths of the downloaded images                                                            |
+|                   |             |                                                                                                                               |
+|                   |             | When calling the script from another python file, this list will be saved in a variable (as shown in the example below)       |
+|                   |             |                                                                                                                               |
+|                   |             | This argument also allows you to print the list on the console                                                                |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| print_size        | ps          | Prints the size of the images on the console                                                                                  |
+|                   |             |                                                                                                                               |
+|                   |             | The size denoted the actual size of the image and not the size of the image on disk                                           |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--print_size' or '-ps' in your query.                                        |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| print_urls        | p           | Print the URLs of the images on the console. These image URLs can be used for debugging purposes                              |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--print_urls' or '-p' in your query.                                         |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| proxy             | px          | Allows you to specify proxy server setting for all your requests                                                              |
+|                   |             |                                                                                                                               |
+|                   |             | You can specify the proxy settings in 'IP:Port' format                                                                        |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| related_images    | ri          | This argument downloads a ton of images related to the keyword you provided.                                                  |
+|                   |             |                                                                                                                               |
+|                   |             | Google Images page returns list of related keywords to the keyword you have mentioned in the query. This tool downloads       |
+|                   |             | images from each of those related keywords based on the limit you have mentioned in your query                                |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--related_images' or '-ri' in your query.                                    |
+|                   |             |                                                                                                                               |
+|                   |             | **Note:**  This argument can download hundreds or thousands of additional images so please use this carefully.                |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| safe_search       | sa          | Searches for images with the Safe Search filter On                                                                            |
+|                   |             |                                                                                                                               |
+|                   |             | And this filter will be Off by default if you do not specify the safe_search argument                                         |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--safe_search' or '-sa' in your query.                                       |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| similar_images    | si          | Reverse Image Search or 'Search by Image' as it is referred to on Google.                                                     |
+|                   |             |                                                                                                                               |
+|                   |             | Searches and downloads images that are similar to the absolute image link/url you provide.                                    |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| single_image      | x           | Allows you to download one image if the complete (absolute) URL of the image is provided                                      |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| size              | s           | Denotes the relative size of the image to be downloaded.                                                                      |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: large, medium, icon, >400*300, >640*480, >800*600, >1024*768, >2MP, >4MP, >6MP, >8MP, >10MP,                |
+|                   |             | >12MP, >15MP, >20MP, >40MP, >70MP`                                                                                            |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| socket_timeout    | st          | Allows you to specify the time to wait for socket connection.                                                                 |
+|                   |             |                                                                                                                               |
+|                   |             | You could specify a higher timeout time for slow internet connection. The default value is 10 seconds.                        |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| specific_site     | ss          | Allows you to download images with keywords only from a specific website/domain name you mention.                             |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| suffix_keywords   | sk          | Denotes additional words added after main keyword while making the search query.                                              |
+|                   |             |                                                                                                                               |
+|                   |             | The final search query would be: <keyword> <suffix keyword>                                                                   |
+|                   |             |                                                                                                                               |
+|                   |             | So, for example, if the keyword is 'car' and suffix_keyword is 'red,yellow,blue', it will search and download images for      |
+|                   |             | 'car red', 'car yellow' and 'car blue' individually                                                                           |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| thumbnail         | th          | Downloads image thumbnails corresponding to each image downloaded.                                                            |
+|                   |             |                                                                                                                               |
+|                   |             | Thumbnails are saved in their own sub-directories inside of the main directory.                                               |
+|                   |             |                                                                                                                               |
+|                   |             | This argument does not take any value. Just add '--thumbnail' or '-th' in your query.                                         |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| time              | w           | Denotes the time the image was uploaded/indexed.                                                                              |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: past-24-hours, past-7-days`                                                                                 |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| time_range        | wr          | Denotes the time range for which you want to search the images                                                                |
+|                   |             |                                                                                                                               |
+|                   |             | The value of this parameter should be in the following format '{"time_min":"MM/DD/YYYY","time_max":"MM/DD/YYYY"}'             |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| type              | t           | Denotes the type of image to be downloaded.                                                                                   |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values: face, photo, clip-art, line-drawing, animated`                                                              |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| url               | u           | Allows you search by image when you have the URL from the Google Images page.                                                 |
+|                   |             | It downloads images from the google images link provided                                                                      |
+|                   |             |                                                                                                                               |
+|                   |             | If you are searching an image on the browser google images page, simply grab the browser URL and paste it in this parameter   |
+|                   |             | It will download all the images seen on that page.                                                                            |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| usage_rights      | r           | Denotes the usage rights/licence under which the image is classified.                                                         |
+|                   |             |                                                                                                                               |
+|                   |             | `Possible values:`                                                                                                            |
+|                   |             |                                                                                                                               |
+|                   |             | * `labeled-for-reuse-with-modifications`,                                                                                     |
+|                   |             | * `labeled-for-reuse`,                                                                                                        |
+|                   |             | * `labeled-for-noncommercial-reuse-with-modification`,                                                                        |
+|                   |             | * `labeled-for-nocommercial-reuse`                                                                                            |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 
 
@@ -394,61 +394,61 @@ Examples
 -  To use non-English keywords for image search
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload -k "北极熊" -l 5
 
 -  To download images from the google images link
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload -k "sample" -u <google images page URL>
 
 -  To save images in specific main directory (instead of in 'downloads')
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload -k "boat" -o "boat_new"
 
 -  To download one single image with the image URL
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "baloons" --single_image <URL of the images>
 
 -  To download images with size and type constrains
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "baloons" --size medium --type animated
 
 -  To download images with specific usage rights
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "universe" --usage_rights labeled-for-reuse
 
 -  To download images with specific color type
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "flowers" --color_type black-and-white
 
 -  To download images with specific aspect ratio
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "universe" --aspect_ratio panoramic
 
 -  To download images which are similar to the image in the image URL that you provided (Reverse Image search).
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload -si <image url> -l 10
 
 -  To download images from specific website or domain name for a given keyword
 
 .. code-block:: bash
-    
+
     $ googleimagesdownload --keywords "universe" --specific_site example.com
 
 ===> The images would be downloaded in their own sub-directories inside the main directory
@@ -473,7 +473,7 @@ To get the details of the repo, run the following command:
 
 .. code-block:: bash
 
-    $ pip show -f google_images_download 
+    $ pip show -f google_images_download
 
 you will get the result like this:
 
@@ -486,7 +486,7 @@ you will get the result like this:
 together they make: ``/Library/Frameworks/Python.framework/Versions/2.7/bin`` which you need add it to the path:
 
 .. code-block:: bash
-	
+
     $ export PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin"
 
 
@@ -500,7 +500,7 @@ When you run the command, it downloads the images in the current directory (the 
 On MAC and Linux, when you get permission denied when installing the library using pip, try doing a user install.
 
 .. code-block:: bash
-	
+
     $ pip install google_images_download --user
 
 You can also run pip install as a superuser with ``sudo pip install google_images_download`` but it is not generally a good idea because it can cause issues with your system-level packages.
