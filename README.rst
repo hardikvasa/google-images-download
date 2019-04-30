@@ -184,7 +184,7 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | time              | w           | Denotes the time the image was uploaded/indexed.                                                                              |
 |                   |             |                                                                                                                               |
-|                   |             | `Possible values: past-24-hours, past-7-days`                                                                                 |
+|                   |             | `Possible values: past-24-hours, past-7-days, past-month, past-year`                                                          |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | time_range        | wr          | Denotes the time range for which you want to search the images                                                                |
 |                   |             |                                                                                                                               |
@@ -252,7 +252,7 @@ Arguments
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | extract_metadata  | e           | This option allows you to save metadata of all the downloaded images in a JSON file.                                          |
 |                   |             |                                                                                                                               |
-|                   |             | This file can be found in the ``logs/`` directory. The name of the file would be same as the keyword nam                      |
+|                   |             | This file can be found in the ``logs/`` directory. The name of the file would be same as the keyword name                     |
 |                   |             |                                                                                                                               |
 |                   |             | This argument does not take any value. Just add '--extract_metadata' or '-e' in your query.                                   |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+

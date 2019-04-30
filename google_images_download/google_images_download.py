@@ -88,7 +88,7 @@ def user_input():
         parser.add_argument('-t', '--type', help='image type', type=str, required=False,
                             choices=['face','photo','clipart','line-drawing','animated'])
         parser.add_argument('-w', '--time', help='image age', type=str, required=False,
-                            choices=['past-24-hours','past-7-days','past-month'])
+                            choices=['past-24-hours','past-7-days','past-month','past-year'])
         parser.add_argument('-wr', '--time_range', help='time range for the age of the image. should be in the format {"time_min":"MM/DD/YYYY","time_max":"MM/DD/YYYY"}', type=str, required=False)
         parser.add_argument('-a', '--aspect_ratio', help='comma separated additional words added to keywords', type=str, required=False,
                             choices=['tall', 'square', 'wide', 'panoramic'])
@@ -241,7 +241,6 @@ class googleimagesdownload:
             url_item_name = url_item_name.replace(',online_chips:',' ')
             url_item_name = url_item_name.replace('+',' ')
 
-            #print(url_item,url_item_name)
             return url_item,url_item_name,end_content
 
 
@@ -310,7 +309,7 @@ class googleimagesdownload:
         except OSError as e:
             raise e
 
-        print("completed ====> " + image_name)
+        print("completed ====> " + image_name.encode('raw_unicode_escape').decode('utf-8'))
         return
 
     def similar_images(self,similar_images):
@@ -332,7 +331,6 @@ class googleimagesdownload:
                 newurl = "https://www.google.com/search?tbs=sbi:" + urll + "&site=search&sa=X"
                 req2 = urllib.request.Request(newurl, headers=headers)
                 resp2 = urllib.request.urlopen(req2)
-                # print(resp2.read())
                 l3 = content.find('/search?sa=X&amp;q=')
                 l4 = content.find(';', l3 + 19)
                 urll2 = content[l3 + 19:l4]
@@ -353,10 +351,8 @@ class googleimagesdownload:
                 urll = content[l1:l2]
 
                 newurl = "https://www.google.com/search?tbs=sbi:" + urll + "&site=search&sa=X"
-                #print newurl
                 req2 = urllib2.Request(newurl, headers=headers)
                 resp2 = urllib2.urlopen(req2)
-                # print(resp2.read())
                 l3 = content.find('/search?sa=X&amp;q=')
                 l4 = content.find(';', l3 + 19)
                 urll2 = content[l3 + 19:l4]
@@ -393,7 +389,7 @@ class googleimagesdownload:
                   'usage_rights':[arguments['usage_rights'],{'labeled-for-reuse-with-modifications':'sur:fmc','labeled-for-reuse':'sur:fc','labeled-for-noncommercial-reuse-with-modification':'sur:fm','labeled-for-nocommercial-reuse':'sur:f'}],
                   'size':[arguments['size'],{'large':'isz:l','medium':'isz:m','icon':'isz:i','>400*300':'isz:lt,islt:qsvga','>640*480':'isz:lt,islt:vga','>800*600':'isz:lt,islt:svga','>1024*768':'visz:lt,islt:xga','>2MP':'isz:lt,islt:2mp','>4MP':'isz:lt,islt:4mp','>6MP':'isz:lt,islt:6mp','>8MP':'isz:lt,islt:8mp','>10MP':'isz:lt,islt:10mp','>12MP':'isz:lt,islt:12mp','>15MP':'isz:lt,islt:15mp','>20MP':'isz:lt,islt:20mp','>40MP':'isz:lt,islt:40mp','>70MP':'isz:lt,islt:70mp'}],
                   'type':[arguments['type'],{'face':'itp:face','photo':'itp:photo','clipart':'itp:clipart','line-drawing':'itp:lineart','animated':'itp:animated'}],
-                  'time':[arguments['time'],{'past-24-hours':'qdr:d','past-7-days':'qdr:w','past-month':'qdr:m'}],
+                  'time':[arguments['time'],{'past-24-hours':'qdr:d','past-7-days':'qdr:w','past-month':'qdr:m','past-year':'qdr:y'}],
                   'aspect_ratio':[arguments['aspect_ratio'],{'tall':'iar:t','square':'iar:s','wide':'iar:w','panoramic':'iar:xw'}],
                   'format':[arguments['format'],{'jpg':'ift:jpg','gif':'ift:gif','png':'ift:png','bmp':'ift:bmp','svg':'ift:svg','webp':'webp','ico':'ift:ico'}]}
         for key, value in params.items():
@@ -433,7 +429,6 @@ class googleimagesdownload:
         if safe_search:
             url = url + safe_search_string
 
-        # print(url)
         return url
 
 
@@ -853,7 +848,7 @@ class googleimagesdownload:
                 i = 0
                 while i < len(search_keyword):      # 2.for every main keyword
                     iteration = "\n" + "Item no.: " + str(i + 1) + " -->" + " Item name = " + (pky) + (search_keyword[i]) + (sky)
-                    print(iteration)
+                    print(iteration.encode('raw_unicode_escape').decode('utf-8'))
                     print("Evaluating...")
                     search_term = pky + search_keyword[i] + sky
 
