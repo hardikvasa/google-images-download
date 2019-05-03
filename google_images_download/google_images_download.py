@@ -502,8 +502,6 @@ class googleimagesdownload:
             print("Image URL: " + image_url)
         if no_download:
             return "success","Printed url without downloading"
-        if any(url in image_url for url in ignore_urls.split(',')):
-            return "success","Image ignored"
         try:
             req = Request(image_url, headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
@@ -566,8 +564,9 @@ class googleimagesdownload:
             print("Image URL: " + image_url)
         if no_download:
             return "success","Printed url without downloading",None,None
-        if any(url in image_url for url in ignore_urls.split(',')):
-            return "success","Image ignored",None,None
+        if ignore_urls:
+            if any(url in image_url for url in ignore_urls.split(',')):
+                return "fail","Image ignored",None,None
         try:
             req = Request(image_url, headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
