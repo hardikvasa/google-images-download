@@ -765,7 +765,7 @@ class googleimagesdownload:
 
 
     # Bulk Download
-    def download(self,arguments):
+    def download(self,arguments,detailed_output=False):
 
         #for input coming from other python files
         if __name__ != "__main__":
@@ -906,6 +906,12 @@ class googleimagesdownload:
                     print("\nErrors: " + str(errorCount) + "\n")
         if arguments['print_paths']:
             print(paths)
+
+        if detailed_output: 
+            for i, path in enumerate(paths):
+                items[i]['local_path'] = path 
+            return items
+
         return paths
 
 #------------- Main Program -------------#
