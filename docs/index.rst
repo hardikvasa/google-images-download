@@ -1,6 +1,3 @@
-Google Images Download Documentation
-====================================
-
 Summary
 -------
 
