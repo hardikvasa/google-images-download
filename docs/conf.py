@@ -15,9 +15,17 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 
+html_static_path = ['_static']
+
+html_context = {
+    'css_files': [
+        '_static/theme_overrides.css',  # override wide tables in RTD theme
+        ],
+     }
+
 # -- Project information -----------------------------------------------------
 
-project = 'google-images-download'
+project = 'Google Images Download'
 copyright = '2019, Hardik Vasa'
 author = 'Hardik Vasa'
 
