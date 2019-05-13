@@ -13,14 +13,20 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+version = '1.0.1'
 
+source_suffix = '.rst'
+master_doc = 'index'
 
 html_static_path = ['_static']
 
 html_context = {
     'css_files': [
         '_static/overrides.css',  # override wide tables in RTD theme
-        ],
+    ],
+	"display_github": True, # Add 'Edit on Github' link instead of 'View page source'
+	"last_updated": True,
+	"commit": False,
      }
 
 # -- Project information -----------------------------------------------------
@@ -58,3 +64,6 @@ html_theme = 'bizstyle'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'searchbox.html'] }
+

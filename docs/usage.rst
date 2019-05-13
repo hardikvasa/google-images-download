@@ -1,3 +1,7 @@
+=====
+Usage
+=====
+
 Using the library from Command Line Interface
 =============================================
 

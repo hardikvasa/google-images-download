@@ -1,5 +1,6 @@
-Structure
-=========
+========
+Workflow
+========
 
 Below diagram represents the algorithm logic to download images.
 

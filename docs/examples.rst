@@ -1,3 +1,7 @@
+========
+Examples
+========
+
 Config File Format
 ==================
 
@@ -148,4 +152,18 @@ Command line examples
 Library extensions
 ==================
 
-Coming soon!
+The downloading algorithm does a good job of keeping out corrupt images. However it is not ideal. There are still some chances of getting one-off corrupt image that cannot be used for processing. Below script will help clean those corrupt image files. This script was ideated by @devajith in `Issue 81 <https://github.com/hardikvasa/google-images-download/issues/81>`__.
+
+.. code:: python
+
+    import os
+    from PIL import Image
+
+    img_dir = r"path/to/downloads/directory"
+    for filename in os.listdir(img_dir):
+        try :
+            with Image.open(img_dir + "/" + filename) as im:
+                 print('ok')
+        except :
+            print(img_dir + "/" + filename)
+            os.remove(img_dir + "/" + filename)

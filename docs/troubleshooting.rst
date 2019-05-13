@@ -1,15 +1,16 @@
+=============================
 Troubleshooting Errors/Issues
 =============================
 
 SSL Errors
-----------
+==========
 
 If you do see SSL errors on Mac for Python 3,
 please go to Finder —> Applications —> Python 3 —> Click on the ‘Install Certificates.command’
 and run the file.
 
 googleimagesdownload: command not found
----------------------------------------
+=======================================
 
 While using the above commands, if you get ``Error: -bash: googleimagesdownload: command not found`` then you have to set the correct path variable.
 
@@ -35,13 +36,13 @@ together they make: ``/Library/Frameworks/Python.framework/Versions/2.7/bin`` wh
 
 
 [Errno 13] Permission denied creating directory 'downloads'
------------------------------------------------------------
+===========================================================
 
 When you run the command, it downloads the images in the current directory (the directory from where you are running the command). If you get permission denied error for creating the `downloads directory`, then move to a directory in which you have the write permission and then run the command again.
 
 
 Permission denied while installing the library
-----------------------------------------------
+==============================================
 
 On MAC and Linux, when you get permission denied when installing the library using pip, try doing a user install.
 
@@ -53,7 +54,7 @@ You can also run pip install as a superuser with ``sudo pip install google_image
 
 
 Installing the chromedriver (with Selenium)
--------------------------------------------
+===========================================
 
 If you would want to download more than 100 images per keyword, then you will need to install 'selenium' library along with 'chromedriver' extension.
 
