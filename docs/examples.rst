@@ -2,6 +2,12 @@
 Examples
 ========
 
+Link to `GitHub repo <https://github.com/hardikvasa/google-images-download>`__
+
+Link to `Documentation Homepage <https://google-images-download.readthedocs.io/en/latest/index.html>`__
+
+Link to `Input arguments or parameters <https://google-images-download.readthedocs.io/en/latest/arguments.html>`__
+
 Config File Format
 ==================
 
@@ -31,8 +37,8 @@ download images based on arguments passed.
     }
 
 
-Command line examples
-=====================
+Code sample - Importing the library
+===================================
 
 - If you are calling this library from another python file, below is the sample code
 
@@ -45,6 +51,10 @@ Command line examples
     arguments = {"keywords":"Polar bears,baloons,Beaches","limit":20,"print_urls":True}   #creating list of arguments
     paths = response.download(arguments)   #passing the arguments to the function
     print(paths)   #printing absolute paths of the downloaded images
+
+
+Command line examples
+=====================
 
 - If you are passing arguments from a config file, simply pass the config_file argument with name of your JSON file
 

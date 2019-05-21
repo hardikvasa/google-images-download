@@ -2,6 +2,10 @@
 Usage
 =====
 
+Link to `GitHub repo <https://github.com/hardikvasa/google-images-download>`__
+
+Link to `Documentation Homepage <https://google-images-download.readthedocs.io/en/latest/index.html>`__
+
 Using the library from Command Line Interface
 =============================================
 

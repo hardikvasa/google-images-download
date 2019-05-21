@@ -2,6 +2,10 @@
 Troubleshooting Errors/Issues
 =============================
 
+Link to `GitHub repo <https://github.com/hardikvasa/google-images-download>`__
+
+Link to `Documentation Homepage <https://google-images-download.readthedocs.io/en/latest/index.html>`__
+
 SSL Errors
 ==========
 
@@ -75,3 +79,16 @@ For **All the operating systems** you will have to use '--chromedriver' or '-cd'
 chromedriver that you have downloaded in your machine.
 
 If on any rare occasion the chromedriver does not work for you, try downgrading it to a lower version.
+
+
+urlopen error [SSL: CERTIFICATE_VERIFY_FAILED]
+==============================================
+
+`Reference to this issue <https://github.com/hardikvasa/google-images-download/issues/140>`__
+
+Use the below command to install the SSL certificate on your machine.
+
+.. code-block:: bash
+	
+	cd /Applications/Python\ 3.7/
+	./Install\ Certificates.command

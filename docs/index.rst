@@ -2,6 +2,8 @@
 Google Images Download
 ======================
 
+Link to `GitHub repo <https://github.com/hardikvasa/google-images-download>`__
+
 .. index:: Summary
 
 Summary

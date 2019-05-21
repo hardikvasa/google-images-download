@@ -507,7 +507,7 @@ class googleimagesdownload:
         return
 
 
-    # Download Images
+    # Download Image thumbnails
     def download_image_thumbnail(self,image_url,main_directory,dir_name,return_image_name,print_urls,socket_timeout,print_size,no_download,save_source,img_src,ignore_urls):
         if print_urls or no_download:
             print("Image URL: " + image_url)
@@ -576,14 +576,14 @@ class googleimagesdownload:
 
     # Download Images
     def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering,no_download,save_source,img_src,silent_mode,thumbnail_only,format,ignore_urls):
-        if ignore_urls:
-            if any(url in image_url for url in ignore_urls.split(',')):
-                return "fail","Image ignored",None,None
-        if thumbnail_only:
-            return "success", "Skipping image download...", str(image_url[(image_url.rfind('/')) + 1:]), image_url
         if not silent_mode:
             if print_urls or no_download:
                 print("Image URL: " + image_url)
+        if ignore_urls:
+            if any(url in image_url for url in ignore_urls.split(',')):
+                return "fail", "Image ignored due to 'ignore url' parameter", None, image_url
+        if thumbnail_only:
+            return "success", "Skipping image download...", str(image_url[(image_url.rfind('/')) + 1:]), image_url
         if no_download:
             return "success","Printed url without downloading",None,image_url
         try:

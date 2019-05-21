@@ -2,6 +2,8 @@
 Installation
 ============
 
+Link to `Documentation Homepage <https://google-images-download.readthedocs.io/en/latest/index.html>`__
+
 You can use **one of the below methods** to download and use this repository.
 
 Install using pip

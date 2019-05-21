@@ -2,6 +2,10 @@
 Input Arguments
 ===============
 
+Link to `GitHub repo <https://github.com/hardikvasa/google-images-download>`__
+
+Link to `Documentation Homepage <https://google-images-download.readthedocs.io/en/latest/index.html>`__
+
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | Argument          | Short hand  | Description                                                                                                                   |
 +===================+=============+===============================================================================================================================+
@@ -234,6 +238,10 @@ Input Arguments
 | silent_mode       | sil         | Remains silent. Does not print notification messages on the terminal/command prompt.                                          |
 |                   |             |                                                                                                                               |
 |                   |             | This argument will override all the other print arguments (like print_urls, print_size, etc.)                                 |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| ignore_urls       | iu          | Skip downloading of images whose urls contain certain strings such as wikipedia.org                                           |
+|                   |             |                                                                                                                               |
+|                   |             | This argument takes a delimited set of values e.g. wikipedia.org,wikimedia.org                                                |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | help              | h           | show the help message regarding the usage of the above arguments                                                              |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
