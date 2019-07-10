@@ -575,7 +575,7 @@ class googleimagesdownload:
 
 
     # Download Images
-    def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering,no_download,save_source,img_src,silent_mode,thumbnail_only,format,ignore_urls):
+    def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering,no_download,save_source,img_src,silent_mode,thumbnail_only,format,ignore_urls,output_name):
         if not silent_mode:
             if print_urls or no_download:
                 print("Image URL: " + image_url)
@@ -621,6 +621,9 @@ class googleimagesdownload:
                     image_name = image_name + "." + image_format
                 else:
                     image_name = image_name[:image_name.lower().find("." + image_format) + (len(image_format) + 1)]
+
+                if output_name:
+                    image_name = output_name + "." + image_format
 
                 # prefix name in image
                 if prefix:
@@ -763,7 +766,7 @@ class googleimagesdownload:
                         print("\nImage Metadata: " + str(object))
 
                 #download the images
-                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'],arguments['no_numbering'],arguments['no_download'],arguments['save_source'],object['image_source'],arguments["silent_mode"],arguments["thumbnail_only"],arguments['format'],arguments['ignore_urls'])
+                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'],arguments['no_numbering'],arguments['no_download'],arguments['save_source'],object['image_source'],arguments["silent_mode"],arguments["thumbnail_only"],arguments['format'],arguments['ignore_urls'],arguments['output_name'])
                 if not arguments["silent_mode"]:
                     print(download_message)
                 if download_status == "success":
