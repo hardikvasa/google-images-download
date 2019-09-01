@@ -457,18 +457,12 @@ class googleimagesdownload:
     def keywords_from_file(self,file_name):
         search_keyword = []
         with codecs.open(file_name, 'r', encoding='utf-8-sig') as f:
-            if '.csv' in file_name:
+            if '.csv' in file_name or '.txt' in file_name:
                 for line in f:
                     if line in ['\n', '\r\n']:
                         pass
                     else:
-                        search_keyword.append(line.replace('\n', '').replace('\r', ''))
-            elif '.txt' in file_name:
-                for line in f:
-                    if line in ['\n', '\r\n']:
-                        pass
-                    else:
-                        search_keyword.append(line.replace('\n', '').replace('\r', ''))
+                        search_keyword.append(line.replace('\n', '').replace('\r', '').strip())
             else:
                 print("Invalid file type: Valid file types are either .txt or .csv \n"
                       "exiting...")
@@ -853,7 +847,7 @@ class googleimagesdownload:
                 arguments[arg] = None
         ######Initialization and Validation of user arguments
         if arguments['keywords']:
-            search_keyword = [str(item) for item in arguments['keywords'].split(',')]
+            search_keyword = [str(item).strip() for item in arguments['keywords'].split(',')]
 
         if arguments['keywords_from_file']:
             search_keyword = self.keywords_from_file(arguments['keywords_from_file'])
