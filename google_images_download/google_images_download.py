@@ -817,7 +817,9 @@ class googleimagesdownload:
                         paths_agg[i] = paths[i]
                     if not arguments["silent_mode"]:
                         if arguments['print_paths']:
-                            print(paths.encode('raw_unicode_escape').decode('utf-8'))
+                            for i in paths:
+                                paths[i] = [s.encode('raw_unicode_escape').decode('utf-8') for s in paths[i]]
+                            print(paths)
                     total_errors = total_errors + errors
                 return paths_agg,total_errors
             # if the calling file contains params directly
@@ -827,7 +829,9 @@ class googleimagesdownload:
                     paths_agg[i] = paths[i]
                 if not arguments["silent_mode"]:
                     if arguments['print_paths']:
-                        print(paths.encode('raw_unicode_escape').decode('utf-8'))
+                        for i in paths:
+                            paths[i] = [s.encode('raw_unicode_escape').decode('utf-8') for s in paths[i]]
+                        print(paths)
                 return paths_agg, errors
         # for input coming from CLI
         else:
@@ -836,7 +840,9 @@ class googleimagesdownload:
                 paths_agg[i] = paths[i]
             if not arguments["silent_mode"]:
                 if arguments['print_paths']:
-                    print(paths.encode('raw_unicode_escape').decode('utf-8'))
+                    for i in paths:
+                        paths[i] = [s.encode('raw_unicode_escape').decode('utf-8') for s in paths[i]]
+                    print(paths)
         return paths_agg, errors
 
     def download_executor(self,arguments):
