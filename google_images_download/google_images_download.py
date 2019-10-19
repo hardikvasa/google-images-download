@@ -33,6 +33,7 @@ import json
 import re
 import codecs
 import socket
+import imghdr
 
 args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywords",
              "limit", "format", "color", "color_type", "usage_rights", "size",
@@ -637,6 +638,17 @@ class googleimagesdownload:
                     output_file = open(path, 'wb')
                     output_file.write(data)
                     output_file.close()
+
+                    # extension check
+                    with open(path, "rb") as f:
+                        f = open(path, 'rb')
+                        ext = imghdr.what(f)
+                    # change extension when there's mismatch
+                    if ext and image_format != ext:
+                        os.rename(path, path[:path.rfind(".")+1]+ext)
+                        image_name = image_name.replace(image_format, ext)
+                        image_format = ext
+
                     if save_source:
                         list_path = main_directory + "/" + save_source + ".txt"
                         list_file = open(list_path,'a')
