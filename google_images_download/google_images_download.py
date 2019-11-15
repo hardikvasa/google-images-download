@@ -508,8 +508,8 @@ class googleimagesdownload:
 
 
     # Download Image thumbnails
-    def download_image_thumbnail(self,image_url,main_directory,dir_name,return_image_name,print_urls,socket_timeout,print_size,no_download,save_source,img_src,ignore_urls):
-        if print_urls or no_download:
+    def download_image_thumbnail(self,image_url,main_directory,dir_name,return_image_name,print_urls,socket_timeout,print_size,no_download,save_source,img_src,ignore_urls,silent_mode):
+        if (print_urls or no_download) and not silent_mode:
             print("Image URL: " + image_url)
         if no_download:
             return "success","Printed url without downloading"
@@ -770,7 +770,7 @@ class googleimagesdownload:
 
                     # download image_thumbnails
                     if arguments['thumbnail'] or arguments["thumbnail_only"]:
-                        download_status, download_message_thumbnail = self.download_image_thumbnail(object['image_thumbnail_url'],main_directory,dir_name,return_image_name,arguments['print_urls'],arguments['socket_timeout'],arguments['print_size'],arguments['no_download'],arguments['save_source'],object['image_source'],arguments['ignore_urls'])
+                        download_status, download_message_thumbnail = self.download_image_thumbnail(object['image_thumbnail_url'],main_directory,dir_name,return_image_name,arguments['print_urls'],arguments['socket_timeout'],arguments['print_size'],arguments['no_download'],arguments['save_source'],object['image_source'],arguments['ignore_urls'],arguments['silent_mode'])
                         if not arguments["silent_mode"]:
                             print(download_message_thumbnail)
 
@@ -921,7 +921,6 @@ class googleimagesdownload:
                     if not arguments["silent_mode"]:
                         print(iteration.encode('raw_unicode_escape').decode('utf-8'))
                         print("Evaluating...")
-                    else:
                         print("Downloading images for: " + (pky) + (search_keyword[i]) + (sky) + " ...")
                     search_term = pky + search_keyword[i] + sky
 
