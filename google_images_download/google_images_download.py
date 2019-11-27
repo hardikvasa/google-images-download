@@ -137,7 +137,7 @@ class googleimagesdownload:
                 headers['User-Agent'] = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
                 req = urllib.request.Request(url, headers=headers)
                 resp = urllib.request.urlopen(req)
-                respData = str(resp.read())
+                respData = resp.read().decode()
                 return respData
             except Exception as e:
                 print("Could not open URL. Please check your internet connection and/or ssl settings \n"
@@ -727,8 +727,7 @@ class googleimagesdownload:
             cur_version = sys.version_info
             if cur_version >= version: #python3
                 try:
-                    object_decode = bytes(object_raw, "utf-8").decode("unicode_escape")
-                    final_object = json.loads(object_decode)
+                    final_object = json.loads(object_raw)
                 except:
                     final_object = ""
             else:  #python2
