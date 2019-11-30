@@ -33,7 +33,7 @@ def test_download_images_to_default_location():
     else:
         start_amount_of_files_in_output_folder = 0
 
-    response = google_images_download.googleimagesdownload()
+    response = google_images_download.GoogleImagesDownload()
     response.download(argumnets)
     files_modified_after_test_started = [name for name in os.listdir(output_folder_path) if os.path.isfile(os.path.join(output_folder_path, name)) and os.path.getmtime(os.path.join(output_folder_path, name)) > start_time]
     end_amount_of_files_in_output_folder = len(files_modified_after_test_started)
