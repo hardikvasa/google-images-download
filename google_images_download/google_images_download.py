@@ -40,7 +40,7 @@ args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywor
              "output_directory", "image_directory", "no_directory", "proxy", "similar_images", "specific_site",
              "print_urls", "print_size", "print_paths", "metadata", "extract_metadata", "socket_timeout",
              "thumbnail", "thumbnail_only", "language", "prefix", "chromedriver", "related_images", "safe_search", "no_numbering",
-             "offset", "no_download","save_source","silent_mode","ignore_urls"]
+             "offset", "no_download","save_source","silent_mode","ignore_urls","prevent_image_redownload"]
 
 
 def user_input():
@@ -115,6 +115,7 @@ def user_input():
         parser.add_argument('-iu', '--ignore_urls', default=False, help="delimited list input of image urls/keywords to ignore", type=str)
         parser.add_argument('-sil', '--silent_mode', default=False, help="Remains silent. Does not print notification messages on the terminal", action="store_true")
         parser.add_argument('-is', '--save_source', help="creates a text file containing a list of downloaded images along with source page url", type=str, required=False)
+        parser.add_argument('-pre', '--prevent_image_redownload', default=False, help="Prevents redownloading images which are already saved with the same filename",action="store_true")
 
         args = parser.parse_args()
         arguments = vars(args)
@@ -575,7 +576,7 @@ class googleimagesdownload:
 
 
     # Download Images
-    def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering,no_download,save_source,img_src,silent_mode,thumbnail_only,format,ignore_urls):
+    def download_image(self,image_url,image_format,main_directory,dir_name,count,print_urls,socket_timeout,prefix,print_size,no_numbering,no_download,save_source,img_src,silent_mode,thumbnail_only,format,ignore_urls,prevent_image_redownload):
         if not silent_mode:
             if print_urls or no_download:
                 print("Image URL: " + image_url)
@@ -590,16 +591,6 @@ class googleimagesdownload:
             req = Request(image_url, headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
             try:
-                # timeout time to download an image
-                if socket_timeout:
-                    timeout = float(socket_timeout)
-                else:
-                    timeout = 10
-
-                response = urlopen(req, None, timeout)
-                data = response.read()
-                response.close()
-
                 extensions = [".jpg", ".jpeg", ".gif", ".png", ".bmp", ".svg", ".webp", ".ico"]
                 # keep everything after the last '/'
                 image_name = str(image_url[(image_url.rfind('/')) + 1:])
@@ -632,6 +623,21 @@ class googleimagesdownload:
                     path = main_directory + "/" + dir_name + "/" + prefix + image_name
                 else:
                     path = main_directory + "/" + dir_name + "/" + prefix + str(count) + "." + image_name
+
+                if prevent_image_redownload:
+                    if os.path.isfile(path):
+                        print(image_url + " is already downloaded")
+                        return "success","url already downloaded",None,image_url
+
+                # timeout time to download an image
+                if socket_timeout:
+                    timeout = float(socket_timeout)
+                else:
+                    timeout = 10
+
+                response = urlopen(req, None, timeout)
+                data = response.read()
+                response.close()
 
                 try:
                     output_file = open(path, 'wb')
@@ -763,7 +769,7 @@ class googleimagesdownload:
                         print("\nImage Metadata: " + str(object))
 
                 #download the images
-                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'],arguments['no_numbering'],arguments['no_download'],arguments['save_source'],object['image_source'],arguments["silent_mode"],arguments["thumbnail_only"],arguments['format'],arguments['ignore_urls'])
+                download_status,download_message,return_image_name,absolute_path = self.download_image(object['image_link'],object['image_format'],main_directory,dir_name,count,arguments['print_urls'],arguments['socket_timeout'],arguments['prefix'],arguments['print_size'],arguments['no_numbering'],arguments['no_download'],arguments['save_source'],object['image_source'],arguments["silent_mode"],arguments["thumbnail_only"],arguments['format'],arguments['ignore_urls'],arguments['prevent_image_redownload'])
                 if not arguments["silent_mode"]:
                     print(download_message)
                 if download_status == "success":
