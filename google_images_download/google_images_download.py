@@ -751,6 +751,7 @@ class googleimagesdownload:
         object_raw = str(s[start_object:end_object])
         object_decode = bytes(object_raw, "utf-8").decode("unicode_escape")
         image_objects = json.loads(object_decode)[31][0][12][2]
+        image_objects = [x for x in image_objects if x[0]==1]
         return image_objects
 
     def _get_all_items(self,page,main_directory,dir_name,limit,arguments):
@@ -760,7 +761,7 @@ class googleimagesdownload:
         i = 0
         count = 1
         image_objects = self._get_image_objects(page)
-        while count < limit+1:
+        while count < limit+1 and i<len(image_objects):
             if len(image_objects) == 0:
                 print("no_links")
                 break
