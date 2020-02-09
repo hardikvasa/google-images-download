@@ -271,15 +271,18 @@ class googleimagesdownload:
 
     #Format the object in readable format
     def format_object(self,object):
+        data = object[1]
+        main = data[3]
+        info = data[9]
         formatted_object = {}
-        formatted_object['image_format'] = object['ity']
-        formatted_object['image_height'] = object['oh']
-        formatted_object['image_width'] = object['ow']
-        formatted_object['image_link'] = object['ou']
-        formatted_object['image_description'] = object['pt']
-        formatted_object['image_host'] = object['rh']
-        formatted_object['image_source'] = object['ru']
-        formatted_object['image_thumbnail_url'] = object['tu']
+        formatted_object['image_height'] = main[2]
+        formatted_object['image_width'] = main[1]
+        formatted_object['image_link'] = main[0]
+        formatted_object['image_format']=main[0][-1*(len(main[0])-main[0].rfind(".")-1):]
+        formatted_object['image_description'] = info['2003'][3]
+        formatted_object['image_host'] = info['183836587'][0]
+        formatted_object['image_source'] = info['2003'][2]
+        formatted_object['image_thumbnail_url'] = data[2][0]
         return formatted_object
 
 
@@ -482,7 +485,7 @@ class googleimagesdownload:
         try:
             if not os.path.exists(main_directory):
                 os.makedirs(main_directory)
-                time.sleep(0.2)
+                time.sleep(0.15)
                 path = (dir_name)
                 sub_directory = os.path.join(main_directory, path)
                 if not os.path.exists(sub_directory):
@@ -740,24 +743,30 @@ class googleimagesdownload:
 
 
     # Getting all links with the help of '_images_get_next_image'
+    def _get_image_objects(self,s):
+        start_line = s.find("AF_initDataCallback({key: \\'ds:2\\'") - 10
+        start_object = s.find('[', start_line + 1)
+        end_object = s.find('</script>', start_object + 1) - 4
+        object_raw = str(s[start_object:end_object])
+        object_decode = bytes(object_raw, "utf-8").decode("unicode_escape")
+        image_objects = json.loads(object_decode)[31][0][12][2]
+        image_objects = [x for x in image_objects if x[0]==1]
+        return image_objects
+
     def _get_all_items(self,page,main_directory,dir_name,limit,arguments):
         items = []
         abs_path = []
         errorCount = 0
         i = 0
         count = 1
-        while count < limit+1:
-            object, end_content = self._get_next_item(page)
-            if object == "no_links":
+        image_objects = self._get_image_objects(page)
+        while count < limit+1 and i<len(image_objects):
+            if len(image_objects) == 0:
+                print("no_links")
                 break
-            elif object == "":
-                page = page[end_content:]
-            elif arguments['offset'] and count < int(arguments['offset']):
-                    count += 1
-                    page = page[end_content:]
             else:
                 #format the item for readability
-                object = self.format_object(object)
+                object = self.format_object(image_objects[i])
                 if arguments['metadata']:
                     if not arguments["silent_mode"]:
                         print("\nImage Metadata: " + str(object))
@@ -784,8 +793,6 @@ class googleimagesdownload:
                 #delay param
                 if arguments['delay']:
                     time.sleep(int(arguments['delay']))
-
-                page = page[end_content:]
             i += 1
         if count < limit:
             print("\n\nUnfortunately all " + str(
