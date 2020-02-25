@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="676ba83b-01bd-47d5-b789-3feba6502f2a" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bing_scraper.py" beforeDir="false" afterPath="$PROJECT_DIR$/bing_scraper.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1YJXgoUyNygQNMQptaTetwpg1Bd" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="bing_scraper" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="bing-scraper" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bing_scraper.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.bing_scraper" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="676ba83b-01bd-47d5-b789-3feba6502f2a" name="Default Changelist" comment="" />
+      <created>1582661784459</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1582661784459</updated>
+    </task>
+    <task id="LOCAL-00001" summary="updates">
+      <created>1582663916070</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1582663916070</updated>
+    </task>
+    <task id="LOCAL-00002" summary="updates">
+      <created>1582663941931</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1582663941931</updated>
+    </task>
+    <task id="LOCAL-00003" summary="updates">
+      <created>1582664518425</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1582664518425</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="updates" />
+    <option name="LAST_COMMIT_MESSAGE" value="updates" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="556" y="216" key="CommitChangelistDialog2" timestamp="1582664852551">
+      <screen x="49" y="23" width="1871" height="1177" />
+    </state>
+    <state x="556" y="216" key="CommitChangelistDialog2/49.23.1871.1177@49.23.1871.1177" timestamp="1582664852551" />
+    <state width="1711" height="328" key="GridCell.Tab.0.bottom" timestamp="1582664754873">
+      <screen x="49" y="23" width="1871" height="1177" />
+    </state>
+    <state width="1711" height="328" key="GridCell.Tab.0.bottom/49.23.1871.1177@49.23.1871.1177" timestamp="1582664754873" />
+    <state width="1711" height="328" key="GridCell.Tab.0.center" timestamp="1582664754872">
+      <screen x="49" y="23" width="1871" height="1177" />
+    </state>
+    <state width="1711" height="328" key="GridCell.Tab.0.center/49.23.1871.1177@49.23.1871.1177" timestamp="1582664754872" />
+    <state width="1711" height="328" key="GridCell.Tab.0.left" timestamp="1582664754871">
+      <screen x="49" y="23" width="1871" height="1177" />
+    </state>
+    <state width="1711" height="328" key="GridCell.Tab.0.left/49.23.1871.1177@49.23.1871.1177" timestamp="1582664754871" />
+    <state width="1711" height="328" key="GridCell.Tab.0.right" timestamp="1582664754873">
+      <screen x="49" y="23" width="1871" height="1177" />
+    </state>
+    <state width="1711" height="328" key="GridCell.Tab.0.right/49.23.1871.1177@49.23.1871.1177" timestamp="1582664754873" />
+    <state x="433" y="250" key="SettingsEditor" timestamp="1582662357041">
+      <screen x="49" y="23" width="1871" height="1177" />
+    </state>
+    <state x="433" y="250" key="SettingsEditor/49.23.1871.1177@49.23.1871.1177" timestamp="1582662357041" />
+    <state x="628" y="353" key="Vcs.Push.Dialog.v2" timestamp="1582664853901">
+      <screen x="49" y="23" width="1871" height="1177" />
+    </state>
+    <state x="628" y="353" key="Vcs.Push.Dialog.v2/49.23.1871.1177@49.23.1871.1177" timestamp="1582664853901" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bing_scraper.py</url>
+          <line>194</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
