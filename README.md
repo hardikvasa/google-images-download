@@ -22,20 +22,36 @@ pip install -U -r requirements.txt
 
 2. Install chromedriver: https://chromedriver.chromium.org/
 
-3. Search via URL for up to `--limit` images and download. Images are saved to `./images`.
-
-```bash
+3. Search via URL for up to `--limit` images supplying either `--url`:
+ ```bash
 $ python3 bing_scraper.py --url 'https://www.bing.com/images/search?q=flowers' --limit 10 --chromedriver /Users/glennjocher/Downloads/chromedriver
-
-$ python3 bing_scraper.py --search 'honeybees on flowers' --limit 10 --chromedriver /Users/glennjocher/Downloads/chromedriver
 ```
 
-4. Or search via terms:
-<img src="https://user-images.githubusercontent.com/26833433/75074332-4792c600-54b0-11ea-8c98-22acf58ba8e7.jpg" width="">
-
+or `--search` terms. Images are saved to `./images`. Note that error-producing images may be skipped.
 ```bash
 $ python3 bing_scraper.py --search 'honeybees on flowers' --limit 10 --chromedriver /Users/glennjocher/Downloads/chromedriver
+
+Item no.: 1 --> Item name = 2020-02-25 12_53_58
+Evaluating...
+Getting you a lot of images. This may take a few moments...
+Reached end of Page.
+Starting Download...
+Completed Image ====> 1.bigstock-Honey-Bee-on-a-flower-72446224.jpg
+Completed Image ====> 2.maxresdefault.jpg
+URLError on an image...trying next one... Error: HTTP Error 404: Not Found
+Invalid or missing image format. Skipping...
+Completed Image ====> 3.Bees-on-Sundance-Howard_Cheek-338275-620x413.jpg
+URLError on an image...trying next one... Error: HTTP Error 404: Not Found
+Completed Image ====> 4.bg-honeybees_pollinator-003.jpg
+Completed Image ====> 5.dieselexhaus.jpg
+Completed Image ====> 6.1-teamfindsgen.jpg
+Completed Image ====> 7.HoneyBeeOnAsterFlower.jpg
+Completed Image ====> 8.European_honey_bee_extracts_nectar.jpg
+Completed Image ====> 9.Bee_in_appleflower.jpg
+Completed Image ====> 10.525b1277a9b56bc7ed54052558288b82.jpg
+Done with 3 errors. (19.5s)
 ```
+<img src="https://user-images.githubusercontent.com/26833433/75287228-dcf2ca80-57ce-11ea-9557-cc13abaff453.jpg" width="">
 
 # Cite
 
