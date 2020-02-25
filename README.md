@@ -49,13 +49,13 @@ Completed Image ====> 7.HoneyBeeOnAsterFlower.jpg
 Completed Image ====> 8.European_honey_bee_extracts_nectar.jpg
 Completed Image ====> 9.Bee_in_appleflower.jpg
 Completed Image ====> 10.525b1277a9b56bc7ed54052558288b82.jpg
-Done with 3 errors. (19.5s)
+Done with 3 errors in 24.6s. All images saved to /Users/glennjocher/PycharmProjects/bing_scraper/images
 ```
 <img src="https://user-images.githubusercontent.com/26833433/75287228-dcf2ca80-57ce-11ea-9557-cc13abaff453.jpg" width="">
 
 # Cite
 
-[![DOI](https://zenodo.org/badge/242235660.svg)](https://zenodo.org/badge/latestdoi/242235660)
+See https://github.com/hardikvasa/google-images-download.
 
 # Contact
 

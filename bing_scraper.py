@@ -1039,7 +1039,8 @@ def main():
         t1 = time.time()  # stop the timer
         total_time = t1 - t0  # Calculating the total time required to crawl, find and download all the links of 60,000 images
         if not arguments["silent_mode"]:
-            print("Done with %g errors. (%.1fs)" % (total_errors, total_time))
+            print("Done with %g errors in %.1fs. All images saved to %s" %
+                  (total_errors, total_time, os.getcwd() + os.sep + 'images'))
 
 
 if __name__ == "__main__":
