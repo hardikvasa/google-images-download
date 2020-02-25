@@ -4,6 +4,7 @@
 # Updated by glenn.jocher@gmail.com Feb 2020, requires python 3
 
 # python3 bing_scraper.py --url 'https://www.bing.com/images/search?q=flowers' --limit 10 --chromedriver /Users/glennjocher/Downloads/chromedriver
+# python3 bing_scraper.py --search 'honeybees on flowers' --limit 10 --chromedriver /Users/glennjocher/Downloads/chromedriver
 # https://stackoverflow.com/questions/49162667/unknown-error-call-function-result-missing-value-for-selenium-send-keys-even
 
 
