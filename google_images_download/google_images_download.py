@@ -174,7 +174,7 @@ class googleimagesdownload:
         options.add_argument("--headless")
 
         try:
-            browser = webdriver.Chrome(chromedriver, chrome_options=options)
+            browser = webdriver.Chrome(chromedriver, options=options)
         except Exception as e:
             print("Looks like we cannot locate the path the 'chromedriver' (use the '--chromedriver' "
                   "argument to specify the path to the executable.) or google chrome browser is not "
