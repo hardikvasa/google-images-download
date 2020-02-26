@@ -25,6 +25,8 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 from urllib.request import URLError, HTTPError
 
+from tqdm import tqdm
+
 http.client._MAXHEADERS = 1000
 
 args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywords",
@@ -158,9 +160,9 @@ def user_input():
         args = parser.parse_args()
 
         # Example --------------------------------------------------------------
-        # args.limit = 30
-        # args.search = 'honeybees on flowers'
-        # args.chromedriver = '/Users/glennjocher/Downloads/chromedriver'
+        args.limit = 1000
+        args.search = 'vitiligo'
+        args.chromedriver = '/Users/glennjocher/Downloads/chromedriver'
 
         if args.search:  # construct url
             args.url = 'https://www.bing.com/images/search?q=%s' % args.search.replace(' ', '%20')
@@ -202,36 +204,27 @@ class googleimagesdownload:
         try:
             browser = webdriver.Chrome(chromedriver, options=options)
         except Exception as e:
-            print("Looks like we cannot locate the path the 'chromedriver' (use the '--chromedriver' "
-                  "argument to specify the path to the executable.) or google chrome browser is not "
-                  "installed on your machine (exception: %s)" % e)
+            print("chromedriver not found (use the '--chromedriver' argument to specify the path to the executable)"
+                  "or google chrome browser is not installed on your machine (exception: %s)" % e)
             sys.exit()
-        # browser.set_window_size(1024, 768)
+        browser.set_window_size(1920, 3840)  # 4k
 
         # Open the link
         browser.get(url)
-        time.sleep(1)
-        print("Getting you a lot of images. This may take a few moments...")
+        time.sleep(0.5)
 
         element = browser.find_element_by_tag_name("body")
-        # Scroll down
-        for i in range(30):
+        pbar = tqdm(enumerate(range(30)), desc='Downloading HTML...', total=30)  # progress bar
+        for i in pbar:
+            try:  # click 'see more' button if found
+                # browser.find_element_by_id("smb").click()  # google images 'see more' button
+                browser.find_element_by_class_name('btn_seemore').click()  # bing images 'see more' button
+            except:
+                pass
+            pbar.desc = 'Downloading HTML... %d elements' % len(browser.page_source)  # page source
+            print('.', end='')
             element.send_keys(Keys.PAGE_DOWN)
-            time.sleep(random.random() * 0.5 + 0.1)
-
-        try:
-            # browser.find_element_by_id("smb").click()  # google images 'see more' button
-            browser.find_element_by_class_name('btn_seemore').click()  # bing images 'see more' button
-            for i in range(50):
-                element.send_keys(Keys.PAGE_DOWN)
-                time.sleep(random.random() * 0.5 + 0.1)  # bot id protection
-        except:
-            for i in range(10):
-                element.send_keys(Keys.PAGE_DOWN)
-                time.sleep(random.random() * 0.5 + 0.1)  # bot id protection
-
-        print("Reached end of Page.")
-        time.sleep(0.5)
+            time.sleep(random.random() * 0.2 + 0.1)  # bot id protection
 
         source = browser.page_source  # page source
         browser.close()  # close browser
