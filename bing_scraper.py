@@ -7,7 +7,6 @@
 # python3 bing_scraper.py --search 'honeybees on flowers' --limit 10 --chromedriver /Users/glennjocher/Downloads/chromedriver
 # https://stackoverflow.com/questions/49162667/unknown-error-call-function-result-missing-value-for-selenium-send-keys-even
 
-
 import argparse
 import codecs
 import datetime
@@ -15,6 +14,7 @@ import html
 import http.client
 import json
 import os
+import random
 import re
 import ssl
 import sys
@@ -217,25 +217,24 @@ class googleimagesdownload:
         # Scroll down
         for i in range(30):
             element.send_keys(Keys.PAGE_DOWN)
-            time.sleep(0.3)
+            time.sleep(random.random() * 0.5 + 0.1)
 
         try:
             # browser.find_element_by_id("smb").click()  # google images 'see more' button
             browser.find_element_by_class_name('btn_seemore').click()  # bing images 'see more' button
             for i in range(50):
                 element.send_keys(Keys.PAGE_DOWN)
-                time.sleep(0.3)  # bot id protection
+                time.sleep(random.random() * 0.5 + 0.1)  # bot id protection
         except:
             for i in range(10):
                 element.send_keys(Keys.PAGE_DOWN)
-                time.sleep(0.3)  # bot id protection
+                time.sleep(random.random() * 0.5 + 0.1)  # bot id protection
 
         print("Reached end of Page.")
         time.sleep(0.5)
 
         source = browser.page_source  # page source
-        # close the browser
-        browser.close()
+        browser.close()  # close browser
 
         return source
 
