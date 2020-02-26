@@ -11,8 +11,8 @@ Python 3.7 or later with all of the `pip install -U -r requirements.txt` package
 
 # Install
 ```bash
-git clone https://github.com/ultralytics/bing_scraper
-cd bing_scraper
+git clone https://github.com/ultralytics/google-images-download
+cd google-images-download
 pip install -U -r requirements.txt
 ```
 
@@ -49,7 +49,7 @@ Completed Image ====> 7.HoneyBeeOnAsterFlower.jpg
 Completed Image ====> 8.European_honey_bee_extracts_nectar.jpg
 Completed Image ====> 9.Bee_in_appleflower.jpg
 Completed Image ====> 10.525b1277a9b56bc7ed54052558288b82.jpg
-Done with 3 errors in 24.6s. All images saved to /Users/glennjocher/PycharmProjects/bing_scraper/images
+Done with 3 errors in 24.6s. All images saved to /Users/glennjocher/PycharmProjects/google-images-download/images
 ```
 <img src="https://user-images.githubusercontent.com/26833433/75287228-dcf2ca80-57ce-11ea-9557-cc13abaff453.jpg" width="">
 
