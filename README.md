@@ -18,9 +18,9 @@ pip install -U -r requirements.txt
 
 # Use
 
-1. Install or update Chrome: https://www.google.com/chrome/
+1. Install/update Chrome: https://www.google.com/chrome/
 
-2. Install chromedriver: https://chromedriver.chromium.org/
+2. Install/update chromedriver: https://chromedriver.chromium.org/
 
 3. Search via URL for up to `--limit` images supplying either `--url`:
  ```bash
