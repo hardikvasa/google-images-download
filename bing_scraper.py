@@ -157,12 +157,12 @@ def user_input():
         parser.add_argument('--search', type=str, default='', help='search string, i.e. bees on flowers')
         args = parser.parse_args()
 
-        # For debugging --------------------------------------------------------
+        # Example --------------------------------------------------------------
         # args.limit = 30
         # args.search = 'honeybees on flowers'
         # args.chromedriver = '/Users/glennjocher/Downloads/chromedriver'
 
-        if args.search:
+        if args.search:  # construct url
             args.url = 'https://www.bing.com/images/search?q=%s' % args.search.replace(' ', '%20')
             args.image_directory = args.search.replace(' ', '_')
 
