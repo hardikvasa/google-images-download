@@ -158,8 +158,8 @@ def user_input():
         args = parser.parse_args()
 
         # For debugging --------------------------------------------------------
-        # args.limit = 120
-        # args.url = 'https://www.bing.com/images/search?q=flowers'
+        # args.limit = 30
+        # args.search = 'honeybees on flowers'
         # args.chromedriver = '/Users/glennjocher/Downloads/chromedriver'
 
         if args.search:
@@ -195,9 +195,6 @@ class googleimagesdownload:
     def download_extended_page(self, url, chromedriver):
         from selenium import webdriver
         from selenium.webdriver.common.keys import Keys
-        if sys.version_info[0] < 3:
-            reload(sys)
-            sys.setdefaultencoding('utf8')
         options = webdriver.ChromeOptions()
         options.add_argument('--no-sandbox')
         options.add_argument("--headless")
@@ -223,7 +220,8 @@ class googleimagesdownload:
             time.sleep(0.3)
 
         try:
-            browser.find_element_by_id("smb").click()
+            # browser.find_element_by_id("smb").click()  # google images 'see more' button
+            browser.find_element_by_class_name('btn_seemore').click()  # bing images 'see more' button
             for i in range(50):
                 element.send_keys(Keys.PAGE_DOWN)
                 time.sleep(0.3)  # bot id protection
