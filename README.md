@@ -22,7 +22,7 @@ pip install -U -r requirements.txt
 
 2. Install/update chromedriver: https://chromedriver.chromium.org/
 
-3. Download up to `--limit` images supplying either `--url`:
+3. Run. Download up to `--limit` images supplying either `--url`:
  ```bash
 $ python3 bing_scraper.py --url 'https://www.bing.com/images/search?q=flowers' --limit 10 --chromedriver /Users/glennjocher/Downloads/chromedriver
 ```
