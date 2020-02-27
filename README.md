@@ -44,7 +44,8 @@ Downloading images...
 8/10 https://upload.wikimedia.org/wikipedia/commons/5/55/Honey_Bee_on_Willow_Catkin_(5419305106).jpg 
 9/10 https://cdnimg.in/wp-content/uploads/2015/06/HoneyBeeW-1024x1024.jpg 
 10/10 http://www.pouted.com/wp-content/uploads/2015/03/honeybee_06_by_wings_of_light-d3fhfg1.jpg 
-Done with 0 errors in 37.1s. All images saved to /Users/glennjocher/PycharmProjects/google-images-download/images```
+Done with 0 errors in 37.1s. All images saved to /Users/glennjocher/PycharmProjects/google-images-download/images
+```
 <img src="https://user-images.githubusercontent.com/26833433/75287228-dcf2ca80-57ce-11ea-9557-cc13abaff453.jpg" width="">
 
 # Cite
