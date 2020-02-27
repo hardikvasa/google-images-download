@@ -866,7 +866,7 @@ class googleimagesdownload:
                                                 arguments['safe_search'])  # building main search url
 
                     print('Searching for %s' % url)
-                    if limit < 1:  # if limit < 101
+                    if limit < 101:  # if limit < 101
                         raw_html = self.download_page(url)  # download page
                     else:
                         raw_html = self.download_extended_page(url, arguments['chromedriver'])
@@ -896,7 +896,7 @@ class googleimagesdownload:
                         for key, value in tabs.items():
                             final_search_term = (search_term + " - " + key)
                             print("\nNow Downloading - " + final_search_term)
-                            if limit < 1:  # if limit < 101:
+                            if limit < 101:  # if limit < 101:
                                 new_raw_html = self.download_page(value)  # download page
                             else:
                                 new_raw_html = self.download_extended_page(value, arguments['chromedriver'])
