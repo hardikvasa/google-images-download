@@ -31,7 +31,7 @@ or `--search` terms. Images are saved to `./images`. Note that error-producing i
 ```bash
 $ python3 bing_scraper.py --search 'honeybees on flowers' --limit 10 --download --chromedriver /Users/glennjocher/Downloads/chromedriver
 
-Searching for https://www.bing.com/images/search?q=honeybees
+Searching for https://www.bing.com/images/search?q=honeybees%20on%20flowers
 Downloading HTML... 3499588 elements: 30it [00:24,  1.21it/s]
 Downloading images...
 1/10 https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Apis_mellifera_Western_honey_bee.jpg/1200px-Apis_mellifera_Western_honey_bee.jpg 
