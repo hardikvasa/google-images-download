@@ -215,7 +215,6 @@ class googleimagesdownload:
             except:
                 pass
             pbar.desc = 'Downloading HTML... %d elements' % len(browser.page_source)  # page source
-            print('.', end='')
             element.send_keys(Keys.PAGE_DOWN)
             time.sleep(random.random() * 0.2 + 0.1)  # bot id protection
 
