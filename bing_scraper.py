@@ -207,7 +207,7 @@ class googleimagesdownload:
         time.sleep(0.5)
 
         element = browser.find_element_by_tag_name("body")
-        pbar = tqdm(enumerate(range(30)), desc='Downloading HTML...', total=25)  # progress bar
+        pbar = tqdm(enumerate(range(30)), desc='Downloading HTML...', total=30)  # progress bar
         for _ in pbar:
             try:  # click 'see more' button if found
                 # browser.find_element_by_id("smb").click()  # google images 'see more' button
