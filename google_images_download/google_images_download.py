@@ -184,6 +184,38 @@ class googleimagesdownload:
 
         # Open the link
         browser.get(url)
+        browser.execute_script("""
+            (function(XHR){
+                "use strict";
+                var open = XHR.prototype.open;
+                var send = XHR.prototype.send;
+                var data = [];
+
+                XHR.prototype.open = function(method, url, async, user, pass) {
+                    this._url = url;
+                    open.call(this, method, url, async, user, pass);
+                }
+
+                XHR.prototype.send = function(data) {
+                    var self = this;
+                    var url = this._url;
+
+                    function stateChanged() {
+                        if (self.readyState == 4) {
+                            console.log("data available for: " + url)
+                            XHR.prototype._data.push(self.response);
+                        }
+                    }
+                    if (url.includes("/batchexecute?")) {
+                        this.addEventListener("readystatechange", stateChanged, false);
+                    }
+                    send.call(this, data);
+                };
+
+                XHR.prototype._data = [];
+            })(XMLHttpRequest);
+        """)
+
         time.sleep(1)
         print("Getting you a lot of images. This may take a few moments...")
 
@@ -207,6 +239,8 @@ class googleimagesdownload:
         time.sleep(0.5)
 
         source = browser.page_source #page source
+        ajax = browser.execute_script("return XMLHttpRequest.prototype._data")
+
         #close the browser
         browser.close()
 
