@@ -667,29 +667,43 @@ class googleimagesdownload:
 
                 response = urlopen(req, None, timeout)
                 data = response.read()
+                info = response.info()
                 response.close()
 
-                extensions = [".jpg", ".jpeg", ".gif", ".png", ".bmp", ".svg", ".webp", ".ico"]
-                # keep everything after the last '/'
-                image_name = str(image_url[(image_url.rfind('/')) + 1:])
-                if format:
-                    if not image_format or image_format != format:
-                        download_status = 'fail'
-                        download_message = "Wrong image format returned. Skipping..."
-                        return_image_name = ''
-                        absolute_path = ''
-                        return download_status, download_message, return_image_name, absolute_path
+                qmark = image_url.rfind('?')
+                if qmark == -1:
+                    qmark = len(image_url)
+                slash = image_url.rfind('/', 0, qmark) + 1
+                image_name = str(image_url[slash:qmark]).lower()
 
-                if image_format == "" or not image_format or "." + image_format not in extensions:
+                type = info.get_content_type()
+                if type == "image/jpeg" or type == "image/jpg":
+                    if not image_name.endswith(".jpg") and not image_name.endswith(".jpeg"):
+                        image_name += ".jpg"
+                elif type == "image/png":
+                    if not image_name.endswith(".png"):
+                        image_name += ".png"
+                elif type == "image/webp":
+                    if not image_name.endswith(".webp"):
+                        image_name += ".webp"
+                elif type == "image/gif":
+                    if not image_name.endswith(".gif"):
+                        image_name += ".gif"
+                elif type == "image/bmp" or type == "image/x-windows-bmp":
+                    if not image_name.endswith(".bmp"):
+                        image_name += ".bmp"
+                elif type == "image/x-icon" or type == "image/vnd.microsoft.icon":
+                    if not image_name.endswith(".ico"):
+                        image_name += ".ico"
+                elif type == "image/svg+xml":
+                    if not image_name.endswith(".svg"):
+                        image_name += ".svg"
+                else:
                     download_status = 'fail'
-                    download_message = "Invalid or missing image format. Skipping..."
+                    download_message = "Invalid image format '" + type + "'. Skipping..."
                     return_image_name = ''
                     absolute_path = ''
                     return download_status, download_message, return_image_name, absolute_path
-                elif image_name.lower().find("." + image_format) < 0:
-                    image_name = image_name + "." + image_format
-                else:
-                    image_name = image_name[:image_name.lower().find("." + image_format) + (len(image_format) + 1)]
 
                 # prefix name in image
                 if prefix:
