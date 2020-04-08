@@ -530,7 +530,7 @@ class googleimagesdownload:
                 data = response.read()
                 response.close()
 
-                path = main_directory + "/" + dir_name + " - thumbnail" + "/" + return_image_name
+                path = remove_illegal_characters(main_directory + "/" + dir_name + " - thumbnail" + "/" + return_image_name)
 
                 try:
                     output_file = open(path, 'wb')
@@ -936,7 +936,7 @@ class googleimagesdownload:
                     paths_agg[i] = paths[i]
                 if not arguments["silent_mode"]:
                     if arguments['print_paths']:
-                        print(paths.encode('raw_unicode_escape').decode('utf-8'))
+                        print(paths)
                 return paths_agg, errors
         # for input coming from CLI
         else:
@@ -945,7 +945,7 @@ class googleimagesdownload:
                 paths_agg[i] = paths[i]
             if not arguments["silent_mode"]:
                 if arguments['print_paths']:
-                    print(paths.encode('raw_unicode_escape').decode('utf-8'))
+                    print(paths)
         return paths_agg, errors
 
     def download_executor(self,arguments):
@@ -1091,6 +1091,23 @@ class googleimagesdownload:
                     if not arguments["silent_mode"]:
                         print("\nErrors: " + str(errorCount) + "\n")
         return paths, total_errors
+
+
+def remove_illegal_characters(string):
+    string = str(string)
+
+    badchars = re.compile(r'[^A-Za-z0-9_. ]+|^\.|\.$|^ | $|^$')
+    badnames = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
+
+    try:
+        name = badchars.sub('_', string)
+        if badnames.match(name):
+            name = '_' + name
+        return name
+    except Exception as e:
+        print("ERROR cleaning filename:", e)
+    return string
+
 
 #------------- Main Program -------------#
 def main():
