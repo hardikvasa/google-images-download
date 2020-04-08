@@ -719,10 +719,7 @@ class googleimagesdownload:
         if start_line == -1:  # If no links are found then give an error!
 
             try:
-                data_iter = self._get_AF_initDataCallback(s)
-                # get the next item
-                final_object = next(data_iter)
-
+                final_object = next(self._info_AF_initDataCallback)
                 return final_object, 0
             except StopIteration:
                 # if StopIteration is raised, break from loop
@@ -753,6 +750,7 @@ class googleimagesdownload:
 
     # Getting all links with the help of '_images_get_next_image'
     def _get_all_items(self,page,main_directory,dir_name,limit,arguments):
+        self._parse_AF_initDataCallback(page)
         items = []
         abs_path = []
         errorCount = 0
@@ -805,16 +803,15 @@ class googleimagesdownload:
                 count-1) + " is all we got for this search filter!")
         return items,errorCount,abs_path
 
-    def _get_AF_initDataCallback(self, page):
+    def _parse_AF_initDataCallback(self, page):
         """
         :param page: html string
         :return: self._info_AF_initDataCallback, this is an iterator containing rg_meta objects
         """
 
-        if self._info_AF_initDataCallback is not None:
-            return self._info_AF_initDataCallback
-
-        import bs4, re, json
+        import bs4
+        version = (3, 0)
+        cur_version = sys.version_info
 
         def get_metas(page):
             """
@@ -829,20 +826,28 @@ class googleimagesdownload:
 
             """
             bs = bs4.BeautifulSoup(page, 'html.parser')
-            scripts = bs.select('script[nonce]')  # get scripts
-            scriptTexts = [script.text for script in scripts if bool(re.match('^AF_initDataCallback', script.text))]
+            # get scripts
+            scripts = bs.select('script[nonce]')
+
+            def get_element_text(element):
+                if cur_version >= version:  # python3
+                    return element.text
+                else:  # if python2
+                    text = element.find(text=True, recursive=False)
+                    return text.encode('utf8') if text else ''
+
+            scriptTexts = map(get_element_text, scripts)
+            # choose only those with AF_initDataCallback
+            scriptTexts = [stext for stext in scriptTexts if bool(re.match('^AF_initDataCallback', stext))]
 
             def parse_json(t):
                 try:
-                    t = t.encode('utf8').decode("unicode_escape")
+                    if cur_version >= version:  # python3
+                        t = t.encode('utf8').decode("unicode_escape")
 
                     # this will trim the code to choose only the part with the data arrays
-                    str1 = "data:function(){return "
-                    str2 = "]\n}});"
-                    data_str = t[
-                               t.index(str1) + len(str1):
-                               t.rindex(str2) + 1
-                               ]
+                    start, end = "data:function(){return ",  "]\n}});"
+                    data_str = t[t.index(start) + len(start): t.rindex(end) + 1]
                     json_obj = json.loads(data_str)
                     return json_obj
                 except Exception as e:
@@ -854,34 +859,38 @@ class googleimagesdownload:
             imgMetas = map(lambda meta: meta[1], entry[31][0][12][2])  # confirmed
 
             def meta_array2meta_dict(meta):
-                meta_rg = {
+                rg_meta = {
                     'id': '',  # thumbnail
                     'tu': '', 'th': '', 'tw': '',  # original
                     'ou': '', 'oh': '', 'ow': '',  # site and name
                     'pt': '', 'st': '',  # titles
-                    'ity': 'gif',  # TODO: implement these
-                    'rh': 'IMAGE_HOST',  # TODO: implement these
-                    'ru': 'IMAGE_SOURCE',  # TODO: implement these
+                    'ity': 'gif',
+                    'rh': 'IMAGE_HOST',
+                    'ru': 'IMAGE_SOURCE',
                 }
                 try:
-                    meta_rg['id'] = meta[1]
+                    rg_meta['id'] = meta[1]
                     # thumbnail
-                    meta_rg['tu'], meta_rg['th'], meta_rg['tw'] = meta[2]
+                    rg_meta['tu'], rg_meta['th'], rg_meta['tw'] = meta[2]
                     # original
-                    meta_rg['ou'], meta_rg['oh'], meta_rg['ow'] = meta[3]
+                    rg_meta['ou'], rg_meta['oh'], rg_meta['ow'] = meta[3]
 
-                    siteAndNameInfo = meta[9] or meta[10] or meta[11]
+                    siteAndNameInfo = meta[9] or meta[11]
                     # site and name
                     try:
-                        meta_rg['pt'] = (siteAndNameInfo[2003] or siteAndNameInfo[2008])[2]
-                    except:
-                        pass
-                    try:
-                        meta_rg['st'] = siteAndNameInfo[183836587][0]  # infolink TODO: doublecheck
+                        if '2003' in siteAndNameInfo:
+                            rg_meta['ru'] = siteAndNameInfo['2003'][2]
+                            rg_meta['pt'] = siteAndNameInfo['2003'][3]
+                        elif '2008' in siteAndNameInfo:
+                            rg_meta['pt'] = siteAndNameInfo['2008'][2]
+
+                        if '183836587' in siteAndNameInfo:
+                            rg_meta['st'] = siteAndNameInfo['183836587'][0]  # infolink
+                            rg_meta['rh'] = rg_meta['st']
                     except:
                         pass
 
-                    return meta_rg
+                    return rg_meta
 
                 except Exception as e:
                     print("WARNING:", e, meta)
