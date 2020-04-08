@@ -125,7 +125,10 @@ def user_input():
 
 class googleimagesdownload:
     def __init__(self):
-        pass
+        # this iterator contains the parsed info contained in the `AF_initDataCallback` script (2020 format)
+        # it can then be called in _get_next_item()
+        # NOTE: never access this directly, always use self._get_AF_initDataCallback()
+        self._info_AF_initDataCallback = None
 
     # Downloading entire Web Document (Raw Page Content)
     def download_page(self,url):
@@ -714,9 +717,18 @@ class googleimagesdownload:
     def _get_next_item(self,s):
         start_line = s.find('rg_meta notranslate')
         if start_line == -1:  # If no links are found then give an error!
-            end_quote = 0
-            link = "no_links"
-            return link, end_quote
+
+            try:
+                data_iter = self._get_AF_initDataCallback(s)
+                # get the next item
+                final_object = next(data_iter)
+
+                return final_object, 0
+            except StopIteration:
+                # if StopIteration is raised, break from loop
+                end_quote = 0
+                link = "no_links"
+                return link, end_quote
         else:
             start_line = s.find('class="rg_meta notranslate">')
             start_object = s.find('{', start_line + 1)
@@ -792,6 +804,94 @@ class googleimagesdownload:
                 limit) + " could not be downloaded because some images were not downloadable. " + str(
                 count-1) + " is all we got for this search filter!")
         return items,errorCount,abs_path
+
+    def _get_AF_initDataCallback(self, page):
+        """
+        :param page: html string
+        :return: self._info_AF_initDataCallback, this is an iterator containing rg_meta objects
+        """
+
+        if self._info_AF_initDataCallback is not None:
+            return self._info_AF_initDataCallback
+
+        import bs4, re, json
+
+        def get_metas(page):
+            """
+            the this works by parsing the info in the page scripts
+            See the js code in: https://gist.github.com/FarisHijazi/6c9ba3fb315d0ce9bfa62c10dfa8b2f8
+
+            :returns a list of objects, these contain the image info
+
+            how it works:
+              there's a <script> that contains the images info, the code in it contains `AF_initDataCallback`
+              this contains the image data
+
+            """
+            bs = bs4.BeautifulSoup(page, 'html.parser')
+            scripts = bs.select('script[nonce]')  # get scripts
+            scriptTexts = [script.text for script in scripts if bool(re.match('^AF_initDataCallback', script.text))]
+
+            def parse_json(t):
+                try:
+                    t = t.encode('utf8').decode("unicode_escape")
+
+                    # this will trim the code to choose only the part with the data arrays
+                    str1 = "data:function(){return "
+                    str2 = "]\n}});"
+                    data_str = t[
+                               t.index(str1) + len(str1):
+                               t.rindex(str2) + 1
+                               ]
+                    json_obj = json.loads(data_str)
+                    return json_obj
+                except Exception as e:
+                    print('WARNING:', e, t)
+                    return {}
+
+            entries = list(map(parse_json, scriptTexts))
+            entry = entries[-1]
+            imgMetas = map(lambda meta: meta[1], entry[31][0][12][2])  # confirmed
+
+            def meta_array2meta_dict(meta):
+                meta_rg = {
+                    'id': '',  # thumbnail
+                    'tu': '', 'th': '', 'tw': '',  # original
+                    'ou': '', 'oh': '', 'ow': '',  # site and name
+                    'pt': '', 'st': '',  # titles
+                    'ity': 'gif',  # TODO: implement these
+                    'rh': 'IMAGE_HOST',  # TODO: implement these
+                    'ru': 'IMAGE_SOURCE',  # TODO: implement these
+                }
+                try:
+                    meta_rg['id'] = meta[1]
+                    # thumbnail
+                    meta_rg['tu'], meta_rg['th'], meta_rg['tw'] = meta[2]
+                    # original
+                    meta_rg['ou'], meta_rg['oh'], meta_rg['ow'] = meta[3]
+
+                    siteAndNameInfo = meta[9] or meta[10] or meta[11]
+                    # site and name
+                    try:
+                        meta_rg['pt'] = (siteAndNameInfo[2003] or siteAndNameInfo[2008])[2]
+                    except:
+                        pass
+                    try:
+                        meta_rg['st'] = siteAndNameInfo[183836587][0]  # infolink TODO: doublecheck
+                    except:
+                        pass
+
+                    return meta_rg
+
+                except Exception as e:
+                    print("WARNING:", e, meta)
+
+            metas = list(filter(None, map(meta_array2meta_dict, imgMetas)))
+            return metas
+
+        metas = get_metas(page)
+        self._info_AF_initDataCallback = iter(metas)
+        return self._info_AF_initDataCallback
 
 
     # Bulk Download
