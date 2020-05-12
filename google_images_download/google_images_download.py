@@ -125,7 +125,10 @@ def user_input():
 
 class googleimagesdownload:
     def __init__(self):
-        pass
+        # this iterator contains the parsed info contained in the `AF_initDataCallback` script (2020 format)
+        # it can then be called in _get_next_item()
+        # NOTE: never access this directly, always use self._get_AF_initDataCallback()
+        self._info_AF_initDataCallback = None
 
     # Downloading entire Web Document (Raw Page Content)
     def download_page(self,url):
@@ -527,7 +530,7 @@ class googleimagesdownload:
                 data = response.read()
                 response.close()
 
-                path = main_directory + "/" + dir_name + " - thumbnail" + "/" + return_image_name
+                path = remove_illegal_characters(main_directory + "/" + dir_name + " - thumbnail" + "/" + return_image_name)
 
                 try:
                     output_file = open(path, 'wb')
@@ -714,9 +717,15 @@ class googleimagesdownload:
     def _get_next_item(self,s):
         start_line = s.find('rg_meta notranslate')
         if start_line == -1:  # If no links are found then give an error!
-            end_quote = 0
-            link = "no_links"
-            return link, end_quote
+
+            try:
+                final_object = next(self._info_AF_initDataCallback)
+                return final_object, 0
+            except StopIteration:
+                # if StopIteration is raised, break from loop
+                end_quote = 0
+                link = "no_links"
+                return link, end_quote
         else:
             start_line = s.find('class="rg_meta notranslate">')
             start_object = s.find('{', start_line + 1)
@@ -741,6 +750,12 @@ class googleimagesdownload:
 
     # Getting all links with the help of '_images_get_next_image'
     def _get_all_items(self,page,main_directory,dir_name,limit,arguments):
+        
+        try:
+            self._parse_AF_initDataCallback(page)
+        except Exception as e:
+            print('WARNING: _parse_AF_initDataCallback failed', e)
+        
         items = []
         abs_path = []
         errorCount = 0
@@ -793,6 +808,105 @@ class googleimagesdownload:
                 count-1) + " is all we got for this search filter!")
         return items,errorCount,abs_path
 
+    def _parse_AF_initDataCallback(self, page):
+        """
+        :param page: html string
+        :return: self._info_AF_initDataCallback, this is an iterator containing rg_meta objects
+        """
+
+        import bs4
+        version = (3, 0)
+        cur_version = sys.version_info
+
+        def get_metas(page):
+            """
+            the this works by parsing the info in the page scripts
+            See the js code in: https://gist.github.com/FarisHijazi/6c9ba3fb315d0ce9bfa62c10dfa8b2f8
+
+            :returns a list of objects, these contain the image info
+
+            how it works:
+              there's a <script> that contains the images info, the code in it contains `AF_initDataCallback`
+              this contains the image data
+
+            """
+            bs = bs4.BeautifulSoup(page, 'html.parser')
+            # get scripts
+            scripts = bs.select('script[nonce]')
+
+            def get_element_text(element):
+                if cur_version >= version:  # python3
+                    return element.text
+                else:  # if python2
+                    text = element.find(text=True, recursive=False)
+                    return text.encode('utf8') if text else ''
+
+            scriptTexts = map(get_element_text, scripts)
+            # choose only those with AF_initDataCallback
+            scriptTexts = [stext for stext in scriptTexts if bool(re.match('^AF_initDataCallback', stext))]
+
+            def parse_json(t):
+                try:
+                    if cur_version >= version:  # python3
+                        t = t.encode('utf8').decode("unicode_escape")
+
+                    # this will trim the code to choose only the part with the data arrays
+                    start, end = "data:function(){return ",  "]\n}});"
+                    data_str = t[t.index(start) + len(start): t.rindex(end) + 1]
+                    json_obj = json.loads(data_str)
+                    return json_obj
+                except Exception as e:
+                    print('WARNING:', e, t)
+                    return {}
+
+            entries = list(map(parse_json, scriptTexts))
+            entry = entries[-1]
+            imgMetas = map(lambda meta: meta[1], entry[31][0][12][2])  # confirmed
+
+            def meta_array2meta_dict(meta):
+                rg_meta = {
+                    'id': '',  # thumbnail
+                    'tu': '', 'th': '', 'tw': '',  # original
+                    'ou': '', 'oh': '', 'ow': '',  # site and name
+                    'pt': '', 'st': '',  # titles
+                    'ity': 'gif',
+                    'rh': 'IMAGE_HOST',
+                    'ru': 'IMAGE_SOURCE',
+                }
+                try:
+                    rg_meta['id'] = meta[1]
+                    # thumbnail
+                    rg_meta['tu'], rg_meta['th'], rg_meta['tw'] = meta[2]
+                    # original
+                    rg_meta['ou'], rg_meta['oh'], rg_meta['ow'] = meta[3]
+
+                    siteAndNameInfo = meta[9] or meta[11]
+                    # site and name
+                    try:
+                        if '2003' in siteAndNameInfo:
+                            rg_meta['ru'] = siteAndNameInfo['2003'][2]
+                            rg_meta['pt'] = siteAndNameInfo['2003'][3]
+                        elif '2008' in siteAndNameInfo:
+                            rg_meta['pt'] = siteAndNameInfo['2008'][2]
+
+                        if '183836587' in siteAndNameInfo:
+                            rg_meta['st'] = siteAndNameInfo['183836587'][0]  # infolink
+                            rg_meta['rh'] = rg_meta['st']
+                    except:
+                        pass
+
+                    return rg_meta
+
+                except Exception as e:
+                    print("WARNING:", e, meta)
+
+            metas = list(filter(None, map(meta_array2meta_dict, imgMetas)))
+            return metas
+
+        metas = get_metas(page)
+        self._info_AF_initDataCallback = iter(metas)
+        return self._info_AF_initDataCallback
+
 
     # Bulk Download
     def download(self,arguments):
@@ -827,7 +941,7 @@ class googleimagesdownload:
                     paths_agg[i] = paths[i]
                 if not arguments["silent_mode"]:
                     if arguments['print_paths']:
-                        print(paths.encode('raw_unicode_escape').decode('utf-8'))
+                        print(paths)
                 return paths_agg, errors
         # for input coming from CLI
         else:
@@ -836,7 +950,7 @@ class googleimagesdownload:
                 paths_agg[i] = paths[i]
             if not arguments["silent_mode"]:
                 if arguments['print_paths']:
-                    print(paths.encode('raw_unicode_escape').decode('utf-8'))
+                    print(paths)
         return paths_agg, errors
 
     def download_executor(self,arguments):
@@ -982,6 +1096,23 @@ class googleimagesdownload:
                     if not arguments["silent_mode"]:
                         print("\nErrors: " + str(errorCount) + "\n")
         return paths, total_errors
+
+
+def remove_illegal_characters(string):
+    string = str(string)
+
+    badchars = re.compile(r'[^A-Za-z0-9_. ]+|^\.|\.$|^ | $|^$')
+    badnames = re.compile(r'(aux|com[1-9]|con|lpt[1-9]|prn)(\.|$)')
+
+    try:
+        name = badchars.sub('_', string)
+        if badnames.match(name):
+            name = '_' + name
+        return name
+    except Exception as e:
+        print("ERROR cleaning filename:", e)
+    return string
+
 
 #------------- Main Program -------------#
 def main():
