@@ -750,7 +750,12 @@ class googleimagesdownload:
 
     # Getting all links with the help of '_images_get_next_image'
     def _get_all_items(self,page,main_directory,dir_name,limit,arguments):
-        self._parse_AF_initDataCallback(page)
+        
+        try:
+            self._parse_AF_initDataCallback(page)
+        except Exception as e:
+            print('WARNING: _parse_AF_initDataCallback failed', e)
+        
         items = []
         abs_path = []
         errorCount = 0
