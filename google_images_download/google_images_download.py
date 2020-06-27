@@ -127,6 +127,28 @@ class googleimagesdownload:
     def __init__(self):
         pass
 
+    def _extract_data_pack(self, page):
+        start_line = page.find("AF_initDataCallback({key: \\'ds:1\\'") - 10
+        start_object = page.find('[', start_line + 1)
+        end_object = page.find('</script>', start_object + 1) - 5
+        object_raw = str(page[start_object:end_object])
+        return bytes(object_raw, "utf-8").decode("unicode_escape")
+
+    def _extract_data_pack_extended(self, page):
+        start_line = page.find("AF_initDataCallback({key: 'ds:1'") - 10
+        start_object = page.find('[', start_line + 1)
+        end_object = page.find('</script>', start_object + 1) - 4
+        return str(page[start_object:end_object])
+
+    def _extract_data_pack_ajax(self, data):
+        lines = data.split('\n')
+        return json.loads(lines[3] + lines[4])[0][2]
+
+    def _image_objects_from_pack(self, data):
+        image_objects = json.loads(data)[31][0][12][2]
+        image_objects = [x for x in image_objects if x[0]==1]
+        return image_objects
+
     # Downloading entire Web Document (Raw Page Content)
     def download_page(self,url):
         version = (3, 0)
@@ -138,7 +160,7 @@ class googleimagesdownload:
                 req = urllib.request.Request(url, headers=headers)
                 resp = urllib.request.urlopen(req)
                 respData = str(resp.read())
-                return respData
+                return self._image_objects_from_pack(self._extract_data_pack(respData)), self.get_all_tabs(respData)
             except Exception as e:
                 print("Could not open URL. Please check your internet connection and/or ssl settings \n"
                       "If you are using proxy, make sure your proxy settings is configured correctly")
@@ -154,7 +176,7 @@ class googleimagesdownload:
                     context = ssl._create_unverified_context()
                     response = urlopen(req, context=context)
                 page = response.read()
-                return page
+                return self._image_objects_from_pack(self._extract_data_pack(page)), self.get_all_tabs(page)
             except:
                 print("Could not open URL. Please check your internet connection and/or ssl settings \n"
                       "If you are using proxy, make sure your proxy settings is configured correctly")
@@ -184,6 +206,38 @@ class googleimagesdownload:
 
         # Open the link
         browser.get(url)
+        browser.execute_script("""
+            (function(XHR){
+                "use strict";
+                var open = XHR.prototype.open;
+                var send = XHR.prototype.send;
+                var data = [];
+
+                XHR.prototype.open = function(method, url, async, user, pass) {
+                    this._url = url;
+                    open.call(this, method, url, async, user, pass);
+                }
+
+                XHR.prototype.send = function(data) {
+                    var self = this;
+                    var url = this._url;
+
+                    function stateChanged() {
+                        if (self.readyState == 4) {
+                            console.log("data available for: " + url)
+                            XHR.prototype._data.push(self.response);
+                        }
+                    }
+                    if (url.includes("/batchexecute?")) {
+                        this.addEventListener("readystatechange", stateChanged, false);
+                    }
+                    send.call(this, data);
+                };
+
+                XHR.prototype._data = [];
+            })(XMLHttpRequest);
+        """)
+
         time.sleep(1)
         print("Getting you a lot of images. This may take a few moments...")
 
@@ -207,10 +261,16 @@ class googleimagesdownload:
         time.sleep(0.5)
 
         source = browser.page_source #page source
+        images = self._image_objects_from_pack(self._extract_data_pack_extended(source))
+
+        ajax_data = browser.execute_script("return XMLHttpRequest.prototype._data")
+        for chunk in ajax_data:
+            images += self._image_objects_from_pack(self._extract_data_pack_ajax(chunk))
+
         #close the browser
         browser.close()
 
-        return source
+        return images, self.get_all_tabs(source)
 
 
     #Correcting the escape characters for python2
@@ -607,29 +667,43 @@ class googleimagesdownload:
 
                 response = urlopen(req, None, timeout)
                 data = response.read()
+                info = response.info()
                 response.close()
 
-                extensions = [".jpg", ".jpeg", ".gif", ".png", ".bmp", ".svg", ".webp", ".ico"]
-                # keep everything after the last '/'
-                image_name = str(image_url[(image_url.rfind('/')) + 1:])
-                if format:
-                    if not image_format or image_format != format:
-                        download_status = 'fail'
-                        download_message = "Wrong image format returned. Skipping..."
-                        return_image_name = ''
-                        absolute_path = ''
-                        return download_status, download_message, return_image_name, absolute_path
+                qmark = image_url.rfind('?')
+                if qmark == -1:
+                    qmark = len(image_url)
+                slash = image_url.rfind('/', 0, qmark) + 1
+                image_name = str(image_url[slash:qmark]).lower()
 
-                if image_format == "" or not image_format or "." + image_format not in extensions:
+                type = info.get_content_type()
+                if type == "image/jpeg" or type == "image/jpg":
+                    if not image_name.endswith(".jpg") and not image_name.endswith(".jpeg"):
+                        image_name += ".jpg"
+                elif type == "image/png":
+                    if not image_name.endswith(".png"):
+                        image_name += ".png"
+                elif type == "image/webp":
+                    if not image_name.endswith(".webp"):
+                        image_name += ".webp"
+                elif type == "image/gif":
+                    if not image_name.endswith(".gif"):
+                        image_name += ".gif"
+                elif type == "image/bmp" or type == "image/x-windows-bmp":
+                    if not image_name.endswith(".bmp"):
+                        image_name += ".bmp"
+                elif type == "image/x-icon" or type == "image/vnd.microsoft.icon":
+                    if not image_name.endswith(".ico"):
+                        image_name += ".ico"
+                elif type == "image/svg+xml":
+                    if not image_name.endswith(".svg"):
+                        image_name += ".svg"
+                else:
                     download_status = 'fail'
-                    download_message = "Invalid or missing image format. Skipping..."
+                    download_message = "Invalid image format '" + type + "'. Skipping..."
                     return_image_name = ''
                     absolute_path = ''
                     return download_status, download_message, return_image_name, absolute_path
-                elif image_name.lower().find("." + image_format) < 0:
-                    image_name = image_name + "." + image_format
-                else:
-                    image_name = image_name[:image_name.lower().find("." + image_format) + (len(image_format) + 1)]
 
                 # prefix name in image
                 if prefix:
@@ -747,25 +821,12 @@ class googleimagesdownload:
                     final_object = ""
             return final_object, end_object
 
-
-    # Getting all links with the help of '_images_get_next_image'
-    def _get_image_objects(self,s):
-        start_line = s.find("AF_initDataCallback({key: \\'ds:1\\'") - 10
-        start_object = s.find('[', start_line + 1)
-        end_object = s.find('</script>', start_object + 1) - 4
-        object_raw = str(s[start_object:end_object])
-        object_decode = bytes(object_raw, "utf-8").decode("unicode_escape")
-        image_objects = json.loads(object_decode)[31][0][12][2]
-        image_objects = [x for x in image_objects if x[0]==1]
-        return image_objects
-
-    def _get_all_items(self,page,main_directory,dir_name,limit,arguments):
+    def _get_all_items(self,image_objects,main_directory,dir_name,limit,arguments):
         items = []
         abs_path = []
         errorCount = 0
         i = 0
         count = 1
-        image_objects = self._get_image_objects(page)
         while count < limit+1 and i<len(image_objects):
             if len(image_objects) == 0:
                 print("no_links")
@@ -953,16 +1014,16 @@ class googleimagesdownload:
                     url = self.build_search_url(search_term,params,arguments['url'],arguments['similar_images'],arguments['specific_site'],arguments['safe_search'])      #building main search url
 
                     if limit < 101:
-                        raw_html = self.download_page(url)  # download page
+                        images, tabs = self.download_page(url)  # download page
                     else:
-                        raw_html = self.download_extended_page(url,arguments['chromedriver'])
+                        images, tabs = self.download_extended_page(url,arguments['chromedriver'])
 
                     if not arguments["silent_mode"]:
                         if arguments['no_download']:
                             print("Getting URLs without downloading images...")
                         else:
                             print("Starting Download...")
-                    items,errorCount,abs_path = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
+                    items,errorCount,abs_path = self._get_all_items(images,main_directory,dir_name,limit,arguments)    #get all image items and download images
                     paths[pky + search_keyword[i] + sky] = abs_path
 
                     #dumps into a json file
@@ -979,16 +1040,15 @@ class googleimagesdownload:
                     #Related images
                     if arguments['related_images']:
                         print("\nGetting list of related keywords...this may take a few moments")
-                        tabs = self.get_all_tabs(raw_html)
                         for key, value in tabs.items():
                             final_search_term = (search_term + " - " + key)
                             print("\nNow Downloading - " + final_search_term)
                             if limit < 101:
-                                new_raw_html = self.download_page(value)  # download page
+                                images, _ = self.download_page(value)  # download page
                             else:
-                                new_raw_html = self.download_extended_page(value,arguments['chromedriver'])
+                                images, _ = self.download_extended_page(value,arguments['chromedriver'])
                             self.create_directories(main_directory, final_search_term,arguments['thumbnail'],arguments['thumbnail_only'])
-                            self._get_all_items(new_raw_html, main_directory, search_term + " - " + key, limit,arguments)
+                            self._get_all_items(images, main_directory, search_term + " - " + key, limit,arguments)
 
                     i += 1
                     total_errors = total_errors + errorCount
