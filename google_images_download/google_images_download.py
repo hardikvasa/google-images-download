@@ -165,6 +165,7 @@ class googleimagesdownload:
     # Download Page for more than 100 images
     def download_extended_page(self,url,chromedriver):
         from selenium import webdriver
+        from importlib import reload
         from selenium.webdriver.common.keys import Keys
         if sys.version_info[0] < 3:
             reload(sys)
