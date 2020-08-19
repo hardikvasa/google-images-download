@@ -1,7 +1,7 @@
 Google Images Download
 ######################
 
-Python Script for 'searching' and 'downloading' hundreds of images from to the local hard drive!
+Python Script for 'searching' and 'downloading' hundreds of images from Google to the local hard drive!
 
 Documentation
 =============
