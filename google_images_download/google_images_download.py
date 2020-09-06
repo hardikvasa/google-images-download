@@ -181,14 +181,14 @@ class googleimagesdownload:
     def _extract_data_pack(self, page):
         start_line = page.find("AF_initDataCallback({key: \\'ds:1\\'") - 10
         start_object = page.find('[', start_line + 1)
-        end_object = page.find('</script>', start_object + 1) - 5
+        end_object = page.rfind(']',0,page.find('</script>', start_object + 1)) + 1
         object_raw = str(page[start_object:end_object])
         return bytes(object_raw, "utf-8").decode("unicode_escape")
 
     def _extract_data_pack_extended(self, page):
         start_line = page.find("AF_initDataCallback({key: 'ds:1'") - 10
         start_object = page.find('[', start_line + 1)
-        end_object = page.find('</script>', start_object + 1) - 4
+        end_object = page.rfind(']',0,page.find('</script>', start_object + 1)) + 1
         return str(page[start_object:end_object])
 
     def _extract_data_pack_ajax(self, data):
@@ -196,6 +196,7 @@ class googleimagesdownload:
         return json.loads(lines[3] + lines[4])[0][2]
 
     def _image_objects_from_pack(self, data):
+        print(data)
         image_objects = json.loads(data)[31][0][12][2]
         image_objects = [x for x in image_objects if x[0] == 1]
         return image_objects
@@ -214,6 +215,7 @@ class googleimagesdownload:
                 respData = str(resp.read())
                 return self._image_objects_from_pack(self._extract_data_pack(respData)), self.get_all_tabs(respData)
             except Exception as e:
+                print(e)
                 print("Could not open URL. Please check your internet connection and/or ssl settings \n"
                       "If you are using proxy, make sure your proxy settings is configured correctly")
                 sys.exit()
@@ -264,16 +266,13 @@ class googleimagesdownload:
                 var open = XHR.prototype.open;
                 var send = XHR.prototype.send;
                 var data = [];
-
                 XHR.prototype.open = function(method, url, async, user, pass) {
                     this._url = url;
                     open.call(this, method, url, async, user, pass);
                 }
-
                 XHR.prototype.send = function(data) {
                     var self = this;
                     var url = this._url;
-
                     function stateChanged() {
                         if (self.readyState == 4) {
                             console.log("data available for: " + url)
@@ -285,7 +284,6 @@ class googleimagesdownload:
                     }
                     send.call(this, data);
                 };
-
                 XHR.prototype._data = [];
             })(XMLHttpRequest);
         """)
