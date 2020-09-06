@@ -181,7 +181,7 @@ class googleimagesdownload:
     def _extract_data_pack(self, page):
         start_line = page.find("AF_initDataCallback({key: \\'ds:1\\'") - 10
         start_object = page.find('[', start_line + 1)
-        end_object = page.rfind(']',0,page.find('</script>', start_object + 1)) + 1
+        end_object = page.rfind(']',0,page.find('</script>', start_object + 1))+1
         object_raw = str(page[start_object:end_object])
         return bytes(object_raw, "utf-8").decode("unicode_escape")
 
@@ -196,7 +196,6 @@ class googleimagesdownload:
         return json.loads(lines[3] + lines[4])[0][2]
 
     def _image_objects_from_pack(self, data):
-        print(data)
         image_objects = json.loads(data)[31][0][12][2]
         image_objects = [x for x in image_objects if x[0] == 1]
         return image_objects
@@ -213,9 +212,7 @@ class googleimagesdownload:
                 req = urllib.request.Request(url, headers=headers)
                 resp = urllib.request.urlopen(req)
                 respData = str(resp.read())
-                return self._image_objects_from_pack(self._extract_data_pack(respData)), self.get_all_tabs(respData)
-            except Exception as e:
-                print(e)
+            except:
                 print("Could not open URL. Please check your internet connection and/or ssl settings \n"
                       "If you are using proxy, make sure your proxy settings is configured correctly")
                 sys.exit()
@@ -230,13 +227,18 @@ class googleimagesdownload:
                 except URLError:  # Handling SSL certificate failed
                     context = ssl._create_unverified_context()
                     response = urlopen(req, context=context)
-                page = response.read()
-                return self._image_objects_from_pack(self._extract_data_pack(page)), self.get_all_tabs(page)
+                respData = response.read()
             except:
                 print("Could not open URL. Please check your internet connection and/or ssl settings \n"
                       "If you are using proxy, make sure your proxy settings is configured correctly")
                 sys.exit()
                 return "Page Not found"
+        try:
+            return self._image_objects_from_pack(self._extract_data_pack(respData)), self.get_all_tabs(respData)
+        except Exception as e:
+            print(e)
+            print('Image objects data unpacking failed. Please leave a comment with the above error at https://github.com/hardikvasa/google-images-download/pull/298')
+            sys.exit()
 
     # Download Page for more than 100 images
     def download_extended_page(self, url, chromedriver):
