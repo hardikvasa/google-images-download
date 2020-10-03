@@ -271,15 +271,16 @@ class googleimagesdownload:
 
     #Format the object in readable format
     def format_object(self,object):
-        formatted_object = {}
-        formatted_object['image_format'] = object['ity']
-        formatted_object['image_height'] = object['oh']
-        formatted_object['image_width'] = object['ow']
-        formatted_object['image_link'] = object['ou']
-        formatted_object['image_description'] = object['pt']
-        formatted_object['image_host'] = object['rh']
-        formatted_object['image_source'] = object['ru']
-        formatted_object['image_thumbnail_url'] = object['tu']
+        formatted_object = {
+                'image_format': object['ity'],
+                'image_height': object['oh'],
+                'image_width': object['ow'],
+                'image_link': object['ou'],
+                'image_description': object['pt'],
+                'image_host': object['rh'],
+                'image_source': object['ru'],
+                'image_thumbnail_url': object['tu'],
+        }
         return formatted_object
 
 
@@ -322,7 +323,7 @@ class googleimagesdownload:
         print("completed ====> " + image_name.encode('raw_unicode_escape').decode('utf-8'))
         return
 
-    def similar_images(self,similar_images):
+    def get_similar_images(self,similar_images):
         version = (3, 0)
         cur_version = sys.version_info
         if cur_version >= version:  # If the Current Version of Python is 3.0 or above
@@ -426,7 +427,7 @@ class googleimagesdownload:
             url = url
         elif similar_images:
             print(similar_images)
-            keywordem = self.similar_images(similar_images)
+            keywordem = self.get_similar_images(similar_images)
             url = 'https://www.google.com/search?q=' + keywordem + '&espv=2&biw=1366&bih=667&site=webhp&source=lnms&tbm=isch&sa=X&ei=XosDVaCXD8TasATItgE&ved=0CAcQ_AUoAg'
         elif specific_site:
             url = 'https://www.google.com/search?q=' + quote(
@@ -586,6 +587,7 @@ class googleimagesdownload:
             return "success", "Skipping image download...", str(image_url[(image_url.rfind('/')) + 1:]), image_url
         if no_download:
             return "success","Printed url without downloading",None,image_url
+        error_raised = False
         try:
             req = Request(image_url, headers={
                 "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"})
@@ -660,50 +662,40 @@ class googleimagesdownload:
                         print("Image Size: " + str(self.file_size(path)))
 
             except UnicodeEncodeError as e:
-                download_status = 'fail'
                 download_message = "UnicodeEncodeError on an image...trying next one..." + " Error: " + str(e)
-                return_image_name = ''
-                absolute_path = ''
+                error_raised = True
 
             except URLError as e:
-                download_status = 'fail'
                 download_message = "URLError on an image...trying next one..." + " Error: " + str(e)
-                return_image_name = ''
-                absolute_path = ''
+                error_raised = True
                 
             except BadStatusLine as e:
-                download_status = 'fail'
+
                 download_message = "BadStatusLine on an image...trying next one..." + " Error: " + str(e)
-                return_image_name = ''
-                absolute_path = ''
+                error_raised = True
 
         except HTTPError as e:  # If there is any HTTPError
-            download_status = 'fail'
             download_message = "HTTPError on an image...trying next one..." + " Error: " + str(e)
-            return_image_name = ''
-            absolute_path = ''
+            error_raised = True
 
         except URLError as e:
-            download_status = 'fail'
             download_message = "URLError on an image...trying next one..." + " Error: " + str(e)
-            return_image_name = ''
-            absolute_path = ''
+            error_raised = True
 
         except ssl.CertificateError as e:
-            download_status = 'fail'
             download_message = "CertificateError on an image...trying next one..." + " Error: " + str(e)
-            return_image_name = ''
-            absolute_path = ''
+            error_raised = True
 
         except IOError as e:  # If there is any IOError
-            download_status = 'fail'
             download_message = "IOError on an image...trying next one..." + " Error: " + str(e)
-            return_image_name = ''
-            absolute_path = ''
+            error_raised = True
 
         except IncompleteRead as e:
-            download_status = 'fail'
             download_message = "IncompleteReadError on an image...trying next one..." + " Error: " + str(e)
+            error_raised = True
+        
+        if error_raised is True:
+            download_status = 'fail'
             return_image_name = ''
             absolute_path = ''
 
