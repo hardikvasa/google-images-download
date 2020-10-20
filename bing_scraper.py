@@ -152,7 +152,7 @@ def user_input():
         # args.limit = 10
         # args.search = 'honeybees on flowers'
         # args.download = False
-        # args.chromedriver = '/Users/glennjocher/Downloads/chromedriver'
+        # args.chromedriver = './chromedriver'
 
         if args.search:  # construct url
             args.url = 'https://www.bing.com/images/search?q=%s' % args.search.replace(' ', '%20')
