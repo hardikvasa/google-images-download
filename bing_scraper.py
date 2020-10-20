@@ -1,11 +1,10 @@
-###### Searching and Downloading Google Images to the local disk ######
-# Originally from https://github.com/hardikvasa/google-images-download
-# Updated by Evan Sellers <sellersew@gmail.com> Feb 2020 for bing search with url only
-# Updated by glenn.jocher@gmail.com Feb 2020, requires python 3
+# Bing Images and Google Images web scraper
+# Requires chromedriver. Download from https://chromedriver.chromium.org/
 
-# python3 bing_scraper.py --url 'https://www.bing.com/images/search?q=flowers' --limit 10 --chromedriver /Users/glennjocher/Downloads/chromedriver
-# python3 bing_scraper.py --search 'honeybees on flowers' --limit 10 --chromedriver /Users/glennjocher/Downloads/chromedriver
-# https://stackoverflow.com/questions/49162667/unknown-error-call-function-result-missing-value-for-selenium-send-keys-even
+# Example usage:
+#   python bing_scraper.py --url 'https://www.bing.com/images/search?q=flowers' --limit 10
+#   python bing_scraper.py --search 'honeybees on flowers' --limit 10
+
 
 import argparse
 import codecs
@@ -129,9 +128,7 @@ def user_input():
                             help="A word that you would want to prefix in front of each image name", type=str,
                             required=False)
         parser.add_argument('-px', '--proxy', help='specify a proxy address and port', type=str, required=False)
-        parser.add_argument('-cd', '--chromedriver',
-                            help='specify the path to chromedriver executable in your local machine', type=str,
-                            required=False)
+        parser.add_argument('-cd', '--chromedriver', help='chromedriver path', type=str, default='./chromedriver')
         parser.add_argument('-ri', '--related_images', default=False,
                             help="Downloads images that are similar to the keyword provided", action="store_true")
         parser.add_argument('-sa', '--safe_search', default=False,

@@ -6,14 +6,16 @@ This directory contains Bing image-scraping software forked from https://github.
 
 # Requirements
 
-Python 3.7 or later with all of the `pip install -U -r requirements.txt` packages including:
-- `selenium`
+Python 3.8 or later with all [requirements.txt](https://github.com/ultralytics/google-images-download/blob/master/requirements.txt) dependencies installed, including `selenium`. To install run:
+```bash
+$ pip install -r requirements.txt
+```
 
 # Install
 ```bash
-git clone https://github.com/ultralytics/google-images-download
-cd google-images-download
-pip install -U -r requirements.txt
+$ git clone https://github.com/ultralytics/google-images-download
+$ cd google-images-download
+$ pip install -r requirements.txt
 ```
 
 # Use
@@ -29,7 +31,7 @@ $ python3 bing_scraper.py --url 'https://www.bing.com/images/search?q=flowers' -
 
 or `--search` terms. Images are saved to `./images`. Note that error-producing images may be skipped.
 ```bash
-$ python3 bing_scraper.py --search 'honeybees on flowers' --limit 10 --download --chromedriver /Users/glennjocher/Downloads/chromedriver
+$ python bing_scraper.py --search 'honeybees on flowers' --limit 10 --download --chromedriver ./chromedriver
 
 Searching for https://www.bing.com/images/search?q=honeybees%20on%20flowers
 Downloading HTML... 3499588 elements: 30it [00:24,  1.21it/s]

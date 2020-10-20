@@ -1,4 +1,5 @@
 # pip install -r requirements.txt
+# Requires chromedriver. Download from https://chromedriver.chromium.org/
 
 numpy
 tqdm
