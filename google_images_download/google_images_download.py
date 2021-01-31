@@ -204,11 +204,11 @@ class googleimagesdownload:
     def download_page(self, url):
         version = (3, 0)
         cur_version = sys.version_info
+        headers = {}
+        headers[
+            'User-Agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36"
         if cur_version >= version:  # If the Current Version of Python is 3.0 or above
             try:
-                headers = {}
-                headers[
-                    'User-Agent'] = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"
                 req = urllib.request.Request(url, headers=headers)
                 resp = urllib.request.urlopen(req)
                 respData = str(resp.read())
@@ -218,9 +218,6 @@ class googleimagesdownload:
                 sys.exit()
         else:  # If the Current Version of Python is 2.x
             try:
-                headers = {}
-                headers[
-                    'User-Agent'] = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17"
                 req = urllib2.Request(url, headers=headers)
                 try:
                     response = urllib2.urlopen(req)
