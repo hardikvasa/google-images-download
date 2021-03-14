@@ -645,37 +645,38 @@ class googleimagesdownload:
         return search_keyword
 
     # make directories
-    def create_directories(self, main_directory, dir_name, thumbnail, thumbnail_only):
-        dir_name_thumbnail = dir_name + " - thumbnail"
-        # make a search keyword  directory
-        try:
-            if not os.path.exists(main_directory):
-                os.makedirs(main_directory)
-                time.sleep(0.15)
-                path = (dir_name)
-                sub_directory = os.path.join(main_directory, path)
-                if not os.path.exists(sub_directory):
-                    os.makedirs(sub_directory)
-                if thumbnail or thumbnail_only:
-                    sub_directory_thumbnail = os.path.join(
-                        main_directory, dir_name_thumbnail)
-                    if not os.path.exists(sub_directory_thumbnail):
-                        os.makedirs(sub_directory_thumbnail)
-            else:
-                path = (dir_name)
-                sub_directory = os.path.join(main_directory, path)
-                if not os.path.exists(sub_directory):
-                    os.makedirs(sub_directory)
-                if thumbnail or thumbnail_only:
-                    sub_directory_thumbnail = os.path.join(
-                        main_directory, dir_name_thumbnail)
-                    if not os.path.exists(sub_directory_thumbnail):
-                        os.makedirs(sub_directory_thumbnail)
-        except OSError as e:
-            if e.errno != 17:
-                raise
-            pass
-        return
+    def create_directories(self, main_directory, dir_name, thumbnail, thumbnail_only ,no_subdir):
+        
+            dir_name_thumbnail = dir_name + " - thumbnail"
+            # make a search keyword  directory
+            try:
+                if not os.path.exists(main_directory):
+                    os.makedirs(main_directory)
+                    time.sleep(0.15)
+                    path = (dir_name)
+                    sub_directory = os.path.join(main_directory, path)
+                    if not os.path.exists(sub_directory):
+                        os.makedirs(sub_directory)
+                    if thumbnail or thumbnail_only:
+                        sub_directory_thumbnail = os.path.join(
+                            main_directory, dir_name_thumbnail)
+                        if not os.path.exists(sub_directory_thumbnail):
+                            os.makedirs(sub_directory_thumbnail)
+                else:
+                    path = (dir_name)
+                    sub_directory = os.path.join(main_directory, path)
+                    if not os.path.exists(sub_directory):
+                        os.makedirs(sub_directory)
+                    if thumbnail or thumbnail_only:
+                        sub_directory_thumbnail = os.path.join(
+                            main_directory, dir_name_thumbnail)
+                        if not os.path.exists(sub_directory_thumbnail):
+                            os.makedirs(sub_directory_thumbnail)
+            except OSError as e:
+                if e.errno != 17:
+                    raise
+                pass
+            return
 
     # Download Image thumbnails
     def download_image_thumbnail(self, image_url, main_directory, dir_name, return_image_name, print_urls,
@@ -1132,10 +1133,13 @@ class googleimagesdownload:
                         dir_name = search_term + (
                             '-' + arguments['color'] if arguments['color'] else '')  # sub-directory
 
-                    if not arguments["no_download"]:
-                        # create directories in OS
-                        self.create_directories(
-                            main_directory, dir_name, arguments['thumbnail'], arguments['thumbnail_only'])
+                    if arguments['no_subdir']:
+                        pass
+                    else:    
+                        if not arguments["no_download"]:
+                            # create directories in OS
+                            self.create_directories(
+                                main_directory, dir_name, arguments['thumbnail'], arguments['no_subdir'], arguments['thumbnail_only'])
 
                     params = self.build_url_parameters(
                         arguments)  # building URL with params
@@ -1185,7 +1189,7 @@ class googleimagesdownload:
                                 images, _ = self.download_extended_page(
                                     value, arguments['chromedriver'])
                             self.create_directories(main_directory, final_search_term, arguments['thumbnail'],
-                                                    arguments['thumbnail_only'])
+                                                    arguments['thumbnail_only'],arguments['no_subdir'])
                             self._get_all_items(
                                 images, main_directory, search_term + " - " + key, limit, arguments)
 
