@@ -1,6 +1,14 @@
 Google Images Download
 ######################
 
+-----
+
+❗ **IMPORTANT NOTE** ❗
+Even with my fixes the script is not working anymore. I think the main problem is that google changed the way it returns images from a search. If you want to look into the problem: the ``_get_next_item()`` method of the ``googleimagesdownload`` object is unable to isolate any items.
+Alternatively you can use my very simple implementation for downloading thumbnails https://github.com/therealpeterpython/ThumbnailDownloader or you could take a look on the serpAPI https://serpapi.com/images-results by google itself.
+
+-----
+
 Python Script for 'searching' and 'downloading' hundreds of Google images to the local hard disk!
 
 Documentation
