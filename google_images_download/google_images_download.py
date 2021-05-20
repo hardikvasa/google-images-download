@@ -34,6 +34,8 @@ import re
 import codecs
 import socket
 
+import threading
+
 args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywords",
              "limit", "format", "color", "color_type", "usage_rights", "size",
              "exact_size", "aspect_ratio", "type", "time", "time_range", "delay", "url", "single_image",
@@ -126,6 +128,25 @@ def user_input():
 class googleimagesdownload:
     def __init__(self):
         pass
+    # define the timer so as to regularly download the pictures at 8 o 'clock every day
+    def download_timer(self):
+        now_hour = time.strftime("%H", time.localtime())
+        now_min = time.strftime("%M", time.localtime())
+        if now_hour < "08":
+            rest = 8 - int(now_hour)
+            sleeptime = (rest-1)*3600 + (60-int(now_min))*60
+            print("Google image starts at："+time.strftime("%H:%M", time.localtime()),"\tsoftware will be start after",rest-1,"hours",int((sleeptime-(rest-1)*3600)/60),"minutes")
+            time.sleep(sleeptime)
+        elif now_hour > "08":
+            rest = 8 - int(now_hour) + 24
+            sleeptime = (rest-1)*3600 + (60-int(now_min))*60
+            print("Google image starts at："+time.strftime("%H:%M", time.localtime()),"\tsoftware will be start after",rest-1,"小时",int((sleeptime-(rest-1)*3600)/60),"minutes")
+            time.sleep(sleeptime)
+        elif now_hour == "08":
+            print("Google image starts at：" + time.strftime("%H:%M", time.localtime()), "\tThis software will download the pictures at 8 o 'clock every day！")
+        # define regular task
+            print("downloading")
+            time.sleep(86400-int(now_min)*60)
 
     # Downloading entire Web Document (Raw Page Content)
     def download_page(self,url):
