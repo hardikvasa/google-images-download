@@ -140,13 +140,19 @@ class googleimagesdownload:
         elif now_hour > "08":
             rest = 8 - int(now_hour) + 24
             sleeptime = (rest-1)*3600 + (60-int(now_min))*60
-            print("Google image starts at："+time.strftime("%H:%M", time.localtime()),"\tsoftware will be start after",rest-1,"小时",int((sleeptime-(rest-1)*3600)/60),"minutes")
+            print("Google image starts at："+time.strftime("%H:%M", time.localtime()),"\tsoftware will be start after",rest-1,"hours",int((sleeptime-(rest-1)*3600)/60),"minutes")
             time.sleep(sleeptime)
         elif now_hour == "08":
             print("Google image starts at：" + time.strftime("%H:%M", time.localtime()), "\tThis software will download the pictures at 8 o 'clock every day！")
         # define regular task
             print("downloading")
+            # execute tasks
+            download_executor(self,arguments)
+            print("download completed")
             time.sleep(86400-int(now_min)*60)
+            
+           
+            
 
     # Downloading entire Web Document (Raw Page Content)
     def download_page(self,url):
