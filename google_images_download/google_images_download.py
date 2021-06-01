@@ -876,6 +876,12 @@ class googleimagesdownload:
             if len(image_objects) == 0:
                 print("no_links")
                 break
+            #code added here to attempt to implement offset correctly
+            #was "count < int(arguments['offset'])" in hardikvasa code, this seems
+            # to be contrary to the implementation details. 
+            elif arguments['offset'] and count <= int(arguments['offset']):
+                    count += 1
+                    #page = page[end_content:]
             else:
                 # format the item for readability
                 object = self.format_object(image_objects[i])
