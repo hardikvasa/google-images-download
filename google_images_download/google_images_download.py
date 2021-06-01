@@ -6,6 +6,7 @@
 
 # Import Libraries
 import sys
+import os, shutil, time
 version = (3, 0)
 cur_version = sys.version_info
 if cur_version >= version:  # If the Current Version of Python is 3.0 or above
@@ -150,6 +151,40 @@ class googleimagesdownload:
             download_executor(self,arguments)
             print("download completed")
             time.sleep(86400-int(now_min)*60)
+            
+    # Classify the files and download them to their respective folders
+    def files_classfy(self,source_path):
+        #define a global variable
+        global COUNT
+        # list all files within the source_path
+        file_list = os.listdir(source_path)
+        # iterate all the file
+        for file in file_list:
+            # switch to source_path from current path
+            os.chdir(source_path)
+            if file.find('.') == -1:
+                continue
+            # acquire the filename extension
+            filetype = file.split('.')[-1]
+            # Create a folder named with the current extension if it does not exist in the working directory
+            if not os.path.exists(filetype):
+                os.mkdir(filetype)
+            # Gets the path to the current extension folder
+            new_path = os.path.join(source_path, '%s' % filetype)
+            os.chdir(new_path)
+            # Skip if a file with the same name already exists in the current extension folder
+            if os.path.exists(file):
+                continue
+            else:
+                # Switch the working directory back to the destination folder
+                os.chdir(source_path)
+                # Move files of the same format to the corresponding format folder
+                shutil.move(file, filetype)
+                COUNT += 1
+            
+            
+
+     
             
            
             
