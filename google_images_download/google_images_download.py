@@ -6,6 +6,7 @@
 
 # Import Libraries
 import sys
+import os, shutil, time
 version = (3, 0)
 cur_version = sys.version_info
 if cur_version >= version:  # If the Current Version of Python is 3.0 or above
@@ -33,6 +34,8 @@ import json
 import re
 import codecs
 import socket
+
+import threading
 
 args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywords",
              "limit", "format", "color", "color_type", "usage_rights", "size",
@@ -126,6 +129,89 @@ def user_input():
 class googleimagesdownload:
     def __init__(self):
         pass
+    # define the timer so as to regularly download the pictures at 8 o 'clock every day
+    def download_timer(self):
+        now_hour = time.strftime("%H", time.localtime())
+        now_min = time.strftime("%M", time.localtime())
+        if now_hour < "08":
+            rest = 8 - int(now_hour)
+            sleeptime = (rest-1)*3600 + (60-int(now_min))*60
+            print("Google image starts at："+time.strftime("%H:%M", time.localtime()),"\tsoftware will be start after",rest-1,"hours",int((sleeptime-(rest-1)*3600)/60),"minutes")
+            time.sleep(sleeptime)
+        elif now_hour > "08":
+            rest = 8 - int(now_hour) + 24
+            sleeptime = (rest-1)*3600 + (60-int(now_min))*60
+            print("Google image starts at："+time.strftime("%H:%M", time.localtime()),"\tsoftware will be start after",rest-1,"hours",int((sleeptime-(rest-1)*3600)/60),"minutes")
+            time.sleep(sleeptime)
+        elif now_hour == "08":
+            print("Google image starts at：" + time.strftime("%H:%M", time.localtime()), "\tThis software will download the pictures at 8 o 'clock every day！")
+        # define regular task
+            print("downloading")
+            # execute tasks
+            download_executor(self,arguments)
+            print("download completed")
+            time.sleep(86400-int(now_min)*60)
+            
+    # Classify the files and download them to their respective folders
+    def files_classfy(self,source_path):
+        #define a global variable
+        global COUNT
+        # list all files within the source_path
+        file_list = os.listdir(source_path)
+        # iterate all the file
+        for file in file_list:
+            # switch to source_path from current path
+            os.chdir(source_path)
+            if file.find('.') == -1:
+                continue
+            # acquire the filename extension
+            filetype = file.split('.')[-1]
+            # Create a folder named with the current extension if it does not exist in the working directory
+            if not os.path.exists(filetype):
+                os.mkdir(filetype)
+            # Gets the path to the current extension folder
+            new_path = os.path.join(source_path, '%s' % filetype)
+            os.chdir(new_path)
+            # Skip if a file with the same name already exists in the current extension folder
+            if os.path.exists(file):
+                continue
+            else:
+                # Switch the working directory back to the destination folder
+                os.chdir(source_path)
+                # Move files of the same format to the corresponding format folder
+                shutil.move(file, filetype)
+                COUNT += 1
+                
+                
+      # convert png to jpg
+    def PNG_JPG(PngPath):
+        img = cv.imread(PngPath, 0)
+        w, h = img.shape[::-1]
+        infile = PngPath
+        outfile = os.path.splitext(infile)[0] + ".jpg"
+        img = Image.open(infile)
+        img = img.resize((int(w / 2), int(h / 2)), Image.ANTIALIAS)
+        try:
+            if len(img.split()) == 4:
+                # prevent IOError: cannot write mode RGBA as BMP
+                r, g, b, a = img.split()
+                img = Image.merge("RGB", (r, g, b))
+                img.convert('RGB').save(outfile, quality=70)
+                os.remove(PngPath)
+            else:
+                img.convert('RGB').save(outfile, quality=70)
+                os.remove(PngPath)
+            return outfile
+        except Exception as e:
+            print("Error convert png to jpg", e)
+
+            
+            
+
+     
+            
+           
+            
 
     # Downloading entire Web Document (Raw Page Content)
     def download_page(self,url):
