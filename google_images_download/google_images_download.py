@@ -193,7 +193,7 @@ class googleimagesdownload:
 
     def _extract_data_pack_ajax(self, data):
         lines = data.split('\n')
-        return json.loads(lines[3] + lines[4])[0][2]
+        return json.loads(lines[3])[0][2]
 
     def _image_objects_from_pack(self, data):
         image_objects = json.loads(data)[31][0][12][2]
