@@ -196,7 +196,7 @@ class googleimagesdownload:
         return json.loads(lines[3] + lines[4])[0][2]
 
     def _image_objects_from_pack(self, data):
-        image_objects = json.loads(data)[31][0][12][2]
+        image_objects = json.loads(data)[31][-1][12][2]
         image_objects = [x for x in image_objects if x[0] == 1]
         return image_objects
 
