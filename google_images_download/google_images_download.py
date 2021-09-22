@@ -1060,7 +1060,7 @@ class googleimagesdownload:
                         print("Evaluating...")
                     else:
                         print("Downloading images for: " + (pky) + (search_keyword[i]) + (sky) + " ...")
-                    search_term = pky + search_keyword[i] + sky + time_range
+                    search_term = pky + search_keyword[i] + sky
 
                     if arguments['image_directory']:
                         dir_name = arguments['image_directory']
@@ -1076,6 +1076,7 @@ class googleimagesdownload:
 
                     params = self.build_url_parameters(arguments)  # building URL with params
 
+                    search_term += time_range
                     url = self.build_search_url(search_term, params, arguments['url'], arguments['similar_images'],
                                                 arguments['specific_site'],
                                                 arguments['safe_search'])  # building main search url
