@@ -388,7 +388,7 @@ class googleimagesdownload:
             formatted_object['image_link'] = main[0]
             formatted_object['image_format'] = main[0][-1 * (len(main[0]) - main[0].rfind(".") - 1):]
             formatted_object['image_description'] = info['2003'][3]
-            formatted_object['image_host'] = info['183836587'][0]
+            formatted_object['image_host'] = info['2003'][17]
             formatted_object['image_source'] = info['2003'][2]
             formatted_object['image_thumbnail_url'] = data[2][0]
         except Exception as e:
