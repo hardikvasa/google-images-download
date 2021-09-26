@@ -108,7 +108,7 @@ def user_input():
         parser.add_argument('-w', '--time', help='image age', type=str, required=False,
                             choices=['past-24-hours', 'past-7-days', 'past-month', 'past-year'])
         parser.add_argument('-wr', '--time_range',
-                            help='time range for the age of the image. should be in the format {"time_min":"MM/DD/YYYY","time_max":"MM/DD/YYYY"}',
+                            help='time range for the age of the image. should be in the format {"time_min":"YYYY-MM-DD","time_max":"YYYY-MM-DD"}',
                             type=str, required=False)
         parser.add_argument('-a', '--aspect_ratio', help='comma separated additional words added to keywords', type=str,
                             required=False,
@@ -501,13 +501,6 @@ class googleimagesdownload:
         else:
             lang_url = ''
 
-        if arguments['time_range']:
-            json_acceptable_string = arguments['time_range'].replace("'", "\"")
-            d = json.loads(json_acceptable_string)
-            time_range = ',cdr:1,cd_min:' + d['time_min'] + ',cd_max:' + d['time_max']
-        else:
-            time_range = ''
-
         if arguments['exact_size']:
             size_array = [x.strip() for x in arguments['exact_size'].split(',')]
             exact_size = ",isz:ex,iszw:" + str(size_array[0]) + ",iszh:" + str(size_array[1])
@@ -555,7 +548,7 @@ class googleimagesdownload:
                 else:
                     built_url = built_url + ',' + ext_param
                     counter += 1
-        built_url = lang_url + built_url + exact_size + time_range
+        built_url = lang_url + built_url + exact_size
         return built_url
 
     # building main search URL
@@ -1046,6 +1039,14 @@ class googleimagesdownload:
         if arguments['proxy']:
             os.environ["http_proxy"] = arguments['proxy']
             os.environ["https_proxy"] = arguments['proxy']
+
+        # Add time range to keywords if asked
+        time_range = ''
+        if arguments['time_range']:
+            json_acceptable_string = arguments['time_range'].replace("'", "\"")
+            d = json.loads(json_acceptable_string)
+            time_range = ' after:' + d['time_min'] + ' before:' + d['time_max']
+
             ######Initialization Complete
         total_errors = 0
         for pky in prefix_keywords:  # 1.for every prefix keywords
@@ -1075,6 +1076,7 @@ class googleimagesdownload:
 
                     params = self.build_url_parameters(arguments)  # building URL with params
 
+                    search_term += time_range
                     url = self.build_search_url(search_term, params, arguments['url'], arguments['similar_images'],
                                                 arguments['specific_site'],
                                                 arguments['safe_search'])  # building main search url
