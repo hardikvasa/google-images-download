@@ -9,6 +9,7 @@ import sys
 version = (3, 0)
 cur_version = sys.version_info
 if cur_version >= version:  # If the Current Version of Python is 3.0 or above
+    from win10toast import ToastNotifier
     import urllib.request
     from urllib.request import Request, urlopen
     from urllib.request import URLError, HTTPError
@@ -670,7 +671,7 @@ class googleimagesdownload:
                 download_message = "URLError on an image...trying next one..." + " Error: " + str(e)
                 return_image_name = ''
                 absolute_path = ''
-                
+
             except BadStatusLine as e:
                 download_status = 'fail'
                 download_message = "BadStatusLine on an image...trying next one..." + " Error: " + str(e)
@@ -1004,6 +1005,16 @@ def main():
             print("\nEverything downloaded!")
             print("Total errors: " + str(total_errors))
             print("Total time taken: " + str(total_time) + " Seconds")
+
+            # Setting up the notifier using win10toast
+            try:
+                notifier = ToastNotifier()
+                notifier.show_toast("Google Image Downloader",
+                                    f"Everything downloaded!\nTotal errors: {str(total_errors)}\n"
+                                    f"Total time taken: {str(total_time)} Seconds", duration=8,
+                                    icon_path=None)
+            except ModuleNotFoundError:
+                break
 
 if __name__ == "__main__":
     main()
