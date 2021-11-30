@@ -671,7 +671,7 @@ class googleimagesdownload:
                 download_message = "URLError on an image...trying next one..." + " Error: " + str(e)
                 return_image_name = ''
                 absolute_path = ''
-                
+
             except BadStatusLine as e:
                 download_status = 'fail'
                 download_message = "BadStatusLine on an image...trying next one..." + " Error: " + str(e)
@@ -1007,11 +1007,14 @@ def main():
             print("Total time taken: " + str(total_time) + " Seconds")
 
             # Setting up the notifier using win10toast
-            notifier = ToastNotifier()
-            notifier.show_toast("Google Image Downloader",
-                                f"Everything downloaded!\nTotal errors: {str(total_errors)}\n"
-                                f"Total time taken: {str(total_time)} Seconds", duration=8,
-                                icon_path=None)
+            try:
+                notifier = ToastNotifier()
+                notifier.show_toast("Google Image Downloader",
+                                    f"Everything downloaded!\nTotal errors: {str(total_errors)}\n"
+                                    f"Total time taken: {str(total_time)} Seconds", duration=8,
+                                    icon_path=None)
+            except ModuleNotFoundError:
+                break
 
 if __name__ == "__main__":
     main()
