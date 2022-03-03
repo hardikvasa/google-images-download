@@ -501,11 +501,6 @@ class googleimagesdownload:
         else:
             lang_url = ''
 
-        if arguments['exact_size']:
-            size_array = [x.strip() for x in arguments['exact_size'].split(',')]
-            exact_size = ",isz:ex,iszw:" + str(size_array[0]) + ",iszh:" + str(size_array[1])
-        else:
-            exact_size = ''
 
         built_url = "&tbs="
         counter = 0
@@ -548,7 +543,7 @@ class googleimagesdownload:
                 else:
                     built_url = built_url + ',' + ext_param
                     counter += 1
-        built_url = lang_url + built_url + exact_size
+        built_url = lang_url + built_url
         return built_url
 
     # building main search URL
@@ -1047,6 +1042,11 @@ class googleimagesdownload:
             d = json.loads(json_acceptable_string)
             time_range = ' after:' + d['time_min'] + ' before:' + d['time_max']
 
+        exact_size = ''
+        if arguments['exact_size']:
+            size_array = [x.strip() for x in arguments['exact_size'].split(',')]
+            exact_size = " imagesize:" + str(size_array[0]) + "x" + str(size_array[1])
+
             ######Initialization Complete
         total_errors = 0
         for pky in prefix_keywords:  # 1.for every prefix keywords
@@ -1076,7 +1076,7 @@ class googleimagesdownload:
 
                     params = self.build_url_parameters(arguments)  # building URL with params
 
-                    search_term += time_range
+                    search_term += time_range + exact_size
                     url = self.build_search_url(search_term, params, arguments['url'], arguments['similar_images'],
                                                 arguments['specific_site'],
                                                 arguments['safe_search'])  # building main search url
