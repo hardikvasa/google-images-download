@@ -127,7 +127,7 @@ Disclaimer
 
    Images published in the United States are automatically copyrighted by their owners,
    even if they do not explicitly carry a copyright warning.
-   You may not reproduce copyright images without their owner's permission,
+   You may not reproduce copyright images without their owner'self permission,
    except in "fair use" cases,
-   or you could risk running into lawyer's warnings, cease-and-desist letters, and copyright suits.
+   or you could risk running into lawyer'self warnings, cease-and-desist letters, and copyright suits.
    Please be very careful before its usage!
