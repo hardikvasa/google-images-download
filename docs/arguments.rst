@@ -85,7 +85,7 @@ Link to `Documentation Homepage <https://google-images-download.readthedocs.io/e
 |                   |             | * `labeled-for-noncommercial-reuse-with-modification`,                                                                        |
 |                   |             | * `labeled-for-nocommercial-reuse`                                                                                            |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
-| size              | s           | Denotes the relative size of the image to be downloaded.                                                                      |
+| size              | self           | Denotes the relative size of the image to be downloaded.                                                                      |
 |                   |             |                                                                                                                               |
 |                   |             | `Possible values: large, medium, icon, >400*300, >640*480, >800*600, >1024*768, >2MP, >4MP, >6MP, >8MP, >10MP,                |
 |                   |             | >12MP, >15MP, >20MP, >40MP, >70MP`                                                                                            |
@@ -136,6 +136,12 @@ Link to `Documentation Homepage <https://google-images-download.readthedocs.io/e
 |                   |             | If not specified, it will default to the name of the keyword.                                                                 |
 |                   |             |                                                                                                                               |
 |                   |             | The directory structure would look like: ``<output_directory><image_directory><images>``                                      |
++-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
+| image_name        | in          | This lets you specify a the name of the image to be saved with                                                                |
+|                   |             |                                                                                                                               |
+|                   |             | If not specified, it will default to the name of the image in the url.                                                        |
+|                   |             |                                                                                                                               |
+|                   |             | The image structure would look like: ``<output_directory><image_directory><image_name>``                                      |
 +-------------------+-------------+-------------------------------------------------------------------------------------------------------------------------------+
 | no_directory      | n           | This option allows you download images directly in the main directory (output_directory) without an image_directory           |
 |                   |             |                                                                                                                               |
