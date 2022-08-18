@@ -6,6 +6,7 @@
 
 # Import Libraries
 import sys
+import selenium.common.exceptions
 
 version = (3, 0)
 cur_version = sys.version_info
@@ -294,6 +295,14 @@ class googleimagesdownload:
         """)
 
         time.sleep(1)
+
+        # Bypass "Before you continue" if it appears
+        try:
+            browser.find_element_by_css_selector("[aria-label='Accept all']").click()
+            time.sleep(1)
+        except selenium.common.exceptions.NoSuchElementException:
+            pass
+
         print("Getting you a lot of images. This may take a few moments...")
 
         element = browser.find_element_by_tag_name("body")
@@ -318,8 +327,8 @@ class googleimagesdownload:
         source = browser.page_source  # page source
         images = self._image_objects_from_pack(self._extract_data_pack_extended(source))
 
-        ajax_data = browser.execute_script("return XMLHttpRequest.prototype._data")
-        for chunk in ajax_data:
+        ajax_data = browser.execute_script("return XMLHttpRequest.prototype._data") # I think this is broken
+        for chunk in ajax_data if ajax_data else []:
             images += self._image_objects_from_pack(self._extract_data_pack_ajax(chunk))
 
         # close the browser
