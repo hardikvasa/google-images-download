@@ -199,9 +199,18 @@ class googleimagesdownload:
         lines = data.split('\n')
         return json.loads(lines[3])[0][2]
 
-    def _image_objects_from_pack(self, data):
-        image_objects = json.loads(data)[31][-1][12][2]
-        image_objects = [x for x in image_objects if x[0] == 1]
+    @staticmethod
+    def _image_objects_from_pack(data):
+        image_data = json.loads(data)
+        # NOTE: google sometimes changes their format, breaking this. set a breakpoint here to find the correct index
+        idx = 56
+        grid = image_data[idx][-1][0][-1][-1][0]
+        image_objects = []
+        for item in grid:
+            obj = list(item[0][0].values())[0]
+            # ads and carousels will be empty
+            if obj:
+                image_objects.append(obj)
         return image_objects
 
     # Downloading entire Web Document (Raw Page Content)
