@@ -6,6 +6,7 @@
 
 # Import Libraries
 import sys
+import selenium.common.exceptions
 
 version = (3, 0)
 cur_version = sys.version_info
@@ -42,7 +43,7 @@ args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywor
              "exact_size", "aspect_ratio", "type", "time", "time_range", "delay", "url", "single_image",
              "output_directory", "image_directory", "no_directory", "proxy", "similar_images", "specific_site",
              "print_urls", "print_size", "print_paths", "metadata", "extract_metadata", "socket_timeout",
-             "thumbnail", "thumbnail_only", "language", "prefix", "chromedriver", "related_images", "safe_search",
+             "thumbnail", "thumbnail_only", "language", "prefix", "chromedriver", "browser", "related_images", "safe_search",
              "no_numbering",
              "offset", "no_download", "save_source", "silent_mode", "ignore_urls"]
 
@@ -148,6 +149,9 @@ def user_input():
         parser.add_argument('-cd', '--chromedriver',
                             help='specify the path to chromedriver executable in your local machine', type=str,
                             required=False)
+        parser.add_argument('-wb', '--browser',
+                            help='Specify which driver to use', type=str,
+                            required=False)
         parser.add_argument('-ri', '--related_images', default=False,
                             help="Downloads images that are similar to the keyword provided", action="store_true")
         parser.add_argument('-sa', '--safe_search', default=False,
@@ -238,7 +242,7 @@ class googleimagesdownload:
             sys.exit()
 
     # Download Page for more than 100 images
-    def download_extended_page(self, url, chromedriver):
+    def download_extended_page(self, url, chromedriver, browser):
         from selenium import webdriver
         from selenium.webdriver.common.keys import Keys
         if sys.version_info[0] < 3:
@@ -248,13 +252,16 @@ class googleimagesdownload:
         options.add_argument('--no-sandbox')
         options.add_argument("--headless")
 
-        try:
-            browser = webdriver.Chrome(chromedriver, chrome_options=options)
-        except Exception as e:
-            print("Looks like we cannot locate the path the 'chromedriver' (use the '--chromedriver' "
-                  "argument to specify the path to the executable.) or google chrome browser is not "
-                  "installed on your machine (exception: %s)" % e)
-            sys.exit()
+        if browser == 'Firefox':
+            browser = webdriver.Firefox()
+        else:
+            try:
+                browser = webdriver.Chrome(chromedriver, chrome_options=options)
+            except Exception as e:
+                print("Looks like we cannot locate the path the 'chromedriver' (use the '--chromedriver' "
+                      "argument to specify the path to the executable.) or google chrome browser is not "
+                      "installed on your machine (exception: %s)" % e)
+                sys.exit()
         browser.set_window_size(1024, 768)
 
         # Open the link
@@ -288,6 +295,14 @@ class googleimagesdownload:
         """)
 
         time.sleep(1)
+
+        # Bypass "Before you continue" if it appears
+        try:
+            browser.find_element_by_css_selector("[aria-label='Accept all']").click()
+            time.sleep(1)
+        except selenium.common.exceptions.NoSuchElementException:
+            pass
+
         print("Getting you a lot of images. This may take a few moments...")
 
         element = browser.find_element_by_tag_name("body")
@@ -312,8 +327,8 @@ class googleimagesdownload:
         source = browser.page_source  # page source
         images = self._image_objects_from_pack(self._extract_data_pack_extended(source))
 
-        ajax_data = browser.execute_script("return XMLHttpRequest.prototype._data")
-        for chunk in ajax_data:
+        ajax_data = browser.execute_script("return XMLHttpRequest.prototype._data") # I think this is broken
+        for chunk in ajax_data if ajax_data else []:
             images += self._image_objects_from_pack(self._extract_data_pack_ajax(chunk))
 
         # close the browser
@@ -1084,7 +1099,7 @@ class googleimagesdownload:
                     if limit < 101:
                         images, tabs = self.download_page(url)  # download page
                     else:
-                        images, tabs = self.download_extended_page(url, arguments['chromedriver'])
+                        images, tabs = self.download_extended_page(url, arguments['chromedriver'], arguments['browser'])
 
                     if not arguments["silent_mode"]:
                         if arguments['no_download']:
@@ -1115,7 +1130,7 @@ class googleimagesdownload:
                             if limit < 101:
                                 images, _ = self.download_page(value)  # download page
                             else:
-                                images, _ = self.download_extended_page(value, arguments['chromedriver'])
+                                images, _ = self.download_extended_page(value, arguments['chromedriver'], arguments['browser'])
                             self.create_directories(main_directory, final_search_term, arguments['thumbnail'],
                                                     arguments['thumbnail_only'])
                             self._get_all_items(images, main_directory, search_term + " - " + key, limit, arguments)
