@@ -1,3 +1,4 @@
+import argparse
 from google_images_download import google_images_download
 import os, errno
 import time
@@ -13,14 +14,8 @@ def silent_remove_of_file(file):
     return True
 
 
-def test_download_images_to_default_location():
+def test_download_images_to_default_location(arguments: dict):
     start_time = time.time()
-    arguments = {
-        "keywords": "Polar bears",
-        "limit":101,
-        "print_urls": False,
-        "chromedriver": 'C:/Program Files (x86)/chromedriver/chromedriver.exe'
-    }
     try:
         temp = arguments['output_folder']
     except KeyError:
@@ -53,4 +48,13 @@ def test_download_images_to_default_location():
         else:
             print(f"Failed to delete {os.path.join(output_folder_path, file)}")
 
-test_download_images_to_default_location()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-k', '--keywords', type=str, help='delimited list input', default="Polar bears")
+    parser.add_argument('-l', '--limit', type=int, help='delimited list input', default=101)
+    parser.add_argument('-u', '--print_urls', action='store_true', help='print the URLs of the images')
+    parser.add_argument('-c', '--chromedriver', type=str, help='path to chromedriver executable in your local machine', default='C:/Program Files (x86)/chromedriver/chromedriver.exe')
+    args = parser.parse_args()
+    print(f"testing with args: {args}")
+
+    test_download_images_to_default_location(vars(args))

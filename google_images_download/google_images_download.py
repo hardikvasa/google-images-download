@@ -209,8 +209,9 @@ class googleimagesdownload:
         for item in grid:
             obj = list(item[0][0].values())[0]
             # ads and carousels will be empty
-            if obj:
-                image_objects.append(obj)
+            if not obj or not obj[1]:
+                continue
+            image_objects.append(obj)
         return image_objects
 
     # Downloading entire Web Document (Raw Page Content)
