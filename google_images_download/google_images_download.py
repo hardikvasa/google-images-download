@@ -203,11 +203,9 @@ class googleimagesdownload:
     def _image_objects_from_pack(data):
         image_data = json.loads(data)
         # NOTE: google sometimes changes their format, breaking this. set a breakpoint here to find the correct index
-        idx = 56
-        grid = image_data[idx][-1][0][-1][-1][0]
+        grid = image_data[31][0][12][2]
         image_objects = []
-        for item in grid:
-            obj = list(item[0][0].values())[0]
+        for obj in grid:
             # ads and carousels will be empty
             if not obj or not obj[1]:
                 continue
