@@ -33,6 +33,7 @@ import json
 import re
 import codecs
 import socket
+from selenium.webdriver.common.by import By
 
 args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywords",
              "limit", "format", "color", "color_type", "usage_rights", "size",
@@ -187,7 +188,8 @@ class googleimagesdownload:
         time.sleep(1)
         print("Getting you a lot of images. This may take a few moments...")
 
-        element = browser.find_element_by_tag_name("body")
+        element = browser.find_element(By.TAG_NAME, "body")
+        
         # Scroll down
         for i in range(30):
             element.send_keys(Keys.PAGE_DOWN)
