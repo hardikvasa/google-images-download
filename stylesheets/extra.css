@@ -1,0 +1,24 @@
+/* Custom styling for google-images-download documentation */
+
+/* Table styling */
+.md-typeset table:not([class]) td,
+.md-typeset table:not([class]) th {
+    padding: 0.6em 1em;
+    border-right: 1px dotted #33B8FF;
+    border-bottom: 1px dotted #33B8FF;
+}
+
+.md-typeset table:not([class]) th {
+    font-weight: 600;
+    background-color: rgba(51, 184, 255, 0.1);
+}
+
+/* Code block enhancements */
+.md-typeset code {
+    font-size: 0.85em;
+}
+
+/* Warning admonition custom color */
+.md-typeset .admonition.warning {
+    border-left-color: #ff9800;
+}
